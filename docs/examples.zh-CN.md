@@ -1,5 +1,14 @@
 # 使用示例
 
+可以直接复制使用的场景文件：
+
+- [简单研究任务](../examples/simple-research-task.md)
+- [编码加审查工作流](../examples/coding-review-workflow.md)
+- [多代理产品规划](../examples/multi-agent-product-planning.md)
+- [带 QA 的 Bug 修复](../examples/bugfix-with-qa.md)
+- [多项目收尾](../examples/multi-project-finalization.md)
+- [发布准备](../examples/release-prep.md)
+
 ## 示例 1：带 QA 门禁的 Bug 修复
 
 ```text

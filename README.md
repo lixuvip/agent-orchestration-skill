@@ -1,14 +1,63 @@
-# Agent Orchestration Skill for Codex: Multi-Agent Workflow Coordination
+# Agent Orchestration Skill for Codex
 
-[中文说明](README.zh-CN.md)
+<p align="center">
+  <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
+</p>
 
-`agent-orchestration` is a reusable Codex skill for multi-agent orchestration, role-based task dispatch, QA gates, code review workflows, release coordination, callbacks, and heartbeat monitoring across Codex threads, subagents, repositories, or worktrees.
+<p align="center">
+  <strong>Run multi-agent workflows in Codex with parallel roles, callbacks, heartbeat checks, and structured task handoffs.</strong>
+</p>
 
-It helps one Codex conversation act as the coordinator while other conversations or subagents take roles such as engineering, QA, code review, release notes, and product design. The skill includes task dispatch templates, structured role replies, workflow gates, callback rules, and recurring heartbeat monitoring for long-running asynchronous AI agent work.
+<p align="center">
+  <a href="README.zh-CN.md">中文说明</a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#demo-workflow">Demo Workflow</a> ·
+  <a href="docs/examples.md">Examples</a> ·
+  <a href="docs/installation.md">Installation</a>
+</p>
 
-## Keywords
+<p align="center">
+  <a href="https://github.com/lixuvip/agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/agent-orchestration-skill"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/agent-orchestration-skill"></a>
+  <a href="https://github.com/lixuvip/agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/lixuvip/agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/agent-orchestration-skill?style=social"></a>
+</p>
 
-Codex skill, AI agent orchestration, multi-agent workflow, subagents, task automation, role-based agents, code review automation, QA workflow, release management, GitHub workflow, developer tools.
+![Agent orchestration workflow overview](docs/images/workflow-overview.svg)
+
+`agent-orchestration` is a lightweight Codex skill that helps one coordinator conversation split complex work across multiple AI agent roles: planner, researcher, coder, reviewer, release docs, QA, and monitor.
+
+Instead of asking one agent to handle everything in a long linear thread, this skill gives Codex a repeatable orchestration layer for scoped delegation, callback-based progress reporting, heartbeat monitoring, task state tracking, and final handoff review.
+
+## Quick Links
+
+- [Install the skill](docs/installation.md)
+- [Start in 3 minutes](docs/quickstart.md)
+- [Coordinate a multi-project release](docs/tutorial.md)
+- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [product planning](examples/multi-agent-product-planning.md)
+- [Read the Chinese docs](README.zh-CN.md)
+- [Publish or fork your own version](docs/publishing.md)
+
+## Why This Exists
+
+Codex is powerful, but complex projects often need more than one linear agent thread. Long-running AI coding tasks can fail because progress is hidden, context gets mixed, or subtasks are forgotten.
+
+This skill adds a small coordination layer that makes Codex workflows more observable, modular, and reliable:
+
+- Split one goal into multiple role-specific agents.
+- Give every role explicit scope, stop conditions, verification, and callback rules.
+- Track task state with `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, and `NEEDS_CONTEXT`.
+- Use heartbeat monitoring for long-running or asynchronous work.
+- Require the coordinator to inspect role output, risks, and verification before final delivery.
+
+## Best For
+
+- Multi-agent coding workflows.
+- Research plus implementation pipelines.
+- Product planning with role-based AI agents.
+- QA and code review gates for AI-assisted development.
+- Multi-repository release coordination.
+- Long-running Codex tasks that need monitoring and callbacks.
 
 ## What It Solves
 
@@ -19,6 +68,66 @@ Use this skill when a task is too large or risky for one uninterrupted conversat
 - Long-running Codex threads where the coordinator must poll status instead of relying on memory.
 - Handoffs that require explicit changed files, verification commands, risks, and final status.
 - Workflows where child threads should call back to the coordinator and a heartbeat automation should check status every 5 minutes.
+
+## Quick Start
+
+Install:
+
+```bash
+git clone https://github.com/lixuvip/agent-orchestration-skill.git
+cd agent-orchestration-skill
+./scripts/install.sh
+```
+
+Use in Codex:
+
+```text
+Use $agent-orchestration to coordinate this bug fix with one engineering thread and one QA thread.
+
+Goal:
+Fix the failing export option in the report generation flow.
+
+Constraints:
+- Engineer may edit application and test code.
+- QA is read-only and must run the regression tests.
+- Both roles must report exact commands and results.
+```
+
+## Demo Workflow
+
+```mermaid
+flowchart TD
+    A[User Request] --> B[Agent Orchestrator]
+    B --> C[Planner Agent]
+    B --> D[Research Agent]
+    B --> E[Coder Agent]
+    B --> F[Reviewer Agent]
+    B --> G[Monitor Agent]
+    C --> H[Task State]
+    D --> H
+    E --> H
+    F --> H
+    G --> I[Heartbeat Monitor]
+    C --> J[Callback]
+    D --> J
+    E --> J
+    F --> J
+    H --> K[Final Output]
+    I --> K
+    J --> K
+```
+
+## Core Roles
+
+| Role | Purpose |
+| --- | --- |
+| Coordinator | Breaks down the goal, dispatches role tasks, tracks status, and reviews final evidence. |
+| Planner | Clarifies scope, acceptance criteria, and task order. |
+| Researcher | Gathers context without changing files. |
+| Coder | Implements scoped changes and reports exact files changed. |
+| Reviewer | Checks quality, regressions, and risk areas. |
+| QA Tester | Runs verification and reports exact commands and results. |
+| Monitor | Polls long-running tasks and closes the loop when all roles reach terminal state. |
 
 ## Repository Layout
 
@@ -87,7 +196,7 @@ Some Codex installations scan `$HOME/.agents/skills` for user-scoped skills. If 
 CODEX_SKILLS_DIR="$HOME/.agents/skills" ./scripts/install.sh
 ```
 
-## Use
+## Usage
 
 Invoke it explicitly in Codex:
 
@@ -109,6 +218,10 @@ Coordinate this release across three repositories. Have each project thread fini
 4. Role threads reply using `role_reply.template.md`.
 5. Long-running multi-thread work gets a callback rule and a 5-minute heartbeat monitor.
 6. The coordinator reads every terminal result, checks verification, and delivers a final summary.
+
+## Search Keywords
+
+Codex skill, OpenAI Codex, AI agent orchestration, multi-agent workflow, parallel agents, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
 
 ## Documentation
 

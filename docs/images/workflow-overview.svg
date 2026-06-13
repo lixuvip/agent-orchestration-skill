@@ -1,0 +1,80 @@
+<svg width="1200" height="640" viewBox="0 0 1200 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agent orchestration workflow overview</title>
+  <desc id="desc">A user request flows into an orchestrator, which dispatches planner, researcher, coder, reviewer, and monitor roles. Role outputs return through callbacks, task state, heartbeat monitoring, and final delivery.</desc>
+  <rect width="1200" height="640" rx="36" fill="#0B1220"/>
+  <rect x="40" y="40" width="1120" height="560" rx="28" fill="#111827" stroke="#334155" stroke-width="2"/>
+  <text x="72" y="92" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="34" font-weight="700">Agent Orchestration Skill for Codex</text>
+  <text x="72" y="128" fill="#CBD5E1" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="18">Split complex Codex work into coordinated AI agent roles with callbacks, heartbeat checks, and structured handoffs.</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M2 2L10 6L2 10" fill="#38BDF8"/>
+    </marker>
+    <style>
+      .label { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; }
+      .box { fill: #182235; stroke: #475569; stroke-width: 2; }
+      .role { fill: #0F766E; stroke: #5EEAD4; stroke-width: 2; }
+      .state { fill: #1E293B; stroke: #A7F3D0; stroke-width: 2; }
+      .line { stroke: #38BDF8; stroke-width: 3; marker-end: url(#arrow); }
+      .muted { fill: #CBD5E1; font-size: 15px; }
+      .title { fill: #F8FAFC; font-size: 20px; font-weight: 700; }
+      .small { fill: #E2E8F0; font-size: 14px; }
+    </style>
+  </defs>
+
+  <rect class="box" x="80" y="250" width="170" height="84" rx="18"/>
+  <text class="label title" x="115" y="284">User Request</text>
+  <text class="label muted" x="107" y="312">goal, repo, limits</text>
+
+  <rect x="335" y="222" width="230" height="140" rx="26" fill="#0EA5E9" stroke="#BAE6FD" stroke-width="3"/>
+  <text class="label" x="385" y="276" fill="#082F49" font-size="24" font-weight="800">Orchestrator</text>
+  <text class="label" x="374" y="310" fill="#082F49" font-size="16" font-weight="600">dispatches roles</text>
+  <text class="label" x="368" y="334" fill="#082F49" font-size="16" font-weight="600">tracks terminal states</text>
+
+  <path class="line" d="M250 292H324"/>
+
+  <rect class="role" x="650" y="170" width="160" height="68" rx="16"/>
+  <text class="label title" x="696" y="199">Planner</text>
+  <text class="label small" x="686" y="221">breakdown</text>
+
+  <rect class="role" x="845" y="170" width="160" height="68" rx="16"/>
+  <text class="label title" x="886" y="199">Researcher</text>
+  <text class="label small" x="886" y="221">context</text>
+
+  <rect class="role" x="650" y="282" width="160" height="68" rx="16"/>
+  <text class="label title" x="704" y="311">Coder</text>
+  <text class="label small" x="690" y="333">implementation</text>
+
+  <rect class="role" x="845" y="282" width="160" height="68" rx="16"/>
+  <text class="label title" x="884" y="311">Reviewer</text>
+  <text class="label small" x="882" y="333">quality gate</text>
+
+  <rect class="role" x="747" y="394" width="160" height="68" rx="16"/>
+  <text class="label title" x="789" y="423">Monitor</text>
+  <text class="label small" x="780" y="445">heartbeat</text>
+
+  <path class="line" d="M565 266C596 242 614 219 640 207"/>
+  <path class="line" d="M565 272C650 220 760 204 835 204"/>
+  <path class="line" d="M565 304C596 309 615 313 640 316"/>
+  <path class="line" d="M565 314C650 338 760 330 835 318"/>
+  <path class="line" d="M520 362C594 430 665 430 737 430"/>
+
+  <rect class="state" x="112" y="440" width="230" height="70" rx="18"/>
+  <text class="label title" x="157" y="470">Task State</text>
+  <text class="label muted" x="143" y="494">DONE / BLOCKED / RISK</text>
+
+  <rect class="state" x="390" y="440" width="230" height="70" rx="18"/>
+  <text class="label title" x="456" y="470">Callback</text>
+  <text class="label muted" x="420" y="494">role replies with evidence</text>
+
+  <rect class="state" x="668" y="516" width="230" height="58" rx="18"/>
+  <text class="label title" x="704" y="552">Final Delivery</text>
+
+  <path class="line" d="M730 350C690 389 628 421 530 438"/>
+  <path class="line" d="M925 350C854 394 764 416 620 452"/>
+  <path class="line" d="M827 462C817 482 804 499 790 512"/>
+  <path class="line" d="M342 475H380"/>
+  <path class="line" d="M620 475C646 499 665 520 683 540"/>
+
+  <text class="label" x="80" y="568" fill="#94A3B8" font-size="15">Observable multi-agent work: scoped prompts, explicit callbacks, heartbeat monitoring, verification evidence, final summary.</text>
+</svg>

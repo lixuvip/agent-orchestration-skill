@@ -1,0 +1,28 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Orchestration logo</title>
+  <desc id="desc">A central coordinator node connected to five role agents.</desc>
+  <rect width="160" height="160" rx="32" fill="#0F172A"/>
+  <circle cx="80" cy="80" r="26" fill="#38BDF8"/>
+  <circle cx="80" cy="80" r="12" fill="#0F172A"/>
+  <g stroke="#A7F3D0" stroke-width="6" stroke-linecap="round">
+    <path d="M80 54V28"/>
+    <path d="M105 72L131 61"/>
+    <path d="M96 103L114 126"/>
+    <path d="M64 103L46 126"/>
+    <path d="M55 72L29 61"/>
+  </g>
+  <g fill="#F8FAFC">
+    <circle cx="80" cy="24" r="11"/>
+    <circle cx="136" cy="59" r="11"/>
+    <circle cx="118" cy="132" r="11"/>
+    <circle cx="42" cy="132" r="11"/>
+    <circle cx="24" cy="59" r="11"/>
+  </g>
+  <g fill="#0F172A">
+    <circle cx="80" cy="24" r="4"/>
+    <circle cx="136" cy="59" r="4"/>
+    <circle cx="118" cy="132" r="4"/>
+    <circle cx="42" cy="132" r="4"/>
+    <circle cx="24" cy="59" r="4"/>
+  </g>
+</svg>

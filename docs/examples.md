@@ -1,5 +1,14 @@
 # Usage Examples
 
+For copy-ready scenario files, see:
+
+- [Simple research task](../examples/simple-research-task.md)
+- [Coding and review workflow](../examples/coding-review-workflow.md)
+- [Multi-agent product planning](../examples/multi-agent-product-planning.md)
+- [Bug fix with QA](../examples/bugfix-with-qa.md)
+- [Multi-project finalization](../examples/multi-project-finalization.md)
+- [Release preparation](../examples/release-prep.md)
+
 ## Example 1: Bug Fix With QA Gate
 
 ```text

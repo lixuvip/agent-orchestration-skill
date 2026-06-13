@@ -43,7 +43,7 @@ Codex skill for multi-agent orchestration, role-based task dispatch, QA/review w
 Topics:
 
 ```text
-codex, codex-skill, chatgpt-codex, agent-orchestration, multi-agent, multi-agent-orchestration, ai-agents, subagents, workflow-orchestration, task-automation, agent-workflow, developer-tools, code-review, qa-workflow, release-management, project-management, automation, workflow
+codex, codex-skill, openai-codex, chatgpt-codex, agent-orchestration, multi-agent, multi-agent-system, multi-agent-orchestration, ai-agents, llm-agents, subagents, agent-workflow, ai-workflow, task-orchestration, task-automation, coding-agent, developer-tools, code-review, qa-workflow, release-management
 ```
 
 ## Release Checklist
