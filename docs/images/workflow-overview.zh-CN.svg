@@ -1,83 +1,177 @@
-<svg width="1200" height="560" viewBox="0 0 1200 560" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg role="img" aria-labelledby="title desc" id="_图层_1" data-name="图层_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1200 560">
   <title id="title">Agent Orchestration 中文流程图</title>
   <desc id="desc">一个清晰的四步流程：用户请求、协调者、角色代理和最终交付，并由回调、任务状态和心跳监控支撑。</desc>
-  <rect width="1200" height="560" rx="36" fill="#0B1220"/>
-  <rect x="44" y="44" width="1112" height="472" rx="28" fill="#111827" stroke="#334155" stroke-width="2"/>
-
+  <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
   <defs>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
-      <path d="M2 2L10 6L2 10" fill="#38BDF8"/>
-    </marker>
     <style>
-      .label { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; }
-      .eyebrow { fill: #38BDF8; font-size: 15px; font-weight: 700; letter-spacing: .08em; }
-      .headline { fill: #F8FAFC; font-size: 34px; font-weight: 800; }
-      .subhead { fill: #CBD5E1; font-size: 18px; }
-      .step { fill: #182235; stroke: #475569; stroke-width: 2; }
-      .stepHot { fill: #0EA5E9; stroke: #BAE6FD; stroke-width: 3; }
-      .support { fill: #0F172A; stroke: #334155; stroke-width: 2; }
-      .title { fill: #F8FAFC; font-size: 23px; font-weight: 800; }
-      .titleDark { fill: #082F49; font-size: 24px; font-weight: 800; }
-      .body { fill: #CBD5E1; font-size: 16px; }
-      .bodyDark { fill: #082F49; font-size: 16px; font-weight: 650; }
-      .pill { fill: #123044; stroke: #38BDF8; stroke-width: 1.5; }
-      .pillText { fill: #BAE6FD; font-size: 15px; font-weight: 700; }
-      .line { stroke: #38BDF8; stroke-width: 3; marker-end: url(#arrow); }
+      .st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #0ea5e9;
+        stroke: #bae6fd;
+        stroke-width: 3px;
+      }
+
+      .st2 {
+        font-size: 23px;
+      }
+
+      .st2, .st3, .st4, .st5, .st6, .st7, .st8 {
+        font-family: AdobeSongStd-Light-GBpc-EUC-H, 'Adobe Song Std';
+        font-weight: 300;
+      }
+
+      .st2, .st9, .st4, .st5, .st10, .st11, .st6, .st12, .st7, .st8 {
+        isolation: isolate;
+      }
+
+      .st2, .st6 {
+        fill: #f8fafc;
+      }
+
+      .st13 {
+        fill: #0f172a;
+      }
+
+      .st13, .st14, .st15, .st16 {
+        stroke-width: 2px;
+      }
+
+      .st13, .st15 {
+        stroke: #334155;
+      }
+
+      .st9, .st12 {
+        font-size: 18px;
+      }
+
+      .st9, .st17 {
+        font-family: Arial-BoldMT, Arial;
+        font-weight: 700;
+      }
+
+      .st9, .st7 {
+        fill: #bae6fd;
+      }
+
+      .st4, .st5, .st10 {
+        font-size: 16px;
+      }
+
+      .st4, .st18, .st8 {
+        fill: #082f49;
+      }
+
+      .st19 {
+        fill: #123044;
+        stroke-width: 1.5px;
+      }
+
+      .st19, .st16 {
+        stroke: #38bdf8;
+      }
+
+      .st5, .st10, .st12 {
+        fill: #cbd5e1;
+      }
+
+      .st14 {
+        fill: #182235;
+        stroke: #475569;
+      }
+
+      .st11 {
+        letter-spacing: 0em;
+      }
+
+      .st11, .st7 {
+        font-size: 15px;
+      }
+
+      .st11, .st20 {
+        fill: #38bdf8;
+      }
+
+      .st6 {
+        font-size: 34px;
+      }
+
+      .st15 {
+        fill: #111827;
+      }
+
+      .st21 {
+        fill: #0b1220;
+      }
+
+      .st8 {
+        font-size: 24px;
+      }
+
+      .st22 {
+        font-family: ArialMT, Arial;
+      }
+
+      .st16 {
+        fill: #1e293b;
+      }
     </style>
   </defs>
-
-  <text class="label eyebrow" x="76" y="92">CODEX 多代理工作流</text>
-  <text class="label headline" x="76" y="134">一个协调者，多个专注代理。</text>
-  <text class="label subhead" x="76" y="166">把复杂 Codex 任务拆给不同角色，收集证据，最终交付经过检查的结果。</text>
-
-  <rect class="step" x="82" y="238" width="208" height="118" rx="22"/>
-  <circle cx="124" cy="277" r="18" fill="#1E293B" stroke="#38BDF8" stroke-width="2"/>
-  <text class="label" x="119" y="283" fill="#BAE6FD" font-size="18" font-weight="800">1</text>
-  <text class="label title" x="154" y="283">请求</text>
-  <text class="label body" x="112" y="318">目标、仓库、</text>
-  <text class="label body" x="112" y="342">范围、约束</text>
-
-  <rect class="stepHot" x="360" y="218" width="230" height="158" rx="26"/>
-  <circle cx="404" cy="263" r="20" fill="#082F49"/>
-  <text class="label" x="398" y="270" fill="#BAE6FD" font-size="18" font-weight="800">2</text>
-  <text class="label titleDark" x="438" y="271">协调者</text>
-  <text class="label bodyDark" x="396" y="309">选择工作流</text>
-  <text class="label bodyDark" x="396" y="333">分发角色任务</text>
-  <text class="label bodyDark" x="396" y="357">检查最终证据</text>
-
-  <rect class="step" x="660" y="218" width="250" height="158" rx="26"/>
-  <circle cx="704" cy="263" r="20" fill="#1E293B" stroke="#38BDF8" stroke-width="2"/>
-  <text class="label" x="698" y="270" fill="#BAE6FD" font-size="18" font-weight="800">3</text>
-  <text class="label title" x="738" y="271">角色代理</text>
-  <rect class="pill" x="700" y="300" width="78" height="30" rx="15"/>
-  <text class="label pillText" x="724" y="321">规划</text>
-  <rect class="pill" x="790" y="300" width="78" height="30" rx="15"/>
-  <text class="label pillText" x="814" y="321">编码</text>
-  <rect class="pill" x="700" y="340" width="78" height="30" rx="15"/>
-  <text class="label pillText" x="724" y="361">审查</text>
-  <rect class="pill" x="790" y="340" width="78" height="30" rx="15"/>
-  <text class="label pillText" x="811" y="361">测试</text>
-
-  <rect class="step" x="980" y="238" width="138" height="118" rx="22"/>
-  <circle cx="1019" cy="277" r="18" fill="#1E293B" stroke="#38BDF8" stroke-width="2"/>
-  <text class="label" x="1014" y="283" fill="#BAE6FD" font-size="18" font-weight="800">4</text>
-  <text class="label title" x="1040" y="283">交付</text>
-  <text class="label body" x="1009" y="318">验证后</text>
-  <text class="label body" x="1009" y="342">汇总输出</text>
-
-  <path class="line" d="M290 297H347"/>
-  <path class="line" d="M590 297H647"/>
-  <path class="line" d="M910 297H967"/>
-
-  <rect class="support" x="136" y="420" width="258" height="58" rx="18"/>
-  <text class="label title" x="166" y="456" font-size="18">回调</text>
-  <text class="label body" x="232" y="456">角色带证据回复</text>
-
-  <rect class="support" x="472" y="420" width="258" height="58" rx="18"/>
-  <text class="label title" x="502" y="456" font-size="18">任务状态</text>
-  <text class="label body" x="626" y="456">完成 / 阻塞 / 风险</text>
-
-  <rect class="support" x="808" y="420" width="258" height="58" rx="18"/>
-  <text class="label title" x="838" y="456" font-size="18">心跳</text>
-  <text class="label body" x="904" y="456">轮询长时间任务</text>
+  <rect class="st21" width="1200" height="560" rx="36" ry="36"/>
+  <rect class="st15" x="44" y="44" width="1112" height="472" rx="28" ry="28"/>
+  <text class="st11" transform="translate(76 92)"><tspan class="st17" x="0" y="0">CODEX </tspan><tspan class="st3" x="64.6" y="0">多代理工作流</tspan></text>
+  <text class="st6" transform="translate(76 134)"><tspan x="0" y="0">一个协调者，多个专注代理。</tspan></text>
+  <text class="st12" transform="translate(76 166)"><tspan class="st3" x="0" y="0">把复杂</tspan><tspan class="st22" x="54" y="0" xml:space="preserve"> Codex </tspan><tspan class="st3" x="116" y="0">任务拆给不同角色，收集证据，最终交付经过检查的结果。</tspan></text>
+  <rect class="st14" x="82" y="238" width="208" height="118" rx="22" ry="22"/>
+  <circle class="st16" cx="124" cy="277" r="18"/>
+  <text class="st9" transform="translate(119 283)"><tspan x="0" y="0">1</tspan></text>
+  <text class="st2" transform="translate(154 283)"><tspan x="0" y="0">请求</tspan></text>
+  <text class="st5" transform="translate(112 318)"><tspan x="0" y="0">目标、仓库、</tspan></text>
+  <text class="st5" transform="translate(112 342)"><tspan x="0" y="0">范围、约束</tspan></text>
+  <rect class="st1" x="360" y="218" width="230" height="158" rx="26" ry="26"/>
+  <circle class="st18" cx="404" cy="263" r="20"/>
+  <text class="st9" transform="translate(398 270)"><tspan x="0" y="0">2</tspan></text>
+  <text class="st8" transform="translate(438 271)"><tspan x="0" y="0">协调者</tspan></text>
+  <text class="st4" transform="translate(396 309)"><tspan x="0" y="0">选择工作流</tspan></text>
+  <text class="st4" transform="translate(396 333)"><tspan x="0" y="0">分发角色任务</tspan></text>
+  <text class="st4" transform="translate(396 357)"><tspan x="0" y="0">检查最终证据</tspan></text>
+  <rect class="st14" x="660" y="218" width="250" height="158" rx="26" ry="26"/>
+  <circle class="st16" cx="704" cy="263" r="20"/>
+  <text class="st9" transform="translate(698 270)"><tspan x="0" y="0">3</tspan></text>
+  <text class="st2" transform="translate(738 271)"><tspan x="0" y="0">角色代理</tspan></text>
+  <path class="st19" d="M715,300h48c8.3,0,15,6.7,15,15h0c0,8.3-6.7,15-15,15h-48c-8.3,0-15-6.7-15-15h0c0-8.3,6.7-15,15-15Z"/>
+  <text class="st7" transform="translate(724 321)"><tspan x="0" y="0">规划</tspan></text>
+  <path class="st19" d="M805,300h48c8.3,0,15,6.7,15,15h0c0,8.3-6.7,15-15,15h-48c-8.3,0-15-6.7-15-15h0c0-8.3,6.7-15,15-15Z"/>
+  <text class="st7" transform="translate(814 321)"><tspan x="0" y="0">编码</tspan></text>
+  <path class="st19" d="M715,340h48c8.3,0,15,6.7,15,15h0c0,8.3-6.7,15-15,15h-48c-8.3,0-15-6.7-15-15h0c0-8.3,6.7-15,15-15Z"/>
+  <text class="st7" transform="translate(724 361)"><tspan x="0" y="0">审查</tspan></text>
+  <path class="st19" d="M805,340h48c8.3,0,15,6.7,15,15h0c0,8.3-6.7,15-15,15h-48c-8.3,0-15-6.7-15-15h0c0-8.3,6.7-15,15-15Z"/>
+  <text class="st7" transform="translate(811 361)"><tspan x="0" y="0">测试</tspan></text>
+  <rect class="st14" x="980" y="238" width="138" height="118" rx="22" ry="22"/>
+  <circle class="st16" cx="1019" cy="277" r="18"/>
+  <text class="st9" transform="translate(1014 283)"><tspan x="0" y="0">4</tspan></text>
+  <text class="st2" transform="translate(1040 283)"><tspan x="0" y="0">交付</tspan></text>
+  <text class="st5" transform="translate(1009 318)"><tspan x="0" y="0">验证后</tspan></text>
+  <text class="st5" transform="translate(1009 342)"><tspan x="0" y="0">汇总输出</tspan></text>
+  <path class="st0" d=""/>
+  <path class="st20" d="M323,285l24,12-24,12"/>
+  <path class="st20" d="M347,297"/>
+  <path class="st0" d=""/>
+  <path class="st20" d="M623,285l24,12-24,12"/>
+  <path class="st20" d="M647,297"/>
+  <path class="st0" d=""/>
+  <path class="st20" d="M943,285l24,12-24,12"/>
+  <path class="st20" d="M967,297"/>
+  <rect class="st13" x="136" y="420" width="258" height="58" rx="18" ry="18"/>
+  <text class="st2" transform="translate(166 456)"><tspan x="0" y="0">回调</tspan></text>
+  <text class="st5" transform="translate(232 456)"><tspan x="0" y="0">角色带证据回复</tspan></text>
+  <rect class="st13" x="472" y="420" width="258" height="58" rx="18" ry="18"/>
+  <text class="st2" transform="translate(502 456)"><tspan x="0" y="0">任务状态</tspan></text>
+  <text class="st10" transform="translate(600 458.1)"><tspan class="st3" x="0" y="0">完成</tspan><tspan class="st22" x="32" y="0" xml:space="preserve"> / </tspan><tspan class="st3" x="45.3" y="0">阻塞</tspan><tspan class="st22" x="77.3" y="0" xml:space="preserve"> / </tspan><tspan class="st3" x="90.7" y="0">风险</tspan></text>
+  <rect class="st13" x="808" y="420" width="258" height="58" rx="18" ry="18"/>
+  <text class="st2" transform="translate(838 456)"><tspan x="0" y="0">心跳</tspan></text>
+  <text class="st5" transform="translate(904 456)"><tspan x="0" y="0">轮询长时间任务</tspan></text>
 </svg>
