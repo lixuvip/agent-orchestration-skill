@@ -6,6 +6,7 @@
 - Expanded README discovery keywords and GitHub topic guidance.
 - Added project logo, workflow overview image, badges, quick links, and scenario examples.
 - Simplified the README workflow overview image for better first-screen readability.
+- Added a Chinese workflow overview image for the Chinese README.
 
 ## 0.1.0
 

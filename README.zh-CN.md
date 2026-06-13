@@ -23,7 +23,7 @@
   <a href="https://github.com/lixuvip/agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/agent-orchestration-skill?style=social"></a>
 </p>
 
-![Agent orchestration workflow overview](docs/images/workflow-overview.svg)
+![Agent orchestration 中文流程图](docs/images/workflow-overview.zh-CN.svg)
 
 `agent-orchestration` 是一个轻量级 Codex skill，用于多代理编排、角色化任务分发、QA 验证、代码审查、发布协作、回调机制和心跳监控。它适合协调多个 Codex 线程、subagents、仓库或 worktree 中的复杂开发任务。
 
