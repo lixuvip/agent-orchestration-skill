@@ -7,15 +7,23 @@ description: Coordinate multi-role Codex work across threads, subagents, reposit
 
 Use this skill to run a Codex conversation as a coordinator for a small role-based agent team. Prefer it when a task spans multiple projects, multiple roles, long-running threads, or handoffs that need explicit status tracking.
 
+## Do Not Use For
+
+- Single-file edits, one-shot questions, or code explanations that fit cleanly in the current conversation.
+- Debugging that needs one continuous execution context and would lose signal if split across roles.
+- Parallel editing of the same files when branches, worktrees, or clear ownership boundaries are missing.
+- Broad brainstorming where the user has not asked for execution, tracking, verification, or handoff.
+
 ## Core Workflow
 
 1. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
 2. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
 3. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
-4. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-5. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, stop conditions, verification, callback, and monitoring fields.
-6. Require role replies to match `references/templates/role_reply.template.md`.
-7. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+4. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, or heartbeat.
+5. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+6. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, stop conditions, verification, callback, and monitoring fields.
+7. Require role replies to match `references/templates/role_reply.template.md`.
+8. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
 
 ## Thread And Tool Handling
 
@@ -23,6 +31,14 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 - Use new threads only when the user explicitly wants user-visible conversations. For internal parallel work, prefer available subagent tools.
 - Record every role thread ID in the coordinator notes or task board before leaving the dispatch step.
 - Never infer completion from silence. Completion requires an explicit terminal status or an unambiguous final delivery message.
+
+## Capability Fallbacks
+
+- If thread tools are available, use them for user-visible role conversations and callbacks.
+- If subagent tools are available, prefer them for internal parallel role work that does not need user-owned threads.
+- If automation tools are available, create a heartbeat for two or more active role threads, or any long-running role.
+- If callbacks or automation are unavailable, maintain a manual task board from `references/TASK_BOARD.template.md` and poll unresolved roles before final delivery.
+- If none of these capabilities are available, keep orchestration in the current conversation, make the limitation explicit, and avoid pretending that independent roles are running.
 
 ## Callback And Monitoring
 
@@ -37,6 +53,8 @@ Apply these rules:
 - The default heartbeat interval is 5 minutes.
 - Use `references/templates/monitoring_heartbeat.template.md` as the automation prompt.
 - When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`, summarize results and disable or delete the heartbeat automation.
+
+For Chinese-only teams, use the matching Chinese templates in `references/templates/*.zh-CN.template.md`.
 
 ## Status Semantics
 

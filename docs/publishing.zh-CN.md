@@ -6,6 +6,7 @@
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/smoke_test.py
 git status --short
 ```
 
@@ -42,7 +43,7 @@ git push -u origin main
 Description:
 
 ```text
-Codex skill for multi-agent orchestration, role-based task dispatch, QA/review workflows, callbacks, and heartbeat monitoring.
+Run multi-agent workflows in Codex with parallel roles, callbacks, heartbeat checks, and structured task handoffs.
 ```
 
 Topics:
@@ -54,6 +55,7 @@ codex, codex-skill, openai-codex, chatgpt-codex, agent-orchestration, multi-agen
 ## 发布清单
 
 - [ ] `python3 scripts/validate.py` 通过。
+- [ ] `python3 scripts/smoke_test.py` 通过。
 - [ ] 安装脚本能在干净 checkout 上运行。
 - [ ] README 安装命令指向真实 GitHub URL。
 - [ ] 没有私有仓库路径、token、客户数据或组织专属凭据。

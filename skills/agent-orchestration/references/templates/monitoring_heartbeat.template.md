@@ -31,6 +31,16 @@ On each run:
    - recommended user-facing next step.
 5. After posting the all-complete summary, disable or delete this heartbeat automation.
 
+Summary format:
+Heartbeat summary for <TASK_ID>
+- <ROLE_NAME>
+  Status: <STATUS>
+  Summary: <ONE_LINE>
+  Verification: <COMMAND_OR_CHECK_AND_RESULT>
+  Risks: <NONE_OR_RISK>
+
+All roles terminal: <YES_OR_NO>
+Next coordinator action: <ACTION>
+
 Do not mark a role complete from inference alone. Require an explicit terminal status or an unambiguous final delivery message.
 ```
-

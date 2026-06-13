@@ -1,5 +1,9 @@
 # Agent Orchestration Skill for Codex
 
+[![Validate](https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml/badge.svg)](https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lixuvip/agent-orchestration-skill)](https://github.com/lixuvip/agent-orchestration-skill/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 <p align="center">
   <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
 </p>
@@ -143,8 +147,10 @@ flowchart TD
 │           ├── COMMUNICATION_PROTOCOL.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
+│           ├── STATE_MACHINE.md
 │           ├── TASK_BOARD.template.md
 │           ├── WORKFLOWS.md
+│           ├── examples/
 │           ├── roles/
 │           └── templates/
 ├── docs/
@@ -161,6 +167,7 @@ flowchart TD
 ├── examples/
 ├── scripts/
 │   ├── install.sh
+│   ├── smoke_test.py
 │   └── validate.py
 └── .github/workflows/validate.yml
 ```
@@ -237,6 +244,7 @@ Run the repository validator:
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/smoke_test.py
 ```
 
 If you also have Codex's built-in `skill-creator` validator available, run it against the skill folder:

@@ -6,6 +6,7 @@ Use this checklist before publishing the repository to GitHub.
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/smoke_test.py
 git status --short
 ```
 
@@ -37,7 +38,7 @@ git push -u origin main
 Description:
 
 ```text
-Codex skill for multi-agent orchestration, role-based task dispatch, QA/review workflows, callbacks, and heartbeat monitoring.
+Run multi-agent workflows in Codex with parallel roles, callbacks, heartbeat checks, and structured task handoffs.
 ```
 
 Topics:
@@ -49,6 +50,7 @@ codex, codex-skill, openai-codex, chatgpt-codex, agent-orchestration, multi-agen
 ## Release Checklist
 
 - [ ] `python3 scripts/validate.py` passes.
+- [ ] `python3 scripts/smoke_test.py` passes.
 - [ ] Installation script works on a clean checkout.
 - [ ] README installation command points to the real GitHub URL.
 - [ ] No private repository paths, tokens, or customer data are present.

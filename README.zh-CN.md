@@ -133,8 +133,10 @@ flowchart TD
 │           ├── COMMUNICATION_PROTOCOL.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
+│           ├── STATE_MACHINE.md
 │           ├── TASK_BOARD.template.md
 │           ├── WORKFLOWS.md
+│           ├── examples/
 │           ├── roles/
 │           └── templates/
 ├── docs/
@@ -150,6 +152,9 @@ flowchart TD
 │   └── publishing.zh-CN.md
 ├── examples/
 ├── scripts/
+│   ├── install.sh
+│   ├── smoke_test.py
+│   └── validate.py
 └── .github/workflows/validate.yml
 ```
 
@@ -216,6 +221,7 @@ Codex skill、OpenAI Codex、多代理编排、AI agent orchestration、multi-ag
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/smoke_test.py
 ```
 
 如果本地有 Codex 内置的 `skill-creator` 验证器，也可以运行：

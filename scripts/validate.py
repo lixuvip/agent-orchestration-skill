@@ -4,6 +4,8 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
+import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,9 +18,16 @@ REQUIRED_FILES = [
     SKILL_DIR / "agents" / "openai.yaml",
     SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
+    SKILL_DIR / "references" / "STATE_MACHINE.md",
     SKILL_DIR / "references" / "WORKFLOWS.md",
+    SKILL_DIR / "references" / "examples" / "filled_task_dispatch.md",
+    SKILL_DIR / "references" / "examples" / "filled_role_reply.md",
     SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
+    SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md",
+    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "role_reply.template.md",
+    SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md",
     ROOT / "README.md",
     ROOT / "README.zh-CN.md",
     ROOT / "docs" / "installation.md",
@@ -31,6 +40,60 @@ REQUIRED_FILES = [
     ROOT / "docs" / "examples.zh-CN.md",
     ROOT / "docs" / "publishing.md",
     ROOT / "docs" / "publishing.zh-CN.md",
+    ROOT / "docs" / "images" / "logo.svg",
+    ROOT / "docs" / "images" / "workflow-overview.svg",
+    ROOT / "docs" / "images" / "workflow-overview.zh-CN.svg",
+]
+
+
+TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".sh", ".py", ".svg"}
+
+TEMPLATE_REQUIREMENTS = {
+    SKILL_DIR / "references" / "templates" / "task_dispatch.template.md": [
+        "Status:",
+        "Verification:",
+        "Risks:",
+        "Callback:",
+    ],
+    SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md": [
+        "Status:",
+        "验证要求",
+        "Risks:",
+        "回调",
+    ],
+    SKILL_DIR / "references" / "templates" / "role_reply.template.md": [
+        "Status:",
+        "Verification run:",
+        "Risks / concerns:",
+        "Recommended next role:",
+    ],
+    SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md": [
+        "Status:",
+        "Verification run:",
+        "Risks / concerns:",
+        "Recommended next role:",
+    ],
+    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md": [
+        "Status",
+        "Verification",
+        "Risks",
+        "All roles terminal",
+    ],
+    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.zh-CN.template.md": [
+        "Status",
+        "Verification",
+        "Risks",
+        "All roles terminal",
+    ],
+}
+
+DISCOVERABLE_REFERENCES = [
+    "STATE_MACHINE.md",
+    "task_dispatch.zh-CN.template.md",
+    "role_reply.zh-CN.template.md",
+    "monitoring_heartbeat.zh-CN.template.md",
+    "filled_task_dispatch.md",
+    "filled_role_reply.md",
 ]
 
 
@@ -55,6 +118,61 @@ def parse_frontmatter(text: str) -> dict[str, str]:
     return fields
 
 
+def iter_text_files() -> list[Path]:
+    return [
+        path
+        for path in ROOT.rglob("*")
+        if path.is_file()
+        and ".git" not in path.parts
+        and path.suffix in TEXT_SUFFIXES
+    ]
+
+
+def validate_markdown_links(path: Path, content: str) -> None:
+    if path.suffix != ".md":
+        return
+
+    for match in re.finditer(r"!?\[[^\]]+\]\(([^)]+)\)", content):
+        target = match.group(1).strip()
+        if not target or "://" in target or target.startswith("#") or target.startswith("mailto:"):
+            continue
+
+        target = target.split("#", 1)[0].strip()
+        if not target:
+            continue
+
+        target = target.strip("<>")
+        target = unquote(target)
+        if not (path.parent / target).exists():
+            fail(f"Broken local markdown link in {path.relative_to(ROOT)}: {match.group(1)}")
+
+
+def validate_svg(path: Path) -> None:
+    if path.suffix != ".svg":
+        return
+    try:
+        ET.parse(path)
+    except ET.ParseError as exc:
+        fail(f"Invalid SVG XML in {path.relative_to(ROOT)}: {exc}")
+
+
+def validate_template_requirements() -> None:
+    for path, required_tokens in TEMPLATE_REQUIREMENTS.items():
+        content = path.read_text(encoding="utf-8")
+        for token in required_tokens:
+            if token not in content:
+                fail(f"Template {path.relative_to(ROOT)} is missing required token {token!r}")
+
+
+def validate_reference_discovery() -> None:
+    skill_text = SKILL_MD.read_text(encoding="utf-8")
+    reference_readme = (SKILL_DIR / "references" / "README.md").read_text(encoding="utf-8")
+    combined = f"{skill_text}\n{reference_readme}"
+    for token in DISCOVERABLE_REFERENCES:
+        if token not in combined:
+            fail(f"Reference resource {token!r} is not discoverable from SKILL.md or references/README.md")
+
+
 def main() -> int:
     for path in REQUIRED_FILES:
         if not path.exists():
@@ -71,15 +189,19 @@ def main() -> int:
         fail("SKILL.md description is too short for reliable triggering")
 
     forbidden = ["[TODO", "TODO:", "<your-org>"]
-    for path in ROOT.rglob("*"):
-        if path.is_file() and path.suffix in {".md", ".yaml", ".yml", ".sh", ".py"}:
-            content = path.read_text(encoding="utf-8")
-            for token in forbidden:
-                if token in content and path != Path(__file__).resolve():
-                    fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
-            for lineno, line in enumerate(content.splitlines(), start=1):
-                if line.rstrip() != line:
-                    fail(f"Trailing whitespace in {path.relative_to(ROOT)}:{lineno}")
+    for path in iter_text_files():
+        content = path.read_text(encoding="utf-8")
+        for token in forbidden:
+            if token in content and path != Path(__file__).resolve():
+                fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
+        for lineno, line in enumerate(content.splitlines(), start=1):
+            if line.rstrip() != line:
+                fail(f"Trailing whitespace in {path.relative_to(ROOT)}:{lineno}")
+        validate_markdown_links(path, content)
+        validate_svg(path)
+
+    validate_template_requirements()
+    validate_reference_discovery()
 
     print("Repository validation passed.")
     return 0

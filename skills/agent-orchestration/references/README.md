@@ -28,8 +28,12 @@ agent_orchestration_kit/
 ├── COMMUNICATION_PROTOCOL.md
 ├── AUTOMATION_MONITORING.md
 ├── REQUIREMENT_WRITING_GUIDE.md
+├── STATE_MACHINE.md
 ├── TASK_BOARD.template.md
 ├── WORKFLOWS.md
+├── examples/
+│   ├── filled_role_reply.md
+│   └── filled_task_dispatch.md
 ├── roles/
 │   ├── coordinator_pm.md
 │   ├── product_designer.md
@@ -39,8 +43,11 @@ agent_orchestration_kit/
 │   └── release_docs.md
 └── templates/
     ├── task_dispatch.template.md
+    ├── task_dispatch.zh-CN.template.md
     ├── monitoring_heartbeat.template.md
+    ├── monitoring_heartbeat.zh-CN.template.md
     ├── role_reply.template.md
+    ├── role_reply.zh-CN.template.md
     ├── qa_report.template.md
     ├── review_findings.template.md
     └── handoff_note.template.md
@@ -55,8 +62,10 @@ agent_orchestration_kit/
 5. 给每个角色对话发送对应的 `roles/*.md` 作为角色初始化说明。
 6. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
 7. 要求每个角色按 `templates/role_reply.template.md` 回复。
-8. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-9. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+8. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
+9. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
+10. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
+11. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 
