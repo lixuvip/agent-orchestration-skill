@@ -1,10 +1,14 @@
-# Agent Orchestration Codex Skill
+# Agent Orchestration Codex Skill：多代理任务编排工具
 
 [English](README.md)
 
-`agent-orchestration` 是一个可复用的 Codex skill，用于协调多个角色、线程、子代理、仓库或 worktree 中的协作任务。
+`agent-orchestration` 是一个可复用的 Codex skill，用于多代理编排、角色化任务分发、QA 验证、代码审查、发布协作、回调机制和心跳监控。它适合协调多个 Codex 线程、subagents、仓库或 worktree 中的复杂开发任务。
 
-当一个任务过大、持续时间较长，或者需要工程、QA、代码审查、发布文档等多个角色分别处理时，可以让一个 Codex 会话担任协调者，再把具体任务分发给其他 Codex 线程或子代理。
+当一个任务过大、持续时间较长，或者需要工程、QA、代码审查、发布文档等多个角色分别处理时，可以让一个 Codex 会话担任协调者，再把具体任务分发给其他 Codex 线程或子代理。这个工具提供任务派发模板、角色回复模板、工作流门禁、完成回调和 5 分钟心跳监控，帮助团队更稳定地管理长任务和多仓库交付。
+
+## 关键词
+
+Codex skill、多代理编排、AI agent orchestration、multi-agent workflow、subagents、任务自动化、角色化代理、代码审查自动化、QA workflow、发布管理、GitHub workflow、开发者工具。
 
 ## 适用场景
 
@@ -33,6 +37,16 @@
 │           ├── roles/
 │           └── templates/
 ├── docs/
+│   ├── installation.md
+│   ├── installation.zh-CN.md
+│   ├── quickstart.md
+│   ├── quickstart.zh-CN.md
+│   ├── tutorial.md
+│   ├── tutorial.zh-CN.md
+│   ├── examples.md
+│   ├── examples.zh-CN.md
+│   ├── publishing.md
+│   └── publishing.zh-CN.md
 ├── examples/
 ├── scripts/
 └── .github/workflows/validate.yml
@@ -85,11 +99,11 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## 文档
 
-- [安装说明](docs/installation.md)
-- [快速开始](docs/quickstart.md)
-- [教程](docs/tutorial.md)
-- [使用示例](docs/examples.md)
-- [发布指南](docs/publishing.md)
+- [安装说明](docs/installation.zh-CN.md)
+- [快速开始](docs/quickstart.zh-CN.md)
+- [教程](docs/tutorial.zh-CN.md)
+- [使用示例](docs/examples.zh-CN.md)
+- [发布指南](docs/publishing.zh-CN.md)
 
 ## 验证
 

@@ -10,10 +10,10 @@ In Codex, write:
 Use $agent-orchestration to coordinate this bug fix with one engineering thread and one QA thread.
 
 Goal:
-Fix the failing speaker diarization option in the remote transcription flow.
+Fix the failing timestamp export option in the report generation flow.
 
 Constraints:
-- Engineer may edit server and relay code.
+- Engineer may edit application and test code.
 - QA is read-only and must run the regression tests.
 - Both roles must report exact commands and results.
 ```
@@ -59,4 +59,3 @@ The final response should include:
 - exact verification evidence;
 - unresolved risks;
 - commits or branch names when relevant.
-

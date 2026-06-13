@@ -20,10 +20,17 @@ REQUIRED_FILES = [
     SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
     SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md",
     ROOT / "README.md",
+    ROOT / "README.zh-CN.md",
     ROOT / "docs" / "installation.md",
+    ROOT / "docs" / "installation.zh-CN.md",
     ROOT / "docs" / "quickstart.md",
+    ROOT / "docs" / "quickstart.zh-CN.md",
     ROOT / "docs" / "tutorial.md",
+    ROOT / "docs" / "tutorial.zh-CN.md",
     ROOT / "docs" / "examples.md",
+    ROOT / "docs" / "examples.zh-CN.md",
+    ROOT / "docs" / "publishing.md",
+    ROOT / "docs" / "publishing.zh-CN.md",
 ]
 
 
@@ -64,15 +71,13 @@ def main() -> int:
         fail("SKILL.md description is too short for reliable triggering")
 
     forbidden = ["[TODO", "TODO:", "<your-org>"]
-    for path in [SKILL_MD, ROOT / "README.md", ROOT / "docs" / "installation.md"]:
-        content = path.read_text(encoding="utf-8")
-        for token in forbidden:
-            if token in content:
-                fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
-
     for path in ROOT.rglob("*"):
         if path.is_file() and path.suffix in {".md", ".yaml", ".yml", ".sh", ".py"}:
-            for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            content = path.read_text(encoding="utf-8")
+            for token in forbidden:
+                if token in content and path != Path(__file__).resolve():
+                    fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
+            for lineno, line in enumerate(content.splitlines(), start=1):
                 if line.rstrip() != line:
                     fail(f"Trailing whitespace in {path.relative_to(ROOT)}:{lineno}")
 

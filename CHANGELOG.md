@@ -2,6 +2,8 @@
 
 ## 0.1.0
 
+- Added Chinese documentation for installation, quickstart, tutorial, examples, and publishing.
+- Expanded README discovery keywords and GitHub topic guidance.
 - Initial public-ready release.
 - Added the `agent-orchestration` Codex skill.
 - Added role dispatch, role reply, QA, review, handoff, and heartbeat monitoring templates.

@@ -1,27 +1,32 @@
-# Publishing Guide
+# 发布指南
 
-Use this checklist before publishing the repository to GitHub.
+发布到 GitHub 前，请使用这份清单检查仓库。
 
-## Prepare The Repository
+## 准备仓库
 
 ```bash
 python3 scripts/validate.py
 git status --short
 ```
 
-Review:
+检查：
 
 - `README.md`
+- `README.zh-CN.md`
 - `docs/installation.md`
+- `docs/installation.zh-CN.md`
 - `docs/quickstart.md`
+- `docs/quickstart.zh-CN.md`
 - `docs/tutorial.md`
+- `docs/tutorial.zh-CN.md`
 - `docs/examples.md`
+- `docs/examples.zh-CN.md`
 - `skills/agent-orchestration/SKILL.md`
 - `skills/agent-orchestration/references/`
 
-## Create A GitHub Repository
+## 创建 GitHub 仓库
 
-Create a new public repository, then push:
+创建新的公开仓库后推送：
 
 ```bash
 git init
@@ -32,7 +37,7 @@ git remote add origin https://github.com/lixuvip/agent-orchestration-skill.git
 git push -u origin main
 ```
 
-## Suggested Repository Metadata
+## 建议的仓库元信息
 
 Description:
 
@@ -46,17 +51,17 @@ Topics:
 codex, codex-skill, chatgpt-codex, agent-orchestration, multi-agent, multi-agent-orchestration, ai-agents, subagents, workflow-orchestration, task-automation, agent-workflow, developer-tools, code-review, qa-workflow, release-management, project-management, automation, workflow
 ```
 
-## Release Checklist
+## 发布清单
 
-- [ ] `python3 scripts/validate.py` passes.
-- [ ] Installation script works on a clean checkout.
-- [ ] README installation command points to the real GitHub URL.
-- [ ] No private repository paths, tokens, or customer data are present.
-- [ ] English and Chinese documentation links are valid.
-- [ ] License is included.
-- [ ] First release is tagged, for example `v0.1.0`.
+- [ ] `python3 scripts/validate.py` 通过。
+- [ ] 安装脚本能在干净 checkout 上运行。
+- [ ] README 安装命令指向真实 GitHub URL。
+- [ ] 没有私有仓库路径、token、客户数据或组织专属凭据。
+- [ ] 中英文文档都能正常链接。
+- [ ] License 已包含。
+- [ ] 首个版本已打标签，例如 `v0.1.0`。
 
-## Tag A Release
+## 标记版本
 
 ```bash
 git tag v0.1.0

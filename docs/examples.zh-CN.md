@@ -1,6 +1,6 @@
-# Usage Examples
+# 使用示例
 
-## Example 1: Bug Fix With QA Gate
+## 示例 1：带 QA 门禁的 Bug 修复
 
 ```text
 Use $agent-orchestration to coordinate a bug fix.
@@ -18,7 +18,7 @@ Done when:
 - coordinator confirms the fix is scoped and verified.
 ```
 
-## Example 2: Parallel Research Before Implementation
+## 示例 2：实现前的并行调研
 
 ```text
 Use $agent-orchestration.
@@ -31,7 +31,7 @@ Split this feature into parallel preparation:
 After all three reply, merge their outputs into one engineering task.
 ```
 
-## Example 3: Multi-Repository Commit Finalization
+## 示例 3：多仓库提交收尾
 
 ```text
 Use $agent-orchestration to finalize three repositories.
@@ -51,7 +51,7 @@ For each project thread:
 Create a 5-minute heartbeat monitor.
 ```
 
-## Example 4: Release Preparation
+## 示例 4：发布准备
 
 ```text
 Use $agent-orchestration for release preparation.
@@ -64,7 +64,7 @@ Roles:
 Do not publish release notes until QA and review have terminal statuses.
 ```
 
-## Example 5: Callback-Required Long Task
+## 示例 5：需要回调的长任务
 
 ```text
 Use $agent-orchestration.

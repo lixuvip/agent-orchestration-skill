@@ -1,10 +1,14 @@
-# Agent Orchestration Skill for Codex
+# Agent Orchestration Skill for Codex: Multi-Agent Workflow Coordination
 
 [中文说明](README.zh-CN.md)
 
-`agent-orchestration` is a reusable Codex skill for coordinating multi-role work across Codex threads, subagents, repositories, or worktrees.
+`agent-orchestration` is a reusable Codex skill for multi-agent orchestration, role-based task dispatch, QA gates, code review workflows, release coordination, callbacks, and heartbeat monitoring across Codex threads, subagents, repositories, or worktrees.
 
-It helps one Codex conversation act as the coordinator while other conversations or subagents take roles such as engineering, QA, code review, release notes, and product design. The skill includes dispatch templates, role reply templates, workflow gates, callback rules, and recurring heartbeat monitoring for long-running asynchronous work.
+It helps one Codex conversation act as the coordinator while other conversations or subagents take roles such as engineering, QA, code review, release notes, and product design. The skill includes task dispatch templates, structured role replies, workflow gates, callback rules, and recurring heartbeat monitoring for long-running asynchronous AI agent work.
+
+## Keywords
+
+Codex skill, AI agent orchestration, multi-agent workflow, subagents, task automation, role-based agents, code review automation, QA workflow, release management, GitHub workflow, developer tools.
 
 ## What It Solves
 
@@ -36,10 +40,15 @@ Use this skill when a task is too large or risky for one uninterrupted conversat
 │           └── templates/
 ├── docs/
 │   ├── installation.md
+│   ├── installation.zh-CN.md
 │   ├── quickstart.md
+│   ├── quickstart.zh-CN.md
 │   ├── tutorial.md
+│   ├── tutorial.zh-CN.md
 │   ├── examples.md
-│   └── publishing.md
+│   ├── examples.zh-CN.md
+│   ├── publishing.md
+│   └── publishing.zh-CN.md
 ├── examples/
 ├── scripts/
 │   ├── install.sh
@@ -103,11 +112,11 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## Documentation
 
-- [Installation](docs/installation.md)
-- [Quickstart](docs/quickstart.md)
-- [Tutorial](docs/tutorial.md)
-- [Usage examples](docs/examples.md)
-- [Publishing guide](docs/publishing.md)
+- Installation: [English](docs/installation.md) | [中文](docs/installation.zh-CN.md)
+- Quickstart: [English](docs/quickstart.md) | [中文](docs/quickstart.zh-CN.md)
+- Tutorial: [English](docs/tutorial.md) | [中文](docs/tutorial.zh-CN.md)
+- Usage examples: [English](docs/examples.md) | [中文](docs/examples.zh-CN.md)
+- Publishing guide: [English](docs/publishing.md) | [中文](docs/publishing.zh-CN.md)
 
 ## Validate
 
