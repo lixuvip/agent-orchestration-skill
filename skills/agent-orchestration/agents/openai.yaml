@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Orchestration"
+  short_description: "Coordinate Codex role threads"
+  default_prompt: "Use $agent-orchestration to split this task across Codex role threads and monitor completion."
