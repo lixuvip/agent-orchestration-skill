@@ -5,6 +5,7 @@
 - Added Chinese documentation for installation, quickstart, tutorial, examples, and publishing.
 - Expanded README discovery keywords and GitHub topic guidance.
 - Added project logo, workflow overview image, badges, quick links, and scenario examples.
+- Simplified the README workflow overview image for better first-screen readability.
 
 ## 0.1.0
 
