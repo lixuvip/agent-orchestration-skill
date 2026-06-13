@@ -66,7 +66,7 @@ def main() -> int:
     forbidden = ["[TODO", "TODO:", "<your-org>"]
     for path in [SKILL_MD, ROOT / "README.md", ROOT / "docs" / "installation.md"]:
         content = path.read_text(encoding="utf-8")
-        for token in forbidden[:2]:
+        for token in forbidden:
             if token in content:
                 fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
 
@@ -82,4 +82,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

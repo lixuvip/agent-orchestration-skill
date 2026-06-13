@@ -52,7 +52,7 @@ Use this skill when a task is too large or risky for one uninterrupted conversat
 Clone the repository and run the installer:
 
 ```bash
-git clone https://github.com/<your-org>/agent-orchestration-skill.git
+git clone https://github.com/lixuvip/agent-orchestration-skill.git
 cd agent-orchestration-skill
 ./scripts/install.sh
 ```

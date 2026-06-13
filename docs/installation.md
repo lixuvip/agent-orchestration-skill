@@ -13,7 +13,7 @@ For the current Codex skill structure and supported skill locations, see the off
 ## Option 1: Install From Git
 
 ```bash
-git clone https://github.com/<your-org>/agent-orchestration-skill.git
+git clone https://github.com/lixuvip/agent-orchestration-skill.git
 cd agent-orchestration-skill
 ./scripts/install.sh
 ```
@@ -27,7 +27,7 @@ ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 ## Option 2: Manual Install
 
 ```bash
-git clone https://github.com/<your-org>/agent-orchestration-skill.git
+git clone https://github.com/lixuvip/agent-orchestration-skill.git
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 cp -R agent-orchestration-skill/skills/agent-orchestration "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```

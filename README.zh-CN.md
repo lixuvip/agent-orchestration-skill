@@ -1,5 +1,7 @@
 # Agent Orchestration Codex Skill
 
+[English](README.md)
+
 `agent-orchestration` 是一个可复用的 Codex skill，用于协调多个角色、线程、子代理、仓库或 worktree 中的协作任务。
 
 当一个任务过大、持续时间较长，或者需要工程、QA、代码审查、发布文档等多个角色分别处理时，可以让一个 Codex 会话担任协调者，再把具体任务分发给其他 Codex 线程或子代理。
@@ -41,7 +43,7 @@
 克隆仓库后运行安装脚本：
 
 ```bash
-git clone https://github.com/<your-org>/agent-orchestration-skill.git
+git clone https://github.com/lixuvip/agent-orchestration-skill.git
 cd agent-orchestration-skill
 ./scripts/install.sh
 ```
