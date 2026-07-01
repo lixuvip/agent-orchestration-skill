@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: Coordinate multi-role Codex work across threads, subagents, repositories, or worktrees. Use when a task needs agent orchestration, role-based task dispatch, conversation/thread IDs, coordinator handoffs, asynchronous Codex threads, status polling, completion callbacks, recurring automation monitoring, multi-project commits, QA/review/release gates, or reusable task templates.
+description: Coordinate multi-role Codex work across threads, subagents, repositories, branches, or worktrees. Use when the user explicitly asks for agent orchestration, subagents, delegation, parallel agent work, role-based task dispatch, conversation/thread IDs, coordinator handoffs, asynchronous Codex threads, status polling, completion callbacks, recurring heartbeat monitoring, multi-project commits, QA/review/release gates, or reusable task templates. Also use for natural coordination requests such as another Codex thread/process/agent is changing something, another conversation needs a handoff, a separate QA or review pass should verify work, multiple branches/repos/projects need final merge or release coordination, or a delayed check-back/polling loop is tied to role threads or branch finalization. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 创建/继续/读取/转交线程.
 ---
 
 # Agent Orchestration
