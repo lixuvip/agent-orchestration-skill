@@ -8,6 +8,7 @@
 - [带 QA 的 Bug 修复](../examples/bugfix-with-qa.md)
 - [多项目收尾](../examples/multi-project-finalization.md)
 - [发布准备](../examples/release-prep.md)
+- [分支回调主线程控制循环](../examples/branch-callback-controller-loop.md)
 
 ## 示例 1：带 QA 门禁的 Bug 修复
 
@@ -82,4 +83,16 @@ Dispatch this long-running migration to a separate engineering thread.
 Require the role to callback to this coordinator thread when complete.
 If callback fails, require CALLBACK_FAILED in the role's final reply.
 Also create a heartbeat monitor that checks the role every 5 minutes.
+```
+
+## 示例 6：分支回调主线程控制循环
+
+```text
+Use $agent-orchestration to coordinate branch work with direct callback to the main coordinator thread.
+
+Create or continue a dedicated engineering branch/worktree.
+Keep QA read-only.
+Require every role to callback to the coordinator thread.
+Create heartbeat monitoring if the work is long-running.
+Run merge readiness before merging, pushing, or telling the user the branch is ready.
 ```

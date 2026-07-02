@@ -16,14 +16,16 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 
 ## Core Workflow
 
-1. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
-2. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
-3. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
-4. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, or heartbeat.
-5. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-6. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, stop conditions, verification, callback, and monitoring fields.
-7. Require role replies to match `references/templates/role_reply.template.md`.
-8. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+1. Read `references/ORCHESTRATION_INTAKE.md` when branch, thread, callback, automation, merge, or push permissions are ambiguous.
+2. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
+3. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
+4. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
+5. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
+6. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, or heartbeat.
+7. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+8. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+9. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+10. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
 
 ## Thread And Tool Handling
 

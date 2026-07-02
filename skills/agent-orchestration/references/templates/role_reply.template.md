@@ -18,6 +18,16 @@ Verification run:
 Risks / concerns:
 - <NONE_OR_SPECIFIC_RISK>
 
+Branch / worktree:
+- <BRANCH_OR_WORKTREE_OR_NONE>
+
+Commit:
+- <COMMIT_OR_NONE>
+
+Coordinator callback:
+- Sent: <YES | NO | NOT_AVAILABLE>
+- Destination / reason: <COORDINATOR_THREAD_ID_OR_REASON>
+
 Recommended next role:
 - <Coordinator | Product Designer | Technical Engineer | QA Tester | Code Reviewer | Release / Docs>
 ```
@@ -28,4 +38,3 @@ Recommended next role:
 - `NOT RUN` 必须说明原因。
 - 如果有失败，必须写出失败命令、失败现象和建议下一步。
 - 如果有风险，使用 `DONE_WITH_CONCERNS`，不要假装 `DONE`。
-

@@ -18,6 +18,16 @@ Verification run:
 Risks / concerns:
 - <无，或具体风险>
 
+Branch / worktree:
+- <BRANCH_OR_WORKTREE_OR_NONE>
+
+Commit:
+- <COMMIT_OR_NONE>
+
+Coordinator callback:
+- Sent: <YES | NO | NOT_AVAILABLE>
+- Destination / reason: <COORDINATOR_THREAD_ID_OR_REASON>
+
 Recommended next role:
 - <Coordinator | Product Designer | Technical Engineer | QA Tester | Code Reviewer | Release / Docs>
 ```

@@ -16,9 +16,10 @@
 1. 读取每个未进入终态的角色线程最新消息。
 2. 只有看到明确状态时，才更新状态：
    DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-3. 如果没有明确状态，保持 IN_PROGRESS，不要推断完成。
-4. 记录每个角色的摘要、验证结果和风险。
-5. 如果所有角色都进入终态，向协调者线程发送汇总，并请求关闭或删除本巡检。
+3. 如果没有明确状态或缺少验证结果，并且有线程消息工具，请发送一次聚焦状态请求。
+4. 如果状态请求后仍未进入终态，保持 IN_PROGRESS，不要推断完成。
+5. 记录每个角色的摘要、验证结果和风险。
+6. 如果所有角色都进入终态，向协调者线程发送汇总，并请求关闭或删除本巡检。
 
 汇总格式：
 Heartbeat summary for <TASK_ID>
@@ -29,5 +30,6 @@ Heartbeat summary for <TASK_ID>
   Risks: <NONE_OR_RISK>
 
 All roles terminal: <YES_OR_NO>
+状态请求已发送: <YES_OR_NO>
 Next coordinator action: <ACTION>
 ```

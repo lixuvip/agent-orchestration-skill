@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.1.2 - 2026-07-02
+
+- Added orchestration intake rules for branch, thread, callback, automation, merge, and push decisions.
+- Added controller-loop guidance for coordinator-to-role callbacks, status requests, heartbeat monitoring, and merge readiness.
+- Added English and Chinese templates for orchestration intake, coordinator callbacks, status requests, and merge readiness checks.
+- Expanded dispatch, role-reply, and heartbeat templates with branch/worktree, commit, callback, and status-request fields.
+- Added a branch callback controller-loop example and strengthened validation for the new resources.
+
 ## 0.1.1 - 2026-06-13
 
 - Added Chinese documentation for installation, quickstart, tutorial, examples, and publishing.

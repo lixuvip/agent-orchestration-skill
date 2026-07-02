@@ -22,14 +22,15 @@ Completion states:
 On each run:
 1. Read every tracked role thread.
 2. Extract the latest explicit status, changed files, verification, risks, commits, branches, and blockers.
-3. If any role has no terminal status, report a concise progress update and keep the automation active.
-4. If every role has a terminal status, post a coordinator summary with:
+3. If any role has no explicit status or missing verification, send one focused status request when thread messaging tools are available.
+4. If any role has no terminal status after the status request, report a concise progress update and keep the automation active.
+5. If every role has a terminal status, post a coordinator summary with:
    - final status per role;
    - verification evidence;
    - commits or branches if provided;
    - unresolved concerns;
    - recommended user-facing next step.
-5. After posting the all-complete summary, disable or delete this heartbeat automation.
+6. After posting the all-complete summary, disable or delete this heartbeat automation.
 
 Summary format:
 Heartbeat summary for <TASK_ID>
@@ -40,6 +41,7 @@ Heartbeat summary for <TASK_ID>
   Risks: <NONE_OR_RISK>
 
 All roles terminal: <YES_OR_NO>
+Status request sent: <YES_OR_NO>
 Next coordinator action: <ACTION>
 
 Do not mark a role complete from inference alone. Require an explicit terminal status or an unambiguous final delivery message.

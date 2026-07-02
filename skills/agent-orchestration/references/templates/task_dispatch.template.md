@@ -10,6 +10,8 @@ Thread role boundary: <ROLE_BOUNDARY>
 Task ID: <TASK_ID>
 Coordinator thread ID: <COORDINATOR_THREAD_ID>
 This role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
+Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
+Merge policy: <SUMMARIZE_ONLY | COMMIT_ALLOWED | PUSH_BRANCH_ALLOWED | MERGE_REQUIRES_CONFIRMATION | PR_ALLOWED>
 
 Goal:
 <ONE_SENTENCE_GOAL>
@@ -41,10 +43,14 @@ Verification:
 Callback:
 - On completion, send a callback to the coordinator thread if thread messaging tools are available.
 - If callback is unavailable or fails, include `CALLBACK_FAILED: <REASON>` in your final reply.
+- If branch or worktree work is involved, include branch, commit, tests, risks, and merge readiness in the callback.
 - Callback format:
   Coordinator callback:
   Task ID: <TASK_ID>
   Role: <ROLE_NAME>
+  Role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
+  Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
+  Commit: <COMMIT_OR_NONE>
   Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
   Summary:
   - <ONE_TO_THREE_BULLETS>
@@ -65,5 +71,8 @@ Summary:
 Changed files / Files inspected:
 Verification run:
 Risks / concerns:
+Branch / worktree:
+Commit:
+Coordinator callback:
 Recommended next role:
 ```

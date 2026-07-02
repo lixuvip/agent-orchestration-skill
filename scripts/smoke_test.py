@@ -17,16 +17,27 @@ SCENARIO_FILES = [
     ROOT / "examples" / "simple-research-task.md",
     ROOT / "examples" / "coding-review-workflow.md",
     ROOT / "examples" / "multi-agent-product-planning.md",
+    ROOT / "examples" / "branch-callback-controller-loop.md",
 ]
 
 CORE_FILES = [
     SKILL_DIR / "SKILL.md",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
+    SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
     SKILL_DIR / "references" / "STATE_MACHINE.md",
     SKILL_DIR / "references" / "WORKFLOWS.md",
     SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
+    SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md",
+    SKILL_DIR / "references" / "templates" / "coordinator_callback.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "merge_readiness.template.md",
+    SKILL_DIR / "references" / "templates" / "merge_readiness.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
     SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md",
+    SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "status_request.template.md",
+    SKILL_DIR / "references" / "templates" / "status_request.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "role_reply.template.md",
     SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md",
@@ -72,6 +83,25 @@ def main() -> int:
             "CALLBACK_FAILED",
             "每 5 分钟",
             "DONE_WITH_CONCERNS",
+            "status request",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
+        [
+            "request_user_input",
+            "Ask only when",
+            "Do not ask when",
+            "Execution surface",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
+        [
+            "controller loop",
+            "send_message_to_thread",
+            "status request",
+            "merge readiness",
         ],
     )
     require_all(
@@ -81,6 +111,8 @@ def main() -> int:
             "Callback format",
             "Stop and report if",
             "Verification",
+            "Branch / worktree",
+            "Merge policy",
         ],
     )
     require_all(
@@ -90,6 +122,45 @@ def main() -> int:
             "回调格式",
             "遇到以下情况请停止并报告",
             "验证要求",
+            "分支 / 工作区",
+            "合并策略",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md",
+        [
+            "Execution surface:",
+            "Callback behavior:",
+            "Merge/push permission:",
+            "Ask only if",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md",
+        [
+            "Task ID:",
+            "Branch / worktree:",
+            "Status:",
+            "Verification:",
+            "Next coordinator action:",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "status_request.template.md",
+        [
+            "Status request",
+            "Coordinator thread ID",
+            "Reply with one",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "merge_readiness.template.md",
+        [
+            "Merge readiness",
+            "Base branch:",
+            "Working tree:",
+            "Tests:",
+            "Push permission:",
         ],
     )
 

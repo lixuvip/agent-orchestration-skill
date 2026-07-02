@@ -27,6 +27,8 @@ agent_orchestration_kit/
 ├── ROLE_REGISTRY.template.md
 ├── COMMUNICATION_PROTOCOL.md
 ├── AUTOMATION_MONITORING.md
+├── ORCHESTRATION_INTAKE.md
+├── CONTROLLER_LOOP.md
 ├── REQUIREMENT_WRITING_GUIDE.md
 ├── STATE_MACHINE.md
 ├── TASK_BOARD.template.md
@@ -44,6 +46,14 @@ agent_orchestration_kit/
 └── templates/
     ├── task_dispatch.template.md
     ├── task_dispatch.zh-CN.template.md
+    ├── orchestration_intake.template.md
+    ├── orchestration_intake.zh-CN.template.md
+    ├── coordinator_callback.template.md
+    ├── coordinator_callback.zh-CN.template.md
+    ├── status_request.template.md
+    ├── status_request.zh-CN.template.md
+    ├── merge_readiness.template.md
+    ├── merge_readiness.zh-CN.template.md
     ├── monitoring_heartbeat.template.md
     ├── monitoring_heartbeat.zh-CN.template.md
     ├── role_reply.template.md
@@ -60,12 +70,14 @@ agent_orchestration_kit/
 3. 复制 `ROLE_REGISTRY.template.md` 为 `ROLE_REGISTRY.md`，填写每个角色对应的真实对话 ID。
 4. 复制 `TASK_BOARD.template.md` 为 `TASK_BOARD.md`，用于追踪任务状态。
 5. 给每个角色对话发送对应的 `roles/*.md` 作为角色初始化说明。
-6. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
-7. 要求每个角色按 `templates/role_reply.template.md` 回复。
-8. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
-9. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-10. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
-11. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+6. 如果分支、线程、回调、自动化、合并或推送策略不明确，先按 `ORCHESTRATION_INTAKE.md` 和 `templates/orchestration_intake.template.md` 做短确认。
+7. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
+8. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
+9. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
+10. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
+11. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
+12. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
+13. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 

@@ -9,12 +9,13 @@
 </p>
 
 <p align="center">
-  <strong>Run multi-agent workflows in Codex with parallel roles, callbacks, heartbeat checks, and structured task handoffs.</strong>
+  <strong>Turn Codex into a coordinator for role threads, branch handoffs, callbacks, QA/review gates, and merge-readiness checks.</strong>
 </p>
 
 <p align="center">
   <a href="README.zh-CN.md">中文说明</a> ·
   <a href="#quick-start">Quick Start</a> ·
+  <a href="#what-v012-adds">What's New</a> ·
   <a href="#demo-workflow">Demo Workflow</a> ·
   <a href="docs/examples.md">Examples</a> ·
   <a href="docs/installation.md">Installation</a>
@@ -33,14 +34,28 @@
 
 Instead of asking one agent to handle everything in a long linear thread, this skill gives Codex a repeatable orchestration layer for scoped delegation, callback-based progress reporting, heartbeat monitoring, task state tracking, and final handoff review.
 
+It is especially useful when another Codex thread or branch is doing work and the main thread needs a reliable way to receive callbacks, request status, verify QA/review output, and decide whether a branch is ready to merge or push.
+
 ## Quick Links
 
 - [Install the skill](docs/installation.md)
 - [Start in 3 minutes](docs/quickstart.md)
 - [Coordinate a multi-project release](docs/tutorial.md)
-- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [product planning](examples/multi-agent-product-planning.md)
+- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [branch callback](examples/branch-callback-controller-loop.md), [product planning](examples/multi-agent-product-planning.md)
+- [Read the v0.1.2 release notes](docs/releases/v0.1.2.md)
 - [Read the Chinese docs](README.zh-CN.md)
 - [Publish or fork your own version](docs/publishing.md)
+
+## What v0.1.2 Adds
+
+`v0.1.2` focuses on coordinator efficiency for real Codex branch and thread workflows.
+
+| Area | What changed | Why it helps |
+| --- | --- | --- |
+| Intake | Adds rules and templates for when to ask about branches, threads, callbacks, automation, merge, or push. | Codex asks fewer unnecessary questions, but still pauses before risky orchestration. |
+| Controller loop | Adds a main-thread loop for dispatch, callback, heartbeat, status request, and merge readiness. | Child threads can work independently while the coordinator keeps the final authority. |
+| Branch handoff | Adds callback and merge-readiness templates with branch/worktree, commit, tests, risks, and next action. | Branches become easier to review, verify, merge, or hand off without digging through chat history. |
+| Monitoring | Heartbeat checks can now request missing status or verification before summarizing. | Long-running work is less likely to be marked complete from silence or weak evidence. |
 
 ## Why This Exists
 
@@ -50,9 +65,11 @@ This skill adds a small coordination layer that makes Codex workflows more obser
 
 - Split one goal into multiple role-specific agents.
 - Give every role explicit scope, stop conditions, verification, and callback rules.
+- Confirm branch, thread, callback, merge, and push behavior before risky orchestration.
 - Track task state with `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, and `NEEDS_CONTEXT`.
 - Use heartbeat monitoring for long-running or asynchronous work.
 - Require the coordinator to inspect role output, risks, and verification before final delivery.
+- Run merge-readiness checks before branch finalization.
 
 ## Best For
 
@@ -62,6 +79,7 @@ This skill adds a small coordination layer that makes Codex workflows more obser
 - QA and code review gates for AI-assisted development.
 - Multi-repository release coordination.
 - Long-running Codex tasks that need monitoring and callbacks.
+- Branch/worktree handoffs that need status requests, QA gates, and merge readiness.
 
 ## What It Solves
 
@@ -72,6 +90,19 @@ Use this skill when a task is too large or risky for one uninterrupted conversat
 - Long-running Codex threads where the coordinator must poll status instead of relying on memory.
 - Handoffs that require explicit changed files, verification commands, risks, and final status.
 - Workflows where child threads should call back to the coordinator and a heartbeat automation should check status every 5 minutes.
+- Branch or worktree workflows that need status requests, coordinator callbacks, and merge-readiness checks.
+
+## Example: Branch Callback
+
+```text
+Use $agent-orchestration to coordinate branch work with direct callback to the main coordinator thread.
+
+Create or continue a dedicated engineering branch/worktree.
+Keep QA read-only.
+Require every role to callback to the coordinator thread.
+Create heartbeat monitoring if the work is long-running.
+Run merge readiness before merging, pushing, or telling the user the branch is ready.
+```
 
 ## Quick Start
 
@@ -145,6 +176,8 @@ flowchart TD
 │       └── references/
 │           ├── AUTOMATION_MONITORING.md
 │           ├── COMMUNICATION_PROTOCOL.md
+│           ├── CONTROLLER_LOOP.md
+│           ├── ORCHESTRATION_INTAKE.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
 │           ├── STATE_MACHINE.md
@@ -228,7 +261,7 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## Search Keywords
 
-Codex skill, OpenAI Codex, AI agent orchestration, multi-agent workflow, parallel agents, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
+Codex skill, Codex skills, Agent Skills, OpenAI Codex, AI agent orchestration, multi-agent workflow, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
 
 ## Documentation
 

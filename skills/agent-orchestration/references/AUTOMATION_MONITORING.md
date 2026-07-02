@@ -53,6 +53,7 @@ Risks:
 - 输入：任务 ID、角色清单、对话 ID、完成判定规则。
 - 动作：读取每个角色对话的最新消息并更新状态。
 - 结束条件：全部角色进入终态后汇总结果并关闭或暂停该自动化。
+- 状态不清时：优先发送一次 status request，要求角色补充显式状态、验证和风险。
 
 终态包括：
 
@@ -74,4 +75,4 @@ Risks:
 ## 巡检提示词模板
 
 可使用 `templates/monitoring_heartbeat.template.md` 创建自动化巡检提示词。
-
+状态不清或缺少验证时，可使用 `templates/status_request.template.md` 向角色线程请求更新。

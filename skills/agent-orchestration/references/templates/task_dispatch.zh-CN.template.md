@@ -10,6 +10,8 @@
 任务 ID：<TASK_ID>
 协调者线程 ID：<COORDINATOR_THREAD_ID>
 当前角色线程 ID：<ROLE_THREAD_ID_OR_UNKNOWN>
+分支 / 工作区：<BRANCH_OR_WORKTREE_OR_NONE>
+合并策略：<SUMMARIZE_ONLY | COMMIT_ALLOWED | PUSH_BRANCH_ALLOWED | MERGE_REQUIRES_CONFIRMATION | PR_ALLOWED>
 
 目标：
 <ONE_SENTENCE_GOAL>
@@ -41,10 +43,14 @@
 回调：
 - 完成后，如果有线程消息工具，请向协调者线程发送回调。
 - 如果无法回调或回调失败，请在最终回复中包含 `CALLBACK_FAILED: <REASON>`。
+- 如果涉及分支或工作区，请在回调中包含分支、commit、测试、风险和合并就绪状态。
 - 回调格式：
   Coordinator callback:
   Task ID: <TASK_ID>
   Role: <ROLE_NAME>
+  Role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
+  Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
+  Commit: <COMMIT_OR_NONE>
   Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
   Summary:
   - <ONE_TO_THREE_BULLETS>
@@ -65,5 +71,8 @@ Summary:
 Changed files / Files inspected:
 Verification run:
 Risks / concerns:
+Branch / worktree:
+Commit:
+Coordinator callback:
 Recommended next role:
 ```

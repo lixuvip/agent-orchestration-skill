@@ -8,6 +8,7 @@ For copy-ready scenario files, see:
 - [Bug fix with QA](../examples/bugfix-with-qa.md)
 - [Multi-project finalization](../examples/multi-project-finalization.md)
 - [Release preparation](../examples/release-prep.md)
+- [Branch callback controller loop](../examples/branch-callback-controller-loop.md)
 
 ## Example 1: Bug Fix With QA Gate
 
@@ -82,4 +83,16 @@ Dispatch this long-running migration to a separate engineering thread.
 Require the role to callback to this coordinator thread when complete.
 If callback fails, require CALLBACK_FAILED in the role's final reply.
 Also create a heartbeat monitor that checks the role every 5 minutes.
+```
+
+## Example 6: Branch Callback Controller Loop
+
+```text
+Use $agent-orchestration to coordinate branch work with direct callback to the main coordinator thread.
+
+Create or continue a dedicated engineering branch/worktree.
+Keep QA read-only.
+Require every role to callback to the coordinator thread.
+Create heartbeat monitoring if the work is long-running.
+Run merge readiness before merging, pushing, or telling the user the branch is ready.
 ```
