@@ -104,3 +104,40 @@ Mobile Client:
 The coordinator disables or deletes the heartbeat automation after the all-complete summary is posted.
 
 Do not leave stale monitors running after the task has reached terminal state.
+
+## Step 7: Convert To Project Autopilot
+
+If the release is not a one-time handoff, use Project Autopilot instead of leaving a heartbeat monitor running forever.
+
+Autopilot starts with a goal contract:
+
+```text
+Goal:
+Keep Service API, Web Client, and Mobile Client moving until the release-readiness checklist is complete.
+
+Done when:
+- every project reports terminal status;
+- release docs cover the shared API contract;
+- relevant verification commands pass or are explicitly reported as blocked;
+- unresolved risks have owner and next step.
+
+Allowed autonomously:
+- inspect git, issues, PRs, docs, and tests;
+- request status from role threads;
+- run non-destructive verification;
+- post idempotent status comments when the latest effective update changed.
+
+Requires confirmation:
+- merge, push, deploy, publish, destructive changes, public API contract changes, or scope expansion.
+```
+
+Then create automation with:
+
+- `references/PROJECT_AUTOPILOT.md`
+- `references/templates/project_goal_contract.template.md`
+- `references/templates/automation_plan.template.md`
+- `references/templates/automation_tick.template.md`
+- `references/templates/automation_memory.template.md`
+- `references/templates/escalation_report.template.md`
+
+Use `AGENTS.md` and nested `AGENTS.override.md` for durable project rules. Use automation memory for live task state such as latest effective update, prior comments, blockers, and next safe action.

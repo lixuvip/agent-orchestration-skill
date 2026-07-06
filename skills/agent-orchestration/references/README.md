@@ -29,6 +29,7 @@ agent_orchestration_kit/
 ├── AUTOMATION_MONITORING.md
 ├── ORCHESTRATION_INTAKE.md
 ├── CONTROLLER_LOOP.md
+├── PROJECT_AUTOPILOT.md
 ├── REQUIREMENT_WRITING_GUIDE.md
 ├── STATE_MACHINE.md
 ├── TASK_BOARD.template.md
@@ -48,6 +49,18 @@ agent_orchestration_kit/
     ├── task_dispatch.zh-CN.template.md
     ├── orchestration_intake.template.md
     ├── orchestration_intake.zh-CN.template.md
+    ├── project_goal_contract.template.md
+    ├── project_goal_contract.zh-CN.template.md
+    ├── automation_plan.template.md
+    ├── automation_plan.zh-CN.template.md
+    ├── automation_tick.template.md
+    ├── automation_tick.zh-CN.template.md
+    ├── automation_memory.template.md
+    ├── automation_memory.zh-CN.template.md
+    ├── escalation_report.template.md
+    ├── escalation_report.zh-CN.template.md
+    ├── agents_guidance_snippet.template.md
+    ├── agents_guidance_snippet.zh-CN.template.md
     ├── coordinator_callback.template.md
     ├── coordinator_callback.zh-CN.template.md
     ├── status_request.template.md
@@ -75,9 +88,10 @@ agent_orchestration_kit/
 8. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
 9. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
 10. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-11. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
-12. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-13. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+11. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
+12. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
+13. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
+14. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 
@@ -101,4 +115,5 @@ agent_orchestration_kit/
 - QA 和 Reviewer 默认只读，除非明确分配修复任务。
 - 角色回复必须包含实际验证结果，不接受只回复“完成了”。
 - 多对话异步任务必须记录对话 ID，并启用回调或巡检，不能靠记忆判断完成。
+- 周期性自动化必须读取项目 `AGENTS.md` / `AGENTS.override.md` 等持久指令，并把临时状态写入 automation memory。
 - 涉及密钥、付费服务、生产环境、破坏性 git 操作、大模型下载等事项时，必须停止并请求确认。

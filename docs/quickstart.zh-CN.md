@@ -50,7 +50,29 @@ Constraints:
 
 心跳监控每 5 分钟检查一次各角色状态，并在所有角色到达终态后关闭自身。
 
-## 5. 协调者最终交付
+## 5. 用 Project Autopilot 做周期性推进
+
+当任务需要跨多次自动化运行持续推进，而不只是监控角色完成状态时，使用 Project Autopilot。
+
+```text
+Use $agent-orchestration to create a project autopilot loop.
+
+Goal:
+Keep this repository moving until the release-readiness checklist is complete.
+
+Use:
+- AGENTS.md and AGENTS.override.md for durable project rules;
+- PROJECT_AUTOPILOT.md for the recurring control loop;
+- project_goal_contract.template.md for done criteria and permissions;
+- automation_tick.template.md for each recurring run;
+- automation_memory.template.md so repeated runs do not duplicate work.
+
+Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
+```
+
+当前线程回访和回调巡检用 heartbeat automation。需要独立推进 workspace 或 worktree 的长期任务，用 cron automation。
+
+## 6. 协调者最终交付
 
 最终回复应包含：
 
@@ -59,3 +81,4 @@ Constraints:
 - 精确的验证证据；
 - 未解决的风险；
 - 相关 commit 或分支名。
+- 哪些自动化已经暂停、删除或仍保持运行。

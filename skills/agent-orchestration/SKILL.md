@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: Coordinate multi-role Codex work across threads, subagents, repositories, branches, or worktrees. Use when the user explicitly asks for agent orchestration, subagents, delegation, parallel agent work, role-based task dispatch, conversation/thread IDs, coordinator handoffs, asynchronous Codex threads, status polling, completion callbacks, recurring heartbeat monitoring, multi-project commits, QA/review/release gates, or reusable task templates. Also use for natural coordination requests such as another Codex thread/process/agent is changing something, another conversation needs a handoff, a separate QA or review pass should verify work, multiple branches/repos/projects need final merge or release coordination, or a delayed check-back/polling loop is tied to role threads or branch finalization. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 创建/继续/读取/转交线程.
+description: Coordinate multi-role Codex work across threads, subagents, repositories, branches, worktrees, or recurring automations. Use when the user asks for agent orchestration, delegation, parallel agent work, conversation/thread IDs, coordinator handoffs, asynchronous Codex threads, status polling, completion callbacks, heartbeat monitoring, project autopilot, continuous project progress until a goal is met, multi-project commits, QA/review/release gates, or reusable task templates. Also use when another Codex thread/process/agent is changing something, another conversation needs a handoff, a QA/review pass should verify work, branches/repos/projects need final merge or release coordination, or a delayed check-back/polling loop should keep work moving. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 持续推进, 一直做到目标效果, 定时自动继续, 创建/继续/读取/转交线程.
 ---
 
 # Agent Orchestration
@@ -21,11 +21,12 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 3. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
 4. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
 5. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
-6. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, or heartbeat.
-7. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-8. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-9. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-10. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+6. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
+7. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, heartbeat, or automation tick.
+8. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+9. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+10. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+11. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
 
 ## Thread And Tool Handling
 
@@ -38,7 +39,7 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 
 - If thread tools are available, use them for user-visible role conversations and callbacks.
 - If subagent tools are available, prefer them for internal parallel role work that does not need user-owned threads.
-- If automation tools are available, create a heartbeat for two or more active role threads, or any long-running role.
+- If automation tools are available, create a heartbeat for two or more active role threads, any long-running role, or current-thread follow-up; create a cron automation for durable workspace/project autopilot.
 - If callbacks or automation are unavailable, maintain a manual task board from `references/TASK_BOARD.template.md` and poll unresolved roles before final delivery.
 - If none of these capabilities are available, keep orchestration in the current conversation, make the limitation explicit, and avoid pretending that independent roles are running.
 
@@ -55,6 +56,8 @@ Apply these rules:
 - The default heartbeat interval is 5 minutes.
 - Use `references/templates/monitoring_heartbeat.template.md` as the automation prompt.
 - When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`, summarize results and disable or delete the heartbeat automation.
+- For recurring project work beyond status monitoring, read `references/PROJECT_AUTOPILOT.md` and create a goal contract, automation plan, tick prompt, memory file, and escalation rule before enabling cron automation.
+- Treat target project `AGENTS.md` / `AGENTS.override.md` as persistent repository guidance, and automation memory as temporary task state. Do not silently put live task state into `AGENTS.md`.
 
 For Chinese-only teams, use the matching Chinese templates in `references/templates/*.zh-CN.template.md`.
 

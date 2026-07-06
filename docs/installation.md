@@ -69,6 +69,24 @@ For `$HOME/.agents/skills` installs, check:
 $HOME/.agents/skills/agent-orchestration/SKILL.md
 ```
 
+## Optional: Add Project Guidance
+
+Project Autopilot works best when the target repository has durable Codex guidance.
+
+Use `AGENTS.md` for stable project rules:
+
+```markdown
+# AGENTS.md
+
+## Repository Expectations
+
+- Run the documented test command before claiming release readiness.
+- Ask before merge, push, deploy, destructive changes, or public API contract changes.
+- Keep temporary automation state in automation memory, not in this file.
+```
+
+Use nested `AGENTS.override.md` files only when a subdirectory needs stronger local rules. Use `.codex/config.toml` for Codex configuration such as fallback instruction filenames; do not store secrets or live task state there.
+
 ## Update
 
 Pull the latest repository changes and reinstall:

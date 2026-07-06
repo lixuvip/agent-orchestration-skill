@@ -50,7 +50,29 @@ For multiple or long-running role threads, the coordinator should use:
 
 The heartbeat checks each role every 5 minutes and closes itself after all roles reach a terminal state.
 
-## 5. Final Coordinator Delivery
+## 5. Use Project Autopilot For Recurring Progress
+
+Use Project Autopilot when the task should continue across repeated automation runs, not just monitor role completion.
+
+```text
+Use $agent-orchestration to create a project autopilot loop.
+
+Goal:
+Keep this repository moving until the release-readiness checklist is complete.
+
+Use:
+- AGENTS.md and AGENTS.override.md for durable project rules;
+- PROJECT_AUTOPILOT.md for the recurring control loop;
+- project_goal_contract.template.md for done criteria and permissions;
+- automation_tick.template.md for each recurring run;
+- automation_memory.template.md so repeated runs do not duplicate work.
+
+Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
+```
+
+Use heartbeat automation for current-thread callback checks. Use cron automation for workspace or worktree progress that should run independently.
+
+## 6. Final Coordinator Delivery
 
 The final response should include:
 
@@ -59,3 +81,4 @@ The final response should include:
 - exact verification evidence;
 - unresolved risks;
 - commits or branch names when relevant.
+- whether any automation was paused, deleted, or left active.

@@ -104,3 +104,40 @@ Mobile Client:
 协调者在发布 all-complete 汇总后，禁用或删除心跳监控。
 
 任务已经到达终态后，不要让过期的监控继续运行。
+
+## 第 7 步：转换成 Project Autopilot
+
+如果这次发布不是一次性交接，而是需要后续持续推进，不要让 heartbeat 永远运行，改用 Project Autopilot。
+
+Autopilot 先建立目标契约：
+
+```text
+Goal:
+Keep Service API, Web Client, and Mobile Client moving until the release-readiness checklist is complete.
+
+Done when:
+- every project reports terminal status;
+- release docs cover the shared API contract;
+- relevant verification commands pass or are explicitly reported as blocked;
+- unresolved risks have owner and next step.
+
+Allowed autonomously:
+- inspect git, issues, PRs, docs, and tests;
+- request status from role threads;
+- run non-destructive verification;
+- post idempotent status comments when the latest effective update changed.
+
+Requires confirmation:
+- merge, push, deploy, publish, destructive changes, public API contract changes, or scope expansion.
+```
+
+然后用这些资源创建自动化：
+
+- `references/PROJECT_AUTOPILOT.md`
+- `references/templates/project_goal_contract.template.md`
+- `references/templates/automation_plan.template.md`
+- `references/templates/automation_tick.template.md`
+- `references/templates/automation_memory.template.md`
+- `references/templates/escalation_report.template.md`
+
+稳定项目规则放在 `AGENTS.md` 和嵌套的 `AGENTS.override.md` 中。实时任务状态放在 automation memory 中，例如最新有效更新、已发评论、阻塞和下一步安全动作。

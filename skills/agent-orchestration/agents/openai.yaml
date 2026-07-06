@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Orchestration"
-  short_description: "Coordinate Codex threads and handoffs"
-  default_prompt: "Use $agent-orchestration to coordinate this task across Codex role threads with callbacks, QA/review gates, and completion monitoring."
+  short_description: "Coordinate Codex threads and automations"
+  default_prompt: "Use $agent-orchestration to coordinate this task across Codex role threads, callbacks, QA/review gates, and project automation."

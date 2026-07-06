@@ -18,6 +18,7 @@ SCENARIO_FILES = [
     ROOT / "examples" / "coding-review-workflow.md",
     ROOT / "examples" / "multi-agent-product-planning.md",
     ROOT / "examples" / "branch-callback-controller-loop.md",
+    ROOT / "examples" / "continuous-project-autopilot.md",
 ]
 
 CORE_FILES = [
@@ -25,13 +26,26 @@ CORE_FILES = [
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
+    SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
     SKILL_DIR / "references" / "STATE_MACHINE.md",
     SKILL_DIR / "references" / "WORKFLOWS.md",
     SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
+    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md",
+    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_memory.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_memory.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_plan.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_plan.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_tick.template.md",
+    SKILL_DIR / "references" / "templates" / "automation_tick.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md",
     SKILL_DIR / "references" / "templates" / "coordinator_callback.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "escalation_report.template.md",
+    SKILL_DIR / "references" / "templates" / "escalation_report.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "merge_readiness.template.md",
     SKILL_DIR / "references" / "templates" / "merge_readiness.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md",
+    SKILL_DIR / "references" / "templates" / "project_goal_contract.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
     SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md",
@@ -84,6 +98,18 @@ def main() -> int:
             "每 5 分钟",
             "DONE_WITH_CONCERNS",
             "status request",
+            "PROJECT_AUTOPILOT.md",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
+        [
+            "AGENTS.md",
+            "cron",
+            "Goal Contract",
+            "Tick Loop",
+            "latest effective update",
+            "automation memory",
         ],
     )
     require_all(
@@ -93,6 +119,7 @@ def main() -> int:
             "Ask only when",
             "Do not ask when",
             "Execution surface",
+            "project autopilot",
         ],
     )
     require_all(
@@ -102,6 +129,36 @@ def main() -> int:
             "send_message_to_thread",
             "status request",
             "merge readiness",
+            "Autopilot Readiness",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md",
+        [
+            "Done when:",
+            "Allowed autonomously:",
+            "Requires confirmation:",
+            "Verification commands:",
+            "Memory path:",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "automation_tick.template.md",
+        [
+            "Latest effective update:",
+            "Action taken:",
+            "Verification:",
+            "Next safe action:",
+            "Escalation needed:",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md",
+        [
+            "Codex Project Autopilot",
+            "Safe autonomous actions",
+            "Actions requiring confirmation",
+            "Idempotency rule",
         ],
     )
     require_all(

@@ -9,6 +9,7 @@ For copy-ready scenario files, see:
 - [Multi-project finalization](../examples/multi-project-finalization.md)
 - [Release preparation](../examples/release-prep.md)
 - [Branch callback controller loop](../examples/branch-callback-controller-loop.md)
+- [Continuous project autopilot](../examples/continuous-project-autopilot.md)
 
 ## Example 1: Bug Fix With QA Gate
 
@@ -95,4 +96,15 @@ Keep QA read-only.
 Require every role to callback to the coordinator thread.
 Create heartbeat monitoring if the work is long-running.
 Run merge readiness before merging, pushing, or telling the user the branch is ready.
+```
+
+## Example 7: Continuous Project Autopilot
+
+```text
+Use $agent-orchestration to create a project autopilot loop for this repository.
+
+Read AGENTS.md, AGENTS.override.md, project docs, and the release checklist first.
+Create a goal contract with done criteria, allowed autonomous actions, confirmation gates, cadence, memory path, and stop conditions.
+Use cron automation for workspace progress and heartbeat only for coordinator-thread callbacks.
+Each tick should compare the latest effective update, take one safe next action, run verification, update automation memory, and escalate if merge/push/deploy or scope expansion is needed.
 ```

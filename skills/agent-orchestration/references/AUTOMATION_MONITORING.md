@@ -10,6 +10,8 @@
 下发任务 -> 记录对话 ID -> 要求角色回调 -> 创建 5 分钟巡检 -> 读取角色状态 -> 全部结束后汇总 -> 关闭巡检
 ```
 
+如果用户要求“持续推进项目直到目标完成”，不要只创建 heartbeat。改用 `PROJECT_AUTOPILOT.md` 建立目标契约、cron/heartbeat 选择、automation memory 和升级规则。
+
 ## 适用条件
 
 满足任一条件时启用本规则：
@@ -55,6 +57,8 @@ Risks:
 - 结束条件：全部角色进入终态后汇总结果并关闭或暂停该自动化。
 - 状态不清时：优先发送一次 status request，要求角色补充显式状态、验证和风险。
 
+Heartbeat 适合当前线程回访、角色回调收集和短周期巡检。Cron 适合绑定 workspace/worktree 的持续项目推进，例如 issue/PR 巡检、测试、发布就绪和下一步安全动作。创建或更新自动化时，优先使用 Codex automation 工具；有现成自动化时优先更新，避免重复。
+
 终态包括：
 
 - `DONE`
@@ -76,3 +80,4 @@ Risks:
 
 可使用 `templates/monitoring_heartbeat.template.md` 创建自动化巡检提示词。
 状态不清或缺少验证时，可使用 `templates/status_request.template.md` 向角色线程请求更新。
+项目 Autopilot 可使用 `templates/project_goal_contract.template.md`、`templates/automation_plan.template.md`、`templates/automation_tick.template.md`、`templates/automation_memory.template.md` 和 `templates/escalation_report.template.md`。

@@ -69,6 +69,24 @@ ${CODEX_HOME:-$HOME/.codex}/skills/agent-orchestration/SKILL.md
 $HOME/.agents/skills/agent-orchestration/SKILL.md
 ```
 
+## 可选：添加项目常驻指令
+
+Project Autopilot 在目标仓库有稳定 Codex 指令时效果最好。
+
+用 `AGENTS.md` 存放稳定项目规则：
+
+```markdown
+# AGENTS.md
+
+## Repository Expectations
+
+- 声明 release ready 前运行文档中的测试命令。
+- merge、push、deploy、破坏性改动或公开 API 契约变化前先询问。
+- 临时 automation 状态写入 automation memory，不写进本文件。
+```
+
+只有子目录需要更强局部规则时，才使用嵌套的 `AGENTS.override.md`。`.codex/config.toml` 用于 Codex 配置，例如 fallback 指令文件名；不要在里面存密钥或实时任务状态。
+
 ## 更新
 
 拉取最新仓库代码后重新安装：
