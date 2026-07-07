@@ -41,7 +41,8 @@ It is especially useful when another Codex thread or branch is doing work and th
 - [Install the skill](docs/installation.md)
 - [Start in 3 minutes](docs/quickstart.md)
 - [Coordinate a multi-project release](docs/tutorial.md)
-- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [branch callback](examples/branch-callback-controller-loop.md), [project autopilot](examples/continuous-project-autopilot.md), [product planning](examples/multi-agent-product-planning.md)
+- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [branch callback](examples/branch-callback-controller-loop.md), [project autopilot](examples/continuous-project-autopilot.md), [GitHub issue/PR autopilot](examples/github-issue-pr-autopilot.md), [product planning](examples/multi-agent-product-planning.md)
+- [Review forward-test scenarios](docs/forward-tests.md)
 - [Read the v0.1.3 release notes](docs/releases/v0.1.3.md)
 - [Read the Chinese docs](README.zh-CN.md)
 - [Publish or fork your own version](docs/publishing.md)
@@ -56,10 +57,11 @@ It is especially useful when another Codex thread or branch is doing work and th
 | Persistent guidance | Uses `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, and `.codex/config.toml` as project context sources. | Recurring runs inherit stable repo rules instead of relying on chat history. |
 | Automation memory | Adds templates for memory, idempotency, latest effective updates, blockers, and posted messages. | Cron runs avoid duplicate comments, repeated status requests, and repeated work. |
 | Escalation gates | Adds explicit stop rules for merge, push, deploy, destructive changes, public API contract changes, and scope expansion. | Automation can move quickly without taking authority it does not have. |
+| Tooling guardrails | Adds explicit automation-tooling and project-instruction discovery guidance. | Agents can choose heartbeat vs cron, update existing automations, and separate `AGENTS.md` rules from live memory. |
 
 ## Project Autopilot
 
-The current development version adds a Project Autopilot pattern for recurring Codex automation. It is for prompts like "keep working on this project until the checklist is complete" or "check every hour and take the next safe step."
+`v0.1.3` adds a Project Autopilot pattern for recurring Codex automation. It is for prompts like "keep working on this project until the checklist is complete" or "check every hour and take the next safe step."
 
 Autopilot combines:
 
@@ -69,6 +71,7 @@ Autopilot combines:
 - Cron automation for durable workspace or worktree progress.
 - Automation memory so each run compares the latest effective update before posting comments or repeating work.
 - Escalation reports when merge, push, deploy, scope expansion, or repeated verification failure needs user input.
+- Forward-test scenarios and filled examples for no-op ticks, escalation, goal contracts, and automation memory.
 
 ## Why This Exists
 
@@ -203,10 +206,12 @@ flowchart TD
 │       │   └── openai.yaml
 │       └── references/
 │           ├── AUTOMATION_MONITORING.md
+│           ├── AUTOMATION_TOOLING.md
 │           ├── COMMUNICATION_PROTOCOL.md
 │           ├── CONTROLLER_LOOP.md
 │           ├── ORCHESTRATION_INTAKE.md
 │           ├── PROJECT_AUTOPILOT.md
+│           ├── PROJECT_INSTRUCTIONS_DISCOVERY.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
 │           ├── STATE_MACHINE.md
@@ -290,7 +295,7 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## Search Keywords
 
-Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AI agent orchestration, multi-agent workflow, project autopilot, Codex automations, cron automation, heartbeat automation, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
+Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AGENTS.override.md, AI agent orchestration, multi-agent workflow, project autopilot, Codex automations, cron automation, heartbeat automation, GitHub issue automation, PR automation, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
 
 ## Documentation
 
@@ -298,6 +303,7 @@ Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AI agent orche
 - Quickstart: [English](docs/quickstart.md) | [中文](docs/quickstart.zh-CN.md)
 - Tutorial: [English](docs/tutorial.md) | [中文](docs/tutorial.zh-CN.md)
 - Usage examples: [English](docs/examples.md) | [中文](docs/examples.zh-CN.md)
+- Forward tests: [docs/forward-tests.md](docs/forward-tests.md)
 - Publishing guide: [English](docs/publishing.md) | [中文](docs/publishing.zh-CN.md)
 
 ## Validate

@@ -19,6 +19,7 @@ SCENARIO_FILES = [
     ROOT / "examples" / "multi-agent-product-planning.md",
     ROOT / "examples" / "branch-callback-controller-loop.md",
     ROOT / "examples" / "continuous-project-autopilot.md",
+    ROOT / "examples" / "github-issue-pr-autopilot.md",
 ]
 
 CORE_FILES = [
@@ -27,6 +28,8 @@ CORE_FILES = [
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
+    SKILL_DIR / "references" / "AUTOMATION_TOOLING.md",
+    SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md",
     SKILL_DIR / "references" / "STATE_MACHINE.md",
     SKILL_DIR / "references" / "WORKFLOWS.md",
     SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
@@ -105,11 +108,33 @@ def main() -> int:
         SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
         [
             "AGENTS.md",
+            "PROJECT_INSTRUCTIONS_DISCOVERY.md",
+            "AUTOMATION_TOOLING.md",
             "cron",
             "Goal Contract",
             "Tick Loop",
             "latest effective update",
             "automation memory",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "AUTOMATION_TOOLING.md",
+        [
+            "Heartbeat",
+            "Cron",
+            "Existing Automation Check",
+            "Do not show raw RRULE",
+            "Safety Gates",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md",
+        [
+            "AGENTS.md",
+            "AGENTS.override.md",
+            ".codex/config.toml",
+            "automation memory",
+            "Discovery Report",
         ],
     )
     require_all(

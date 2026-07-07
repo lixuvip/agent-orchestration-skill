@@ -18,7 +18,7 @@ Do not use autopilot for a one-shot edit, a short answer, or an automation that 
 
 ## Persistent Guidance Sources
 
-Before creating or updating an autopilot automation, identify durable project guidance:
+Before creating or updating an autopilot automation, read `PROJECT_INSTRUCTIONS_DISCOVERY.md` and identify durable project guidance:
 
 - `AGENTS.md`: Codex project instructions. Use repository-level and nested files as the first source for build, test, review, and safety conventions.
 - `AGENTS.override.md`: stronger local override when present.
@@ -38,7 +38,7 @@ Choose the narrowest automation surface:
 | cron | Workspace or worktree work that should recur independently, such as issue/PR polling, tests, backlog triage, or release readiness. | Use for durable project autopilot. |
 | Suggested create/update | Worktree automations or local-environment setup that the user should review before saving. | Use when environment setup or workspace destination is material. |
 
-When automation tools are available, use the app automation tool rather than writing raw automation directives. For existing automations, inspect the current automation before creating a duplicate, and prefer updating it while preserving fields that the user did not ask to change.
+When automation tools are available, use `AUTOMATION_TOOLING.md` and the app automation tool rather than writing raw automation directives. For existing automations, inspect the current automation before creating a duplicate, and prefer updating it while preserving fields that the user did not ask to change.
 
 ## Goal Contract
 

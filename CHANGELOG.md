@@ -2,10 +2,12 @@
 
 ## Unreleased
 
-## 0.1.3 - 2026-07-06
+## 0.1.3 - 2026-07-07
 
 - Added Project Autopilot guidance for recurring Codex automation that keeps a workspace moving toward explicit done criteria.
+- Added automation-tooling and project-instruction discovery references for heartbeat/cron selection, duplicate automation avoidance, and AGENTS.md boundaries.
 - Added goal-contract, automation-plan, automation-tick, automation-memory, escalation-report, and AGENTS.md guidance snippet templates in English and Chinese.
+- Added filled Autopilot examples, forward-test scenarios, and a GitHub issue/PR Autopilot scenario.
 - Added repository-level `AGENTS.md` instructions for maintaining this skill repo.
 - Documented how to combine `AGENTS.md`, `AGENTS.override.md`, `.codex/config.toml`, heartbeat automations, cron automations, and automation memory safely.
 - Added a continuous project autopilot example and validator/smoke-test coverage for the new workflow.

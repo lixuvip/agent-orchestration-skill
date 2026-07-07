@@ -37,7 +37,8 @@
 - [安装这个 skill](docs/installation.zh-CN.md)
 - [3 分钟快速开始](docs/quickstart.zh-CN.md)
 - [协调一次多项目发布](docs/tutorial.zh-CN.md)
-- [复制可用示例 Prompt](docs/examples.zh-CN.md)：[研究任务](examples/simple-research-task.md)、[编码加审查](examples/coding-review-workflow.md)、[分支回调](examples/branch-callback-controller-loop.md)、[项目 Autopilot](examples/continuous-project-autopilot.md)、[产品规划](examples/multi-agent-product-planning.md)
+- [复制可用示例 Prompt](docs/examples.zh-CN.md)：[研究任务](examples/simple-research-task.md)、[编码加审查](examples/coding-review-workflow.md)、[分支回调](examples/branch-callback-controller-loop.md)、[项目 Autopilot](examples/continuous-project-autopilot.md)、[GitHub issue/PR Autopilot](examples/github-issue-pr-autopilot.md)、[产品规划](examples/multi-agent-product-planning.md)
+- [查看前向测试场景](docs/forward-tests.md)
 - [查看 v0.1.3 更新说明](docs/releases/v0.1.3.md)
 - [查看英文文档](README.md)
 - [发布或 Fork 自己的版本](docs/publishing.zh-CN.md)
@@ -52,10 +53,11 @@
 | 常驻项目指令 | 将 `AGENTS.md`、`AGENTS.override.md`、fallback 指令文件和 `.codex/config.toml` 作为项目上下文来源。 | 周期性运行能继承稳定仓库规则，而不是依赖聊天历史。 |
 | 自动化记忆 | 新增 memory、幂等键、最新有效更新、阻塞和已发送消息模板。 | cron 运行可以避免重复评论、重复状态请求和重复工作。 |
 | 升级门禁 | 明确 merge、push、deploy、破坏性改动、公开 API 契约变化和范围扩大前必须停止。 | 自动化能快速推进，但不会越权。 |
+| 工具护栏 | 新增 automation tooling 和项目指令发现流程。 | Agent 能正确选择 heartbeat/cron、更新已有自动化，并区分 `AGENTS.md` 规则和临时 memory。 |
 
 ## Project Autopilot
 
-当前开发版新增 Project Autopilot 模式，用于“持续推进项目直到 checklist 完成”“每小时检查并执行下一个安全动作”这类需求。
+`v0.1.3` 新增 Project Autopilot 模式，用于“持续推进项目直到 checklist 完成”“每小时检查并执行下一个安全动作”这类需求。
 
 Autopilot 会结合：
 
@@ -65,6 +67,7 @@ Autopilot 会结合：
 - cron 自动化：workspace/worktree 级别的长期推进。
 - automation memory：每次运行先比较最新有效更新，避免重复评论或重复工作。
 - 升级报告：遇到 merge、push、deploy、范围扩大或验证反复失败时交给用户决策。
+- 前向测试场景和填充样例：覆盖 no-op tick、升级、目标契约和 automation memory。
 
 ## 为什么需要它
 
@@ -163,10 +166,12 @@ flowchart TD
 │       │   └── openai.yaml
 │       └── references/
 │           ├── AUTOMATION_MONITORING.md
+│           ├── AUTOMATION_TOOLING.md
 │           ├── COMMUNICATION_PROTOCOL.md
 │           ├── CONTROLLER_LOOP.md
 │           ├── ORCHESTRATION_INTAKE.md
 │           ├── PROJECT_AUTOPILOT.md
+│           ├── PROJECT_INSTRUCTIONS_DISCOVERY.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
 │           ├── STATE_MACHINE.md
@@ -241,7 +246,7 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## 搜索关键词
 
-Codex skill、OpenAI Codex、AGENTS.md、多代理编排、AI agent orchestration、multi-agent workflow、project autopilot、Codex automations、cron automation、heartbeat automation、parallel agents、subagents、任务编排、角色化代理、callback workflow、heartbeat monitoring、structured handoff、coding agent、QA workflow、代码审查自动化、发布管理、开发者工具。
+Codex skill、OpenAI Codex、AGENTS.md、AGENTS.override.md、多代理编排、AI agent orchestration、multi-agent workflow、project autopilot、Codex automations、cron automation、heartbeat automation、GitHub issue automation、PR automation、parallel agents、subagents、任务编排、角色化代理、callback workflow、heartbeat monitoring、structured handoff、coding agent、QA workflow、代码审查自动化、发布管理、开发者工具。
 
 ## 文档
 
@@ -249,6 +254,7 @@ Codex skill、OpenAI Codex、AGENTS.md、多代理编排、AI agent orchestratio
 - [快速开始](docs/quickstart.zh-CN.md)
 - [教程](docs/tutorial.zh-CN.md)
 - [使用示例](docs/examples.zh-CN.md)
+- [前向测试场景](docs/forward-tests.md)
 - [发布指南](docs/publishing.zh-CN.md)
 
 ## 验证

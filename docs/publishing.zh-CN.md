@@ -43,13 +43,13 @@ git push -u origin main
 Description:
 
 ```text
-Run multi-agent workflows in Codex with parallel roles, callbacks, heartbeat checks, and structured task handoffs.
+Codex skill for role-thread coordination, project autopilot, callbacks, heartbeat/cron automation, QA/review gates, and branch readiness.
 ```
 
 Topics:
 
 ```text
-codex, codex-skill, openai-codex, chatgpt-codex, agent-orchestration, multi-agent, multi-agent-system, multi-agent-orchestration, ai-agents, llm-agents, subagents, agent-workflow, ai-workflow, task-orchestration, task-automation, coding-agent, developer-tools, code-review, qa-workflow, release-management
+agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automations, codex-skill, codex-skills, code-review, git-worktrees, multi-agent, multi-agent-orchestration, project-autopilot, orchestrator, parallel-agents, parallel-coding, qa-workflow, release-management, subagents, task-orchestration
 ```
 
 ## 发布清单

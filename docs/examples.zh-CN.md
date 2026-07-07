@@ -10,6 +10,7 @@
 - [发布准备](../examples/release-prep.md)
 - [分支回调主线程控制循环](../examples/branch-callback-controller-loop.md)
 - [持续项目 Autopilot](../examples/continuous-project-autopilot.md)
+- [GitHub issue 和 PR Autopilot](../examples/github-issue-pr-autopilot.md)
 
 ## 示例 1：带 QA 门禁的 Bug 修复
 
@@ -107,4 +108,16 @@ Read AGENTS.md, AGENTS.override.md, project docs, and the release checklist firs
 Create a goal contract with done criteria, allowed autonomous actions, confirmation gates, cadence, memory path, and stop conditions.
 Use cron automation for workspace progress and heartbeat only for coordinator-thread callbacks.
 Each tick should compare the latest effective update, take one safe next action, run verification, update automation memory, and escalate if merge/push/deploy or scope expansion is needed.
+```
+
+## 示例 8：GitHub Issue 和 PR Autopilot
+
+```text
+Use $agent-orchestration to run a GitHub issue/PR project autopilot.
+
+Issue is the coordination channel.
+PR is the implementation channel.
+Do not stop just because there is no open PR.
+Do not comment if the latest effective update is unchanged and already covered by a previous codex-next-action comment.
+Read issue body, labels, comments, linked PR commits, files, checks, and review state before deciding the next safe action.
 ```

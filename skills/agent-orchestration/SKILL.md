@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: Coordinate multi-role Codex work across threads, subagents, repositories, branches, worktrees, or recurring automations. Use when the user asks for agent orchestration, delegation, parallel agent work, conversation/thread IDs, coordinator handoffs, asynchronous Codex threads, status polling, completion callbacks, heartbeat monitoring, project autopilot, continuous project progress until a goal is met, multi-project commits, QA/review/release gates, or reusable task templates. Also use when another Codex thread/process/agent is changing something, another conversation needs a handoff, a QA/review pass should verify work, branches/repos/projects need final merge or release coordination, or a delayed check-back/polling loop should keep work moving. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 持续推进, 一直做到目标效果, 定时自动继续, 创建/继续/读取/转交线程.
+description: Use when coordinating Codex work across roles, threads, subagents, repositories, branches, worktrees, callbacks, status polling, recurring automations, project autopilot, QA/review/release gates, or multi-project handoffs. Also use for requests to keep work moving until a goal is met, inspect or message another Codex thread, verify a branch through QA/review, or run delayed check-backs. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 持续推进, 一直做到目标效果, 定时自动继续, 创建/继续/读取/转交线程.
 ---
 
 # Agent Orchestration
@@ -22,11 +22,13 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 4. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
 5. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
 6. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
-7. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, heartbeat, or automation tick.
-8. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-9. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-10. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-11. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+7. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
+8. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
+9. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, heartbeat, or automation tick.
+10. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+11. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+12. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+13. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
 
 ## Thread And Tool Handling
 
@@ -57,6 +59,7 @@ Apply these rules:
 - Use `references/templates/monitoring_heartbeat.template.md` as the automation prompt.
 - When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`, summarize results and disable or delete the heartbeat automation.
 - For recurring project work beyond status monitoring, read `references/PROJECT_AUTOPILOT.md` and create a goal contract, automation plan, tick prompt, memory file, and escalation rule before enabling cron automation.
+- Before creating a recurring automation, inspect existing automations when tools allow and update instead of duplicating.
 - Treat target project `AGENTS.md` / `AGENTS.override.md` as persistent repository guidance, and automation memory as temporary task state. Do not silently put live task state into `AGENTS.md`.
 
 For Chinese-only teams, use the matching Chinese templates in `references/templates/*.zh-CN.template.md`.

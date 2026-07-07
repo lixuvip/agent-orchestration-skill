@@ -27,16 +27,22 @@ agent_orchestration_kit/
 ├── ROLE_REGISTRY.template.md
 ├── COMMUNICATION_PROTOCOL.md
 ├── AUTOMATION_MONITORING.md
+├── AUTOMATION_TOOLING.md
 ├── ORCHESTRATION_INTAKE.md
 ├── CONTROLLER_LOOP.md
 ├── PROJECT_AUTOPILOT.md
+├── PROJECT_INSTRUCTIONS_DISCOVERY.md
 ├── REQUIREMENT_WRITING_GUIDE.md
 ├── STATE_MACHINE.md
 ├── TASK_BOARD.template.md
 ├── WORKFLOWS.md
 ├── examples/
 │   ├── filled_role_reply.md
-│   └── filled_task_dispatch.md
+│   ├── filled_task_dispatch.md
+│   ├── filled_project_goal_contract.md
+│   ├── filled_automation_memory.md
+│   ├── filled_noop_tick.md
+│   └── filled_escalation_report.md
 ├── roles/
 │   ├── coordinator_pm.md
 │   ├── product_designer.md
@@ -88,10 +94,12 @@ agent_orchestration_kit/
 8. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
 9. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
 10. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-11. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
-12. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
-13. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-14. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+11. 创建、更新、查看或删除 heartbeat / cron 自动化前，按 `AUTOMATION_TOOLING.md` 检查工具边界和重复自动化。
+12. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
+13. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
+14. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
+15. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
+16. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 
