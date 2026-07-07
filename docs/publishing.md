@@ -7,6 +7,7 @@ Use this checklist before publishing the repository to GitHub.
 ```bash
 python3 scripts/validate.py
 python3 scripts/smoke_test.py
+python3 scripts/forward_test.py
 git status --short
 ```
 
@@ -51,6 +52,7 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 
 - [ ] `python3 scripts/validate.py` passes.
 - [ ] `python3 scripts/smoke_test.py` passes.
+- [ ] `python3 scripts/forward_test.py` passes.
 - [ ] Installation script works on a clean checkout.
 - [ ] README installation command points to the real GitHub URL.
 - [ ] No private repository paths, tokens, or customer data are present.

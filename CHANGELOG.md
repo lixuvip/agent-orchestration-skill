@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.4 - 2026-07-07
+
+- Added a forward-test validation script and wired it into GitHub Actions.
+- Added English and Chinese Project Autopilot loop diagrams to make the recurring automation flow easier to understand.
+- Updated repository maintenance instructions, READMEs, examples, and forward-test docs so the new validation layer is visible before release.
+
 ## 0.1.3 - 2026-07-07
 
 - Added Project Autopilot guidance for recurring Codex automation that keeps a workspace moving toward explicit done criteria.

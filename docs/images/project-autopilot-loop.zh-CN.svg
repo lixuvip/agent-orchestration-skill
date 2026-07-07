@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620">
+  <title id="title">Project Autopilot 循环</title>
+  <desc id="desc">六步循环：目标契约、项目规则、自动化 tick、安全动作、验证、记忆更新，并在需要时升级或完成后停止。</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; }
+      .node { fill: #ecfeff; stroke: #0891b2; stroke-width: 2.5; }
+      .node2 { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2.5; }
+      .node3 { fill: #fff7ed; stroke: #ea580c; stroke-width: 2.5; }
+      .exit { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .title { fill: #0f172a; font: 700 34px Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .subtitle { fill: #475569; font: 18px Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .label { fill: #0f172a; font: 700 20px Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .body { fill: #334155; font: 15px Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .small { fill: #475569; font: 13px Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .arrow { fill: none; stroke: #0891b2; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowhead); }
+      .exitArrow { fill: none; stroke: #dc2626; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#redArrowhead); }
+      .doneArrow { fill: none; stroke: #16a34a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#greenArrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+    </marker>
+    <marker id="redArrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+    </marker>
+    <marker id="greenArrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="620" rx="34"/>
+  <rect class="panel" x="42" y="42" width="1116" height="536" rx="26"/>
+  <text class="title" x="82" y="100">Project Autopilot 循环</text>
+  <text class="subtitle" x="82" y="132">周期性 Codex 自动化只在下一步安全、可验证、可记忆时继续推进。</text>
+
+  <rect class="node" x="82" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="108" y="226">1. 目标契约</text>
+  <text class="body" x="108" y="254">完成条件、频率、</text>
+  <text class="body" x="108" y="276">权限和停止规则</text>
+
+  <rect class="node" x="388" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="414" y="226">2. 项目规则</text>
+  <text class="body" x="414" y="254">AGENTS.md、覆盖规则、</text>
+  <text class="body" x="414" y="276">文档和配置边界</text>
+
+  <rect class="node2" x="694" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="720" y="226">3. 自动化 tick</text>
+  <text class="body" x="720" y="254">把最新有效更新</text>
+  <text class="body" x="720" y="276">和已有 memory 对比</text>
+
+  <rect class="node2" x="694" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="720" y="414">4. 一个安全动作</text>
+  <text class="body" x="720" y="442">在授权范围内执行</text>
+  <text class="body" x="720" y="464">最小可推进动作</text>
+
+  <rect class="node" x="388" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="414" y="414">5. 验证</text>
+  <text class="body" x="414" y="442">运行检查；若阻塞，</text>
+  <text class="body" x="414" y="464">记录明确原因</text>
+
+  <rect class="node" x="82" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="108" y="414">6. 更新 memory</text>
+  <text class="body" x="108" y="442">保存证据、阻塞、</text>
+  <text class="body" x="108" y="464">已发消息和下一步</text>
+
+  <rect class="exit" x="984" y="188" width="126" height="112" rx="16"/>
+  <text class="label" x="1010" y="226">升级</text>
+  <text class="small" x="1010" y="254">push、merge、</text>
+  <text class="small" x="1010" y="274">deploy、扩范围</text>
+
+  <rect class="node3" x="984" y="376" width="126" height="112" rx="16"/>
+  <text class="label" x="1010" y="414">完成</text>
+  <text class="small" x="1010" y="442">目标达成后</text>
+  <text class="small" x="1010" y="462">暂停或删除</text>
+
+  <path class="arrow" d="M302 244 H380"/>
+  <path class="arrow" d="M608 244 H686"/>
+  <path class="arrow" d="M804 300 V368"/>
+  <path class="arrow" d="M694 432 H616"/>
+  <path class="arrow" d="M388 432 H310"/>
+  <path class="arrow" d="M192 376 V330 C192 318 204 312 220 312 H782 C796 312 804 306 804 300"/>
+  <path class="exitArrow" d="M914 244 H976"/>
+  <path class="doneArrow" d="M914 432 H976"/>
+</svg>

@@ -74,6 +74,10 @@ REQUIRED_FILES = [
     ROOT / "docs" / "images" / "logo.svg",
     ROOT / "docs" / "images" / "workflow-overview.svg",
     ROOT / "docs" / "images" / "workflow-overview.zh-CN.svg",
+    ROOT / "docs" / "images" / "project-autopilot-loop.svg",
+    ROOT / "docs" / "images" / "project-autopilot-loop.zh-CN.svg",
+    ROOT / "docs" / "releases" / "v0.1.4.md",
+    ROOT / "scripts" / "forward_test.py",
 ]
 
 

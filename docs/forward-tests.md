@@ -4,6 +4,12 @@ Use these scenarios to validate whether another Codex instance can apply `agent-
 
 Run these in a fresh thread or subagent when practical. Pass the skill and scenario, not the intended answer.
 
+Run the static guard before publishing changes:
+
+```bash
+python3 scripts/forward_test.py
+```
+
 ## Scenario 1: Heartbeat Callback
 
 Prompt:

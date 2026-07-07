@@ -121,3 +121,13 @@ Do not stop just because there is no open PR.
 Do not comment if the latest effective update is unchanged and already covered by a previous codex-next-action comment.
 Read issue body, labels, comments, linked PR commits, files, checks, and review state before deciding the next safe action.
 ```
+
+## 示例 9：发布前前向测试审计
+
+```text
+Use $agent-orchestration to audit this skill release before publishing.
+
+Check that the forward-test scenarios still cover heartbeat callbacks, cron project autopilot, GitHub issue/PR no-op polling, missing AGENTS.md guidance, automation memory, latest effective update comparison, and escalation gates.
+Run python3 scripts/forward_test.py with the normal validation suite.
+Report any missing trigger coverage before preparing release notes.
+```

@@ -15,7 +15,7 @@
 <p align="center">
   <a href="README.zh-CN.md">中文说明</a> ·
   <a href="#quick-start">Quick Start</a> ·
-  <a href="#what-v013-adds">What's New</a> ·
+  <a href="#what-v014-adds">What's New</a> ·
   <a href="#demo-workflow">Demo Workflow</a> ·
   <a href="docs/examples.md">Examples</a> ·
   <a href="docs/installation.md">Installation</a>
@@ -43,25 +43,27 @@ It is especially useful when another Codex thread or branch is doing work and th
 - [Coordinate a multi-project release](docs/tutorial.md)
 - [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [branch callback](examples/branch-callback-controller-loop.md), [project autopilot](examples/continuous-project-autopilot.md), [GitHub issue/PR autopilot](examples/github-issue-pr-autopilot.md), [product planning](examples/multi-agent-product-planning.md)
 - [Review forward-test scenarios](docs/forward-tests.md)
-- [Read the v0.1.3 release notes](docs/releases/v0.1.3.md)
+- [Read the v0.1.4 release notes](docs/releases/v0.1.4.md)
 - [Read the Chinese docs](README.zh-CN.md)
 - [Publish or fork your own version](docs/publishing.md)
 
-## What v0.1.3 Adds
+## What v0.1.4 Adds
 
-`v0.1.3` focuses on recurring project automation that keeps work moving toward explicit done criteria.
+`v0.1.4` hardens the Project Autopilot workflow from `v0.1.3` with CI-backed forward tests and clearer visual documentation.
 
 | Area | What changed | Why it helps |
 | --- | --- | --- |
-| Project Autopilot | Adds a goal-driven recurring automation workflow for project progress. | Codex can continue checking and taking safe next steps until done criteria are met. |
-| Persistent guidance | Uses `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, and `.codex/config.toml` as project context sources. | Recurring runs inherit stable repo rules instead of relying on chat history. |
-| Automation memory | Adds templates for memory, idempotency, latest effective updates, blockers, and posted messages. | Cron runs avoid duplicate comments, repeated status requests, and repeated work. |
-| Escalation gates | Adds explicit stop rules for merge, push, deploy, destructive changes, public API contract changes, and scope expansion. | Automation can move quickly without taking authority it does not have. |
-| Tooling guardrails | Adds explicit automation-tooling and project-instruction discovery guidance. | Agents can choose heartbeat vs cron, update existing automations, and separate `AGENTS.md` rules from live memory. |
+| Forward-test guard | Adds `scripts/forward_test.py` and runs it in GitHub Actions. | Trigger coverage for heartbeat callbacks, cron Autopilot, no-op GitHub polling, and missing `AGENTS.md` guidance is checked before release. |
+| Project Autopilot | Keeps the goal-driven recurring automation workflow for project progress. | Codex can continue checking and taking safe next steps until done criteria are met. |
+| Automation memory | Keeps templates for memory, idempotency, latest effective updates, blockers, and posted messages. | Cron runs avoid duplicate comments, repeated status requests, and repeated work. |
+| Escalation gates | Keeps explicit stop rules for merge, push, deploy, destructive changes, public API contract changes, and scope expansion. | Automation can move quickly without taking authority it does not have. |
+| Visual docs | Adds Project Autopilot loop diagrams. | Users can understand the runtime loop before copying automation prompts. |
 
 ## Project Autopilot
 
-`v0.1.3` adds a Project Autopilot pattern for recurring Codex automation. It is for prompts like "keep working on this project until the checklist is complete" or "check every hour and take the next safe step."
+Project Autopilot is a pattern for recurring Codex automation. It is for prompts like "keep working on this project until the checklist is complete" or "check every hour and take the next safe step."
+
+![Project Autopilot loop](docs/images/project-autopilot-loop.svg)
 
 Autopilot combines:
 
@@ -229,12 +231,16 @@ flowchart TD
 │   ├── tutorial.zh-CN.md
 │   ├── examples.md
 │   ├── examples.zh-CN.md
+│   ├── forward-tests.md
+│   ├── images/
+│   ├── releases/
 │   ├── publishing.md
 │   └── publishing.zh-CN.md
 ├── examples/
 ├── scripts/
 │   ├── install.sh
 │   ├── smoke_test.py
+│   ├── forward_test.py
 │   └── validate.py
 └── .github/workflows/validate.yml
 ```
@@ -313,6 +319,7 @@ Run the repository validator:
 ```bash
 python3 scripts/validate.py
 python3 scripts/smoke_test.py
+python3 scripts/forward_test.py
 ```
 
 If you also have Codex's built-in `skill-creator` validator available, run it against the skill folder:

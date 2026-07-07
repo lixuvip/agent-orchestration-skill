@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg role="img" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620">
+  <title id="title">Project Autopilot loop</title>
+  <desc id="desc">A six step loop: goal contract, project rules, automation tick, safe action, verification, and memory update, with escalation and completion exits.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; }
+      .node { fill: #ecfeff; stroke: #0891b2; stroke-width: 2.5; }
+      .node2 { fill: #f0fdf4; stroke: #16a34a; stroke-width: 2.5; }
+      .node3 { fill: #fff7ed; stroke: #ea580c; stroke-width: 2.5; }
+      .exit { fill: #fef2f2; stroke: #dc2626; stroke-width: 2.5; }
+      .title { fill: #0f172a; font: 700 34px Arial, sans-serif; }
+      .subtitle { fill: #475569; font: 18px Arial, sans-serif; }
+      .label { fill: #0f172a; font: 700 20px Arial, sans-serif; }
+      .body { fill: #334155; font: 15px Arial, sans-serif; }
+      .small { fill: #475569; font: 13px Arial, sans-serif; }
+      .arrow { fill: none; stroke: #0891b2; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrowhead); }
+      .exitArrow { fill: none; stroke: #dc2626; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#redArrowhead); }
+      .doneArrow { fill: none; stroke: #16a34a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#greenArrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#0891b2"/>
+    </marker>
+    <marker id="redArrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+    </marker>
+    <marker id="greenArrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+  <rect class="bg" width="1200" height="620" rx="34"/>
+  <rect class="panel" x="42" y="42" width="1116" height="536" rx="26"/>
+  <text class="title" x="82" y="100">Project Autopilot loop</text>
+  <text class="subtitle" x="82" y="132">Recurring Codex automation keeps moving only when the next action is safe, verified, and remembered.</text>
+
+  <rect class="node" x="82" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="108" y="226">1. Goal contract</text>
+  <text class="body" x="108" y="254">Done criteria, cadence,</text>
+  <text class="body" x="108" y="276">permissions, stop rules</text>
+
+  <rect class="node" x="388" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="414" y="226">2. Project rules</text>
+  <text class="body" x="414" y="254">AGENTS.md, overrides,</text>
+  <text class="body" x="414" y="276">docs, config boundaries</text>
+
+  <rect class="node2" x="694" y="188" width="220" height="112" rx="16"/>
+  <text class="label" x="720" y="226">3. Automation tick</text>
+  <text class="body" x="720" y="254">Compare latest update</text>
+  <text class="body" x="720" y="276">against saved memory</text>
+
+  <rect class="node2" x="694" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="720" y="414">4. One safe action</text>
+  <text class="body" x="720" y="442">Small autonomous step</text>
+  <text class="body" x="720" y="464">inside allowed scope</text>
+
+  <rect class="node" x="388" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="414" y="414">5. Verification</text>
+  <text class="body" x="414" y="442">Run checks or record</text>
+  <text class="body" x="414" y="464">why checks are blocked</text>
+
+  <rect class="node" x="82" y="376" width="220" height="112" rx="16"/>
+  <text class="label" x="108" y="414">6. Memory update</text>
+  <text class="body" x="108" y="442">Store evidence, blockers,</text>
+  <text class="body" x="108" y="464">posted messages, next step</text>
+
+  <rect class="exit" x="984" y="188" width="126" height="112" rx="16"/>
+  <text class="label" x="1010" y="226">Escalate</text>
+  <text class="small" x="1010" y="254">push, merge,</text>
+  <text class="small" x="1010" y="274">deploy, scope</text>
+
+  <rect class="node3" x="984" y="376" width="126" height="112" rx="16"/>
+  <text class="label" x="1010" y="414">Done</text>
+  <text class="small" x="1010" y="442">Goal met;</text>
+  <text class="small" x="1010" y="462">pause or delete</text>
+
+  <path class="arrow" d="M302 244 H380"/>
+  <path class="arrow" d="M608 244 H686"/>
+  <path class="arrow" d="M804 300 V368"/>
+  <path class="arrow" d="M694 432 H616"/>
+  <path class="arrow" d="M388 432 H310"/>
+  <path class="arrow" d="M192 376 V330 C192 318 204 312 220 312 H782 C796 312 804 306 804 300"/>
+  <path class="exitArrow" d="M914 244 H976"/>
+  <path class="doneArrow" d="M914 432 H976"/>
+</svg>

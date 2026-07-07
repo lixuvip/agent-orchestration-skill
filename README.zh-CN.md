@@ -11,7 +11,7 @@
 <p align="center">
   <a href="README.md">English</a> ·
   <a href="#快速开始">快速开始</a> ·
-  <a href="#v013-更新内容">更新内容</a> ·
+  <a href="#v014-更新内容">更新内容</a> ·
   <a href="#演示流程">演示流程</a> ·
   <a href="docs/examples.zh-CN.md">使用示例</a> ·
   <a href="docs/installation.zh-CN.md">安装说明</a>
@@ -39,25 +39,27 @@
 - [协调一次多项目发布](docs/tutorial.zh-CN.md)
 - [复制可用示例 Prompt](docs/examples.zh-CN.md)：[研究任务](examples/simple-research-task.md)、[编码加审查](examples/coding-review-workflow.md)、[分支回调](examples/branch-callback-controller-loop.md)、[项目 Autopilot](examples/continuous-project-autopilot.md)、[GitHub issue/PR Autopilot](examples/github-issue-pr-autopilot.md)、[产品规划](examples/multi-agent-product-planning.md)
 - [查看前向测试场景](docs/forward-tests.md)
-- [查看 v0.1.3 更新说明](docs/releases/v0.1.3.md)
+- [查看 v0.1.4 更新说明](docs/releases/v0.1.4.md)
 - [查看英文文档](README.md)
 - [发布或 Fork 自己的版本](docs/publishing.zh-CN.md)
 
-## v0.1.3 更新内容
+## v0.1.4 更新内容
 
-`v0.1.3` 聚焦可以持续推进项目目标的周期性自动化。
+`v0.1.4` 在 `v0.1.3` 的 Project Autopilot 基础上，补强了 CI 可检查的前向测试和更清晰的可视化说明。
 
 | 模块 | 更新内容 | 价值 |
 | --- | --- | --- |
-| Project Autopilot | 新增围绕目标契约运行的周期性自动化流程。 | Codex 可以持续检查并执行安全下一步，直到完成条件满足。 |
-| 常驻项目指令 | 将 `AGENTS.md`、`AGENTS.override.md`、fallback 指令文件和 `.codex/config.toml` 作为项目上下文来源。 | 周期性运行能继承稳定仓库规则，而不是依赖聊天历史。 |
-| 自动化记忆 | 新增 memory、幂等键、最新有效更新、阻塞和已发送消息模板。 | cron 运行可以避免重复评论、重复状态请求和重复工作。 |
-| 升级门禁 | 明确 merge、push、deploy、破坏性改动、公开 API 契约变化和范围扩大前必须停止。 | 自动化能快速推进，但不会越权。 |
-| 工具护栏 | 新增 automation tooling 和项目指令发现流程。 | Agent 能正确选择 heartbeat/cron、更新已有自动化，并区分 `AGENTS.md` 规则和临时 memory。 |
+| 前向测试护栏 | 新增 `scripts/forward_test.py`，并接入 GitHub Actions。 | 发布前能自动检查 heartbeat 回调、cron Autopilot、GitHub no-op 巡检和缺失 `AGENTS.md` 等触发覆盖。 |
+| Project Autopilot | 保留围绕目标契约运行的周期性自动化流程。 | Codex 可以持续检查并执行安全下一步，直到完成条件满足。 |
+| 自动化记忆 | 保留 memory、幂等键、最新有效更新、阻塞和已发送消息模板。 | cron 运行可以避免重复评论、重复状态请求和重复工作。 |
+| 升级门禁 | 保留 merge、push、deploy、破坏性改动、公开 API 契约变化和范围扩大前必须停止的规则。 | 自动化能快速推进，但不会越权。 |
+| 可视化文档 | 新增 Project Autopilot 循环图。 | 用户复制自动化 prompt 前，可以先理解循环如何运行。 |
 
 ## Project Autopilot
 
-`v0.1.3` 新增 Project Autopilot 模式，用于“持续推进项目直到 checklist 完成”“每小时检查并执行下一个安全动作”这类需求。
+Project Autopilot 模式用于“持续推进项目直到 checklist 完成”“每小时检查并执行下一个安全动作”这类需求。
+
+![Project Autopilot 循环](docs/images/project-autopilot-loop.zh-CN.svg)
 
 Autopilot 会结合：
 
@@ -189,12 +191,16 @@ flowchart TD
 │   ├── tutorial.zh-CN.md
 │   ├── examples.md
 │   ├── examples.zh-CN.md
+│   ├── forward-tests.md
+│   ├── images/
+│   ├── releases/
 │   ├── publishing.md
 │   └── publishing.zh-CN.md
 ├── examples/
 ├── scripts/
 │   ├── install.sh
 │   ├── smoke_test.py
+│   ├── forward_test.py
 │   └── validate.py
 └── .github/workflows/validate.yml
 ```
@@ -264,6 +270,7 @@ Codex skill、OpenAI Codex、AGENTS.md、AGENTS.override.md、多代理编排、
 ```bash
 python3 scripts/validate.py
 python3 scripts/smoke_test.py
+python3 scripts/forward_test.py
 ```
 
 如果本地有 Codex 内置的 `skill-creator` 验证器，也可以运行：
