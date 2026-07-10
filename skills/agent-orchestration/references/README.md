@@ -23,6 +23,10 @@
 ```text
 agent_orchestration_kit/
 ├── README.md
+├── scripts/
+│   ├── run_agy_print.py
+│   ├── ensure_agy_review_agents_guidance.py
+│   └── append_agy_review_quality_log.py
 ├── PROJECT_CONTEXT.template.md
 ├── ROLE_REGISTRY.template.md
 ├── COMMUNICATION_PROTOCOL.md
@@ -30,6 +34,8 @@ agent_orchestration_kit/
 ├── AUTOMATION_TOOLING.md
 ├── ORCHESTRATION_INTAKE.md
 ├── CONTROLLER_LOOP.md
+├── AGY_GEMINI_REVIEW.md
+├── AGY_GEMINI_RESEARCH.md
 ├── PROJECT_AUTOPILOT.md
 ├── PROJECT_INSTRUCTIONS_DISCOVERY.md
 ├── REQUIREMENT_WRITING_GUIDE.md
@@ -67,6 +73,22 @@ agent_orchestration_kit/
     ├── escalation_report.zh-CN.template.md
     ├── agents_guidance_snippet.template.md
     ├── agents_guidance_snippet.zh-CN.template.md
+    ├── agy_gemini_review_prompt.template.md
+    ├── agy_gemini_review_prompt.zh-CN.template.md
+    ├── agy_gemini_review_quality.template.md
+    ├── agy_gemini_review_quality.zh-CN.template.md
+    ├── agy_gemini_review_quality_log.template.md
+    ├── agy_gemini_review_quality_log.zh-CN.template.md
+    ├── agy_gemini_review_report.template.md
+    ├── agy_gemini_review_report.zh-CN.template.md
+    ├── agy_gemini_research_prompt.template.md
+    ├── agy_gemini_research_prompt.zh-CN.template.md
+    ├── agy_gemini_research_quality.template.md
+    ├── agy_gemini_research_quality.zh-CN.template.md
+    ├── agy_gemini_research_quality_log.template.md
+    ├── agy_gemini_research_quality_log.zh-CN.template.md
+    ├── agy_gemini_research_report.template.md
+    ├── agy_gemini_research_report.zh-CN.template.md
     ├── coordinator_callback.template.md
     ├── coordinator_callback.zh-CN.template.md
     ├── status_request.template.md
@@ -99,7 +121,9 @@ agent_orchestration_kit/
 13. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
 14. 有多个任务状态时，按 `STATE_MACHINE.md` 判定状态转换。
 15. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-16. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+16. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先立刻进入这个 skill，不要先跑 `command -v gemini`、`gemini --version` 或 `gemini --help` 之类的 standalone `gemini` CLI 探测。按 `AGY_GEMINI_REVIEW.md`、`templates/agy_gemini_review_prompt.template.md`、`templates/agy_gemini_review_report.template.md` 和 `templates/agy_gemini_review_quality_log.template.md` 运行只读第二意见；这里的 Gemini 必须通过 `agy` 调用，不能替换成 standalone `gemini` CLI。全项目审查或用户要求对比时使用 dual Codex + Gemini review；先用 `scripts/ensure_agy_review_agents_guidance.py` 把稳定命令安全规则写入目标项目 `AGENTS.md`，而且这一步必须早于任何 `agy` 健康检查或模型探测；随后只用 `command -v agy`、`agy models` 和 `scripts/run_agy_print.py` 继续流程。仓库审查时显式附加 `--add-dir <项目根目录>`，并在健康检查或结构化输出场景优先加 `--expect-substring <标记>` 拦截 0 输出和 narration-only 输出；如果有人误开或误探测 `gemini` CLI，按 `WRONG_EXECUTION_SURFACE` 处理并改回 `agy` 重跑。默认外部 reviewer 统一使用 `Gemini 3.5 Flash (High)`，展示含共同命中、Gemini-only、Codex-only 和被驳回 findings 的专属审查报告，并用 `scripts/append_agy_review_quality_log.py` 把质量评估追加到项目内 `.codex/agent-orchestration/agy-review-quality.jsonl`；只读或隐私限制时改为展示未写入记录。
+17. 用户要求 `agy`、Gemini、Antigravity 或外部模型做调研、仓库盘点、方案对比或扩思路时，先立刻进入这个 skill，不要先跑 standalone `gemini` CLI 的探测命令。按 `AGY_GEMINI_RESEARCH.md`、`templates/agy_gemini_research_prompt.template.md`、`templates/agy_gemini_research_report.template.md` 和 `templates/agy_gemini_research_quality_log.template.md` 运行并行 Codex + Gemini 调研；这里的 Gemini 同样必须通过 `agy` 调用，不能替换成 standalone `gemini` CLI。先用 `scripts/ensure_agy_review_agents_guidance.py` 把稳定命令安全规则写入目标项目 `AGENTS.md`，而且这一步必须早于任何 `agy` 健康检查或模型探测；随后只用 `command -v agy`、`agy models` 和 `scripts/run_agy_print.py` 继续流程。再让 Codex 自己读仓库和必要资料，并让 `agy` 用只读 prompt 做第二路研究，最后由协调者对比共同观点、Gemini-only、Codex-only 和被驳回观点；如果误开或误探测 `gemini` CLI，按 `WRONG_EXECUTION_SURFACE` 处理并改回 `agy` 重跑。质量评估同样通过 `scripts/append_agy_review_quality_log.py` 追加到项目内 `.codex/agent-orchestration/agy-review-quality.jsonl`，并把 `task_type` 设为 `research`。
+18. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 

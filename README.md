@@ -36,6 +36,10 @@ Instead of asking one agent to handle everything in a long linear thread, this s
 
 It is especially useful when another Codex thread or branch is doing work and the main thread needs a reliable way to receive callbacks, request status, verify QA/review output, and decide whether a branch is ready to merge or push. It can also pair Codex automations with `AGENTS.md` project guidance so recurring work keeps moving toward a clear goal instead of becoming a loose reminder.
 
+It can also add a read-only `agy` / Gemini review or research pass as an external second opinion. The coordinator still owns the final decision: every external finding or idea must be checked against the diff, repo context, or actual evidence before it affects planning, QA, repair, merge readiness, or delivery.
+
+External-task quality is also logged per project in `.codex/agent-orchestration/agy-review-quality.jsonl` when writes are allowed. Review entries keep the default `task_type=review`; research entries set `task_type=research`. On first use in a project, the workflow can persist the stable agy-backed Gemini command-safety rule into the target `AGENTS.md`, then only treats logging as complete after the helper prints `LOG_WRITTEN`. That lets later Codex runs reuse the same guardrails without you restating them.
+
 ## Quick Links
 
 - [Install the skill](docs/installation.md)
@@ -87,6 +91,9 @@ This skill adds a small coordination layer that makes Codex workflows more obser
 - Track task state with `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, and `NEEDS_CONTEXT`.
 - Use heartbeat monitoring for long-running or asynchronous work.
 - Use project autopilot for recurring automation that can continue a workspace toward a defined goal.
+- Add an optional read-only `agy` / Gemini review pass while guarding against scope drift and unsupported test claims.
+- Run parallel Codex + Gemini research for repo surveys, option comparison, or idea expansion without forcing those tasks into review mode.
+- Preserve per-task quality logs for later prompt, model, and scope tuning.
 - Require the coordinator to inspect role output, risks, and verification before final delivery.
 - Run merge-readiness checks before branch finalization.
 
@@ -96,6 +103,8 @@ This skill adds a small coordination layer that makes Codex workflows more obser
 - Research plus implementation pipelines.
 - Product planning with role-based AI agents.
 - QA and code review gates for AI-assisted development.
+- Optional external `agy` / Gemini review gates for high-risk diffs or second-opinion review.
+- Optional external `agy` / Gemini research passes for implementation options, repo surveys, and idea expansion.
 - Multi-repository release coordination.
 - Long-running Codex tasks that need monitoring and callbacks.
 - Branch/worktree handoffs that need status requests, QA gates, and merge readiness.
@@ -112,6 +121,18 @@ Use this skill when a task is too large or risky for one uninterrupted conversat
 - Workflows where child threads should call back to the coordinator and a heartbeat automation should check status every 5 minutes.
 - Branch or worktree workflows that need status requests, coordinator callbacks, and merge-readiness checks.
 - Projects that need recurring cron automation to inspect issues/PRs/tests, act idempotently, and keep moving without losing project rules.
+
+## Optional Agy / Gemini Review
+
+When `agy` is installed locally, the coordinator can run a bounded external review after Codex implementation or before accepting a branch handoff. This workflow uses `references/AGY_GEMINI_REVIEW.md` plus prompt, quality, and dedicated report templates under `references/templates/`.
+
+The standard review model is `Gemini 3.5 Flash (High)` for the ordinary external second opinion and for full-project baseline sweeps. For full-project audits or user-requested comparisons, the workflow uses dual Codex + Gemini review: a Codex reviewer role inspects the same scope while `agy` runs independently, then the coordinator compares agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence. In this workflow, Gemini always means Gemini through local `agy`, never the standalone `gemini` CLI. The workflow first uses `scripts/ensure_agy_review_agents_guidance.py` to make the stable command-safety rule durable in the target `AGENTS.md` when writes are allowed, and that guidance gate now happens before any `agy` health check or model discovery. Capability discovery for this path is `command -v agy` and `agy models` only; do not probe `command -v gemini`, `gemini --version`, or `gemini --help`. The review prompt templates now also carry explicit negative guardrails so the external pass does not drift into CLI/auth narration, fake command claims, scope inflation, or generic filler. The workflow then uses normal read-only print mode with `--sandbox` through `scripts/run_agy_print.py`, which keeps the prompt immediately after `--print`, supports `--add-dir <project_root>` so repository reviews do not accidentally inspect Antigravity scratch, rejects zero-byte stdout by default, and can enforce `--expect-substring <token>` for health checks or structured schemas. If a process probes or opens `gemini` CLI, or returns `403` from that CLI, treat that as `WRONG_EXECUTION_SURFACE` and rerun through `agy`. The coordinator still classifies every external finding, displays results as a dedicated review report in chat, and runs `scripts/append_agy_review_quality_log.py` to append review-quality records to `.codex/agent-orchestration/agy-review-quality.jsonl` unless the target project is read-only or privacy rules block logging.
+
+## Optional Agy / Gemini Research
+
+When you want Gemini involved in research instead of only in review, the coordinator can run a parallel Codex + Gemini research pass. This workflow uses `references/AGY_GEMINI_RESEARCH.md` plus prompt, quality, log, and dedicated report templates under `references/templates/`.
+
+The standard research model is also `Gemini 3.5 Flash (High)` for repo surveys and option framing. The coordinator must still do its own repo reading and, when current external facts matter, browse primary sources directly. Here too, Gemini means Gemini through local `agy`, not the standalone `gemini` CLI. The guidance gate runs before any external research preflight in writable repos, and capability discovery is `command -v agy` plus `agy models` only. The research prompt templates now include explicit negative guardrails against CLI/auth drift, scope inflation, fake validation, and generic brainstorming filler. If a process probes or opens `gemini` CLI, or returns `403` from that CLI, treat that as `WRONG_EXECUTION_SURFACE` and rerun through `agy`. Gemini's role is to add a second research stream, not to replace Codex verification. Results are displayed as a dedicated research report with agreed points, Gemini-only points, Codex-only points, rejected or speculative points, and concrete next actions. The same `scripts/append_agy_review_quality_log.py` helper appends the research-quality record to `.codex/agent-orchestration/agy-review-quality.jsonl` with `task_type=research`.
 
 ## Example: Branch Callback
 
@@ -209,6 +230,8 @@ flowchart TD
 │       └── references/
 │           ├── AUTOMATION_MONITORING.md
 │           ├── AUTOMATION_TOOLING.md
+│           ├── AGY_GEMINI_REVIEW.md
+│           ├── AGY_GEMINI_RESEARCH.md
 │           ├── COMMUNICATION_PROTOCOL.md
 │           ├── CONTROLLER_LOOP.md
 │           ├── ORCHESTRATION_INTAKE.md
@@ -301,7 +324,7 @@ Coordinate this release across three repositories. Have each project thread fini
 
 ## Search Keywords
 
-Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AGENTS.override.md, AI agent orchestration, multi-agent workflow, project autopilot, Codex automations, cron automation, heartbeat automation, GitHub issue automation, PR automation, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, release management, developer tools.
+Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AGENTS.override.md, AI agent orchestration, multi-agent workflow, project autopilot, Codex automations, cron automation, heartbeat automation, GitHub issue automation, PR automation, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, agy Gemini review, Antigravity review, external model review, release management, developer tools.
 
 ## Documentation
 
@@ -333,6 +356,7 @@ python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/a
 - Codex with skill support.
 - Optional: Codex thread tools for creating, reading, and messaging role conversations.
 - Optional: Codex automation tools for recurring heartbeat monitoring and workspace cron autopilot.
+- Optional: local `agy` CLI with Gemini models for external read-only review or research passes.
 - Optional: Project `AGENTS.md` / `AGENTS.override.md` guidance for durable repository rules.
 
 ## Related Codex Documentation

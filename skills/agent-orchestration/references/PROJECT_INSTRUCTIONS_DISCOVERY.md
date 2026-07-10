@@ -23,6 +23,7 @@ Use `AGENTS.md` for stable instructions:
 - branch, worktree, commit, merge, push, and deploy rules;
 - read-only areas and forbidden files;
 - review and QA expectations;
+- stable external review command safety rules, such as `agy --print <prompt>` ordering and read-only review requirements;
 - project-specific stop conditions;
 - automation escalation rules;
 - preferred issue/PR communication channels.
@@ -47,6 +48,7 @@ Suggest an `AGENTS.md` change when:
 - a coordinator has to restate branch or push policy repeatedly;
 - a project lacks clear verification or escalation rules;
 - a user asks to make behavior persistent.
+- an external-tool workflow has a known command-shape footgun that should not be rediscovered on every run.
 
 Do not edit `AGENTS.md` silently when the instruction is temporary, contested, or tied to one task.
 

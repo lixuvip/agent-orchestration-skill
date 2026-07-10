@@ -43,7 +43,26 @@ Split this feature into parallel preparation:
 After all three reply, merge their outputs into one engineering task.
 ```
 
-## Example 3: Multi-Repository Commit Finalization
+## Example 3: Parallel Codex + Gemini Research
+
+```text
+Use $agent-orchestration to research this repository in parallel with Codex and Gemini.
+
+Goal:
+Figure out the best approach for adding background job retries without widening the architecture unnecessarily.
+
+Research rules:
+- Codex must do its own repo reading and final synthesis.
+- Gemini via agy should run as a read-only second research stream.
+- Use run_agy_print.py so the prompt stays immediately after --print.
+- Do not use the standalone gemini CLI; if a process opens it and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
+- Attach the repository with --add-dir <project_root>.
+- Add --expect-substring AGY_RESEARCH_V1 so narration-only output is rejected automatically.
+- Compare agreed points, Gemini-only points, Codex-only points, and rejected/speculative points before choosing the next engineering task.
+- Append a quality log entry with task_type=research after the run.
+```
+
+## Example 4: Multi-Repository Commit Finalization
 
 ```text
 Use $agent-orchestration to finalize three repositories.
@@ -63,7 +82,7 @@ For each project thread:
 Create a 5-minute heartbeat monitor.
 ```
 
-## Example 4: Release Preparation
+## Example 5: Release Preparation
 
 ```text
 Use $agent-orchestration for release preparation.
@@ -76,7 +95,7 @@ Roles:
 Do not publish release notes until QA and review have terminal statuses.
 ```
 
-## Example 5: Callback-Required Long Task
+## Example 6: Callback-Required Long Task
 
 ```text
 Use $agent-orchestration.
@@ -87,7 +106,7 @@ If callback fails, require CALLBACK_FAILED in the role's final reply.
 Also create a heartbeat monitor that checks the role every 5 minutes.
 ```
 
-## Example 6: Branch Callback Controller Loop
+## Example 7: Branch Callback Controller Loop
 
 ```text
 Use $agent-orchestration to coordinate branch work with direct callback to the main coordinator thread.
@@ -99,7 +118,7 @@ Create heartbeat monitoring if the work is long-running.
 Run merge readiness before merging, pushing, or telling the user the branch is ready.
 ```
 
-## Example 7: Continuous Project Autopilot
+## Example 8: Continuous Project Autopilot
 
 ```text
 Use $agent-orchestration to create a project autopilot loop for this repository.
@@ -110,7 +129,7 @@ Use cron automation for workspace progress and heartbeat only for coordinator-th
 Each tick should compare the latest effective update, take one safe next action, run verification, update automation memory, and escalate if merge/push/deploy or scope expansion is needed.
 ```
 
-## Example 8: GitHub Issue And PR Autopilot
+## Example 9: GitHub Issue And PR Autopilot
 
 ```text
 Use $agent-orchestration to run a GitHub issue/PR project autopilot.
@@ -122,7 +141,7 @@ Do not comment if the latest effective update is unchanged and already covered b
 Read issue body, labels, comments, linked PR commits, files, checks, and review state before deciding the next safe action.
 ```
 
-## Example 9: Forward-Test Audit Before Release
+## Example 10: Forward-Test Audit Before Release
 
 ```text
 Use $agent-orchestration to audit this skill release before publishing.
@@ -130,4 +149,23 @@ Use $agent-orchestration to audit this skill release before publishing.
 Check that the forward-test scenarios still cover heartbeat callbacks, cron project autopilot, GitHub issue/PR no-op polling, missing AGENTS.md guidance, automation memory, latest effective update comparison, and escalation gates.
 Run python3 scripts/forward_test.py with the normal validation suite.
 Report any missing trigger coverage before preparing release notes.
+```
+
+## Example 11: Optional Agy / Gemini Review
+
+```text
+Use $agent-orchestration to add an agy/Gemini external review pass for the current branch diff.
+
+Treat agy as a read-only second opinion.
+In this workflow, Gemini means Gemini via agy only. Do not use the standalone gemini CLI.
+For broad or full-project review, run a dual Codex + Gemini review: keep a Codex reviewer role independent from the agy pass, then compare agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence.
+On first use in this project, ensure the stable agy/Gemini command-safety guidance is present in AGENTS.md before any agy health check or model discovery.
+Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
+Use the negative guardrails from the review prompt template: do not drift into CLI/auth narration, do not claim commands ran, do not inflate scope beyond the diff, and do not pad with generic advice.
+Use run_agy_print.py in normal read-only print mode with --sandbox so the prompt is immediately after --print, attach the repository with --add-dir <project_root> for full-project review, and add --expect-substring READY or Status: when you need the wrapper to reject empty or narration-only output automatically.
+If a process opens gemini CLI and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
+Do not let agy edit files or claim tests passed unless exact command output is supplied.
+After the review returns, evaluate review quality and classify each finding as valid, partially_valid, not_supported, or needs_human_check before deciding the next role.
+Show the result as a dedicated review report with Agy findings, dual-review comparison, quality evaluation, Codex verification, and recommended next steps.
+Append a quality log entry to .codex/agent-orchestration/agy-review-quality.jsonl with append_agy_review_quality_log.py, and only claim logging succeeded if it prints LOG_WRITTEN.
 ```

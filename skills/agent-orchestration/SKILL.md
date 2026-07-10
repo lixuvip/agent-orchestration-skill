@@ -1,11 +1,16 @@
 ---
 name: agent-orchestration
-description: Use when coordinating Codex work across roles, threads, subagents, repositories, branches, worktrees, callbacks, status polling, recurring automations, project autopilot, QA/review/release gates, or multi-project handoffs. Also use for requests to keep work moving until a goal is met, inspect or message another Codex thread, verify a branch through QA/review, or run delayed check-backs. Chinese triggers include 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 持续推进, 一直做到目标效果, 定时自动继续, 创建/继续/读取/转交线程.
+description: Use when the user asks for agy/Gemini external review or research, or when coordinating Codex work across roles, threads, subagents, repositories, branches, worktrees, callbacks, status polling, recurring automations, project autopilot, QA/review/release gates, external-task quality logs, or multi-project handoffs. Also use for requests to keep work moving until a goal is met, inspect or message another Codex thread, verify a branch through QA/review, or run delayed check-backs. Chinese triggers include Gemini/agy 代码审查, agy 代码审查, 外部模型审查, Gemini 调研, agy 调研, 外部模型调研, 并行调研, 调研质量日志, 另一个对话/进程在改, 另一个 agent 接手, 分给 QA 验证, 多个分支/仓库收口, 稍后巡检/回调/合并, 持续推进, 一直做到目标效果, 定时自动继续, 创建/继续/读取/转交线程.
 ---
 
 # Agent Orchestration
 
 Use this skill to run a Codex conversation as a coordinator for a small role-based agent team. Prefer it when a task spans multiple projects, multiple roles, long-running threads, or handoffs that need explicit status tracking.
+
+When this skill mentions `Gemini`, it means Gemini models invoked through local `agy`. Do not substitute the standalone `gemini` CLI.
+
+If the user mentions `agy`, `Gemini`, `Antigravity`, external review, or external research, load this skill before running shell commands. Do not probe the standalone `gemini` CLI with `command -v gemini`, `gemini --version`, or `gemini --help`.
+Negative cue: if your first impulse is to inspect `gemini` CLI, stop and return to the `agy` workflow instead.
 
 ## Do Not Use For
 
@@ -25,10 +30,12 @@ Use this skill to run a Codex conversation as a coordinator for a small role-bas
 7. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
 8. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
 9. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, heartbeat, or automation tick.
-10. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-11. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-12. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-13. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+10. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. For first use in a writable target repo, run `scripts/ensure_agy_review_agents_guidance.py` before any `agy` health check or model discovery, then use `scripts/run_agy_print.py` for `agy --print` calls and `scripts/append_agy_review_quality_log.py` for the actual JSONL append.
+11. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Use the same helper scripts, keep the pass read-only, require the guidance gate before `agy` discovery in writable repos, and compare Codex findings with external-model findings before adopting them.
+12. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+13. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+14. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+15. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
 
 ## Thread And Tool Handling
 
