@@ -121,9 +121,9 @@ QA 通过后如果又产生代码 commit，必须重新派发并重新测试新 
 1. 协调者为每个角色创建或选择对话。
 2. 协调者记录角色、职责、仓库路径、分支和对话 ID。
 3. 协调者在任务中要求角色完成后向协调者对话回调。
-4. 协调者创建 5 分钟巡检自动化，使用 `templates/monitoring_heartbeat.template.md`。
-5. 巡检每次读取所有角色对话，按 `ORCHESTRATION_EVENT_V1` 校验、去重、拒绝旧 attempt/nonce/epoch/SHA，并只接受显式终态。
-6. 所有角色进入终态后，巡检发送汇总，把完成项置为 `IN_REVIEW`，然后关闭自身。
+4. 协调者创建 5 分钟巡检自动化，使用 `templates/monitoring_heartbeat.template.md`，并配置 automation memory、fenced lease 和 heartbeat generation。
+5. 巡检 tick 先取得租约；`LEASE_ALREADY_HELD` 或 `LEASE_BUSY` 安静 no-op。随后读取所有角色对话，按 `ORCHESTRATION_EVENT_V1` 校验、去重、拒绝旧 attempt/nonce/epoch/SHA，并只接受显式终态。
+6. 所有角色进入终态后，巡检进入 `DRAINING`，停止新状态请求，只发送一次汇总，把完成项置为 `IN_REVIEW`，请求关闭并等待 automation 工具确认；确认后记录 `CLOSED`。
 7. 协调者读取汇总，检查当前 SHA 和门禁，明确写入 `ACCEPTED` 后再交付用户。
 
 判定规则：
@@ -134,6 +134,7 @@ QA 通过后如果又产生代码 commit，必须重新派发并重新测试新 
 - 没有显式终态的对话，不得按完成处理。
 - `CANCELLED` 是巡检终态，但不得按交付处理。
 - 重复 event ID 是 no-op；旧派发身份不得覆盖当前任务状态。
+- 过期或被替换的 heartbeat tick 不能写 memory、重复汇总或关闭新持有者。
 
 ## 8. 项目 Autopilot 模式
 
@@ -144,9 +145,9 @@ QA 通过后如果又产生代码 commit，必须重新派发并重新测试新 
 1. 协调者读取 `PROJECT_AUTOPILOT.md`。
 2. 协调者按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取目标项目的 `AGENTS.md` / `AGENTS.override.md`、项目文档、issue/PR/release 来源和验证命令。
 3. 协调者用 `templates/project_goal_contract.template.md` 明确目标、完成条件、自动权限、确认门禁、频率、预算和停止条件。
-4. 协调者按 `AUTOMATION_TOOLING.md` 检查现有 automation，避免重复创建。
+4. 协调者按 `AUTOMATION_TOOLING.md` 检查现有 automation，避免重复创建，并按 `AUTOMATION_CONCURRENCY.md` 配置 state directory、TTL 和 fenced lease。
 5. 协调者用 `templates/automation_plan.template.md` 选择 heartbeat 或 cron。当前线程短期回访用 heartbeat；workspace/worktree 持续推进用 cron。
-6. 自动化每次 tick 使用 `templates/automation_tick.template.md`，只做一个安全下一步。
+6. 自动化每次 tick 使用 `templates/automation_tick.template.md`：取得租约后只做一个安全下一步，副作用和 memory 写入前再次校验租约。
 7. 自动化每次 tick 更新 `templates/automation_memory.template.md`，避免重复评论、重复状态请求或重复工作。
 8. 目标达成后发送最终摘要并暂停或删除自动化；缺权限、反复失败或超范围时用 `templates/escalation_report.template.md` 升级给用户。
 
@@ -154,6 +155,7 @@ QA 通过后如果又产生代码 commit，必须重新派发并重新测试新 
 
 - `AGENTS.md` 存稳定项目规则；automation memory 存临时目标状态。
 - 自动化必须比较 latest effective update，不能只看更新时间。
+- `LEASE_BUSY`、过期或非 owner tick 都是 no-op，不能发消息或写 memory；memory 必须保存 fencing token 和幂等键。
 - 不得默认 merge、push、deploy、publish、删除数据、轮换密钥、产生费用或扩大范围。
 
 ## 9. 外部模型审查辅助模式

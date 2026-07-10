@@ -47,6 +47,13 @@ Cadence and budget:
 Memory path:
 - /Users/example/.codex/automations/release-readiness/memory.md
 
+Concurrency and lifecycle:
+- Lease state directory: /Users/example/.codex/automations/release-readiness/state
+- Lease TTL / max tick runtime: 900 / 600 seconds
+- Fencing rule: a lower or invalid token cannot post, write memory, or clean up
+- Initial lifecycle: ACTIVE
+- Cleanup policy: PAUSE after one final summary and tool confirmation
+
 Idempotency key:
 - issue #42 latest effective update + PR head SHA + check conclusions
 

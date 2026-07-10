@@ -28,12 +28,16 @@ agent_orchestration_kit/
 │   ├── build_agy_context_bundle.py
 │   ├── ensure_agy_review_agents_guidance.py
 │   ├── append_agy_review_quality_log.py
-│   └── orchestration_event.py
+│   ├── orchestration_event.py
+│   ├── automation_lease.py
+│   └── heartbeat_lifecycle.py
 ├── PROJECT_CONTEXT.template.md
 ├── ROLE_REGISTRY.template.md
 ├── COMMUNICATION_PROTOCOL.md
 ├── AUTOMATION_MONITORING.md
 ├── AUTOMATION_TOOLING.md
+├── AUTOMATION_CONCURRENCY.md
+├── AUTOMATION_CONCURRENCY.zh-CN.md
 ├── ORCHESTRATION_INTAKE.md
 ├── ORCHESTRATION_PROTOCOL.md
 ├── ORCHESTRATION_PROTOCOL.zh-CN.md
@@ -123,14 +127,15 @@ agent_orchestration_kit/
 9. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
 10. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
 11. 创建、更新、查看或删除 heartbeat / cron 自动化前，按 `AUTOMATION_TOOLING.md` 检查工具边界和重复自动化。
-12. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
-13. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
-14. 异步派发、回调、去重、过期消息判断和 commit 固定门禁按 `ORCHESTRATION_PROTOCOL.md` 执行；中文团队可读 `ORCHESTRATION_PROTOCOL.zh-CN.md`，机器校验使用 `scripts/orchestration_event.py`。
-15. 有多个任务状态时，按 `STATE_MACHINE.md` 分别记录角色执行状态、门禁结论和协调者状态。
-16. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-17. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先进入 `AGY_GEMINI_REVIEW.md`，并保持 Gemini 只通过本机 `agy` 调用。`scripts/run_agy_print.py` 固定使用 sandbox、宿主超时和输出上限；diff-only 审查不挂仓库，需要源码时先用 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。`ensure_agy_review_agents_guidance.py` 默认只检查，只有用户单独授权写入稳定项目规则时才加 `--write`。质量日志默认写入 `$CODEX_HOME/external-review-ledger/`，项目内日志也需要单独授权。
-18. 用户要求并行 Codex + Gemini 调研时，按 `AGY_GEMINI_RESEARCH.md` 保持两个研究流独立，并由协调者复核共同观点、Gemini-only、Codex-only 和被驳回观点。外部流同样使用有界 prompt 或 allowlist bundle，不静默扩大为整仓披露，不因一次性调研修改目标项目，并把 `task_type=research` 的质量记录写入默认 Codex 台账。
-19. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+12. 任何可能重叠或重试的 recurring automation 都按 `AUTOMATION_CONCURRENCY.md` 获取 fenced lease；中文团队可读 `AUTOMATION_CONCURRENCY.zh-CN.md`。使用 `scripts/automation_lease.py` 防并发 tick，使用 `scripts/heartbeat_lifecycle.py` 做 `ACTIVE -> DRAINING -> CLOSED` 收尾。
+13. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
+14. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
+15. 异步派发、回调、去重、过期消息判断和 commit 固定门禁按 `ORCHESTRATION_PROTOCOL.md` 执行；中文团队可读 `ORCHESTRATION_PROTOCOL.zh-CN.md`，机器校验使用 `scripts/orchestration_event.py`。
+16. 有多个任务状态时，按 `STATE_MACHINE.md` 分别记录角色执行状态、门禁结论和协调者状态。
+17. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
+18. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先进入 `AGY_GEMINI_REVIEW.md`，并保持 Gemini 只通过本机 `agy` 调用。`scripts/run_agy_print.py` 固定使用 sandbox、宿主超时和输出上限；diff-only 审查不挂仓库，需要源码时先用 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。`ensure_agy_review_agents_guidance.py` 默认只检查，只有用户单独授权写入稳定项目规则时才加 `--write`。质量日志默认写入 `$CODEX_HOME/external-review-ledger/`，项目内日志也需要单独授权。
+19. 用户要求并行 Codex + Gemini 调研时，按 `AGY_GEMINI_RESEARCH.md` 保持两个研究流独立，并由协调者复核共同观点、Gemini-only、Codex-only 和被驳回观点。外部流同样使用有界 prompt 或 allowlist bundle，不静默扩大为整仓披露，不因一次性调研修改目标项目，并把 `task_type=research` 的质量记录写入默认 Codex 台账。
+20. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 
@@ -157,4 +162,6 @@ agent_orchestration_kit/
 - 角色 `DONE` 只进入协调者 `IN_REVIEW`；只有当前派发身份、精确 SHA 和门禁都满足时，协调者才能写 `ACCEPTED`。
 - 重复 event ID 必须 no-op；旧 attempt、nonce、epoch 或 SHA 的回调不能覆盖当前状态。
 - 周期性自动化必须读取项目 `AGENTS.md` / `AGENTS.override.md` 等持久指令，并把临时状态写入 automation memory。
+- Recurring tick 必须先取得 fenced lease；过期或被替换的 tick 不能写 memory、发消息或关闭新 automation。
+- Heartbeat 只按 `ACTIVE -> DRAINING -> CLOSED` 单向关闭，最终汇总和 cleanup 都要幂等并等待工具确认。
 - 涉及密钥、付费服务、生产环境、破坏性 git 操作、大模型下载等事项时，必须停止并请求确认。

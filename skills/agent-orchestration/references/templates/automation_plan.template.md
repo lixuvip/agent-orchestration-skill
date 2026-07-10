@@ -25,12 +25,27 @@ Memory:
 - Memory path: <AUTOMATION_MEMORY_PATH>
 - Latest effective update key: <KEY>
 
+Concurrency lease:
+- State directory: <AUTOMATION_STATE_DIRECTORY>
+- Lease helper: scripts/automation_lease.py
+- Unique owner per tick: <TICK_ID_STRATEGY>
+- TTL / maximum tick runtime: <SECONDS> / <SECONDS>
+- Overlap policy: LEASE_ALREADY_HELD and LEASE_BUSY are quiet no-ops
+
+Lifecycle:
+- Initial state: <ACTIVE>
+- Heartbeat generation: <GENERATION_ID_OR_NOT_APPLICABLE>
+- Final summary idempotency key: <KEY_OR_NOT_APPLICABLE>
+- Cleanup confirmation source: <AUTOMATION_TOOL_RESULT_OR_NOT_APPLICABLE>
+
 Prompt responsibilities:
 - Read AGENTS.md, AGENTS.override.md, configured fallback instruction files, and relevant project docs.
 - Read automation memory before acting.
+- Acquire a fenced lease before reading mutable memory; verify before messages and writes.
 - Inspect live git, issue, PR, test, thread, or release state.
 - Perform one safe next action per tick.
 - Update memory every tick.
+- Record fencing token and idempotency keys, then release the lease in cleanup.
 - Pause, delete, or escalate when done, blocked, or missing authority.
 
 Requires user review before saving:

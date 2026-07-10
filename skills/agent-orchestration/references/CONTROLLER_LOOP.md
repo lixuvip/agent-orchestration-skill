@@ -12,7 +12,7 @@ The controller loop keeps the main thread authoritative while allowing branch or
 4. Dispatch a scoped task with `templates/task_dispatch.template.md`.
 5. Record the full dispatch identity, role, thread ID, branch/worktree, callback policy, and merge policy.
 6. Require the role to send `templates/coordinator_callback.template.md` back to the coordinator when thread messaging is available.
-7. Create heartbeat monitoring for long-running work, two or more role threads, or work that may finish while the coordinator is inactive.
+7. Create heartbeat monitoring for long-running work, two or more role threads, or work that may finish while the coordinator is inactive. Configure a fenced lease, automation memory, generation ID, and `ACTIVE -> DRAINING -> CLOSED` lifecycle from `AUTOMATION_CONCURRENCY.md`.
 8. For recurring workspace progress until a goal is met, read `PROJECT_AUTOPILOT.md` and create a goal contract, automation plan, tick prompt, memory path, and escalation rule before enabling automation.
 9. If a role is silent or unclear, send `templates/status_request.template.md` before inferring anything.
 10. Validate and deduplicate every callback before updating state. Ignore old attempt, nonce, epoch, and SHA events as stale.
@@ -46,4 +46,4 @@ Run merge readiness when a role asks to merge, push, publish, or hand off comple
 
 ## Autopilot Readiness
 
-Run autopilot readiness before creating a recurring project automation. The coordinator checks the target `AGENTS.md` / `AGENTS.override.md`, goal contract, allowed autonomous actions, confirmation gates, verification commands, memory path, idempotency key, and stop conditions.
+Run autopilot readiness before creating a recurring project automation. The coordinator checks the target `AGENTS.md` / `AGENTS.override.md`, goal contract, allowed autonomous actions, confirmation gates, verification commands, memory path, lease state directory, TTL, fencing-token policy, lifecycle state, idempotency keys, and stop conditions.

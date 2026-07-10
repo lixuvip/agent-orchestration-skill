@@ -48,6 +48,13 @@ Cadence and budget:
 Memory path:
 - <AUTOMATION_MEMORY_PATH>
 
+Concurrency and lifecycle:
+- Lease state directory: <AUTOMATION_STATE_DIRECTORY>
+- Lease TTL / max tick runtime: <SECONDS> / <SECONDS>
+- Fencing rule: a lower or invalid token cannot post, write memory, or clean up
+- Initial lifecycle: <ACTIVE>
+- Cleanup policy: <PAUSE | DELETE> after one final summary and tool confirmation
+
 Idempotency key:
 - <issue/pr/branch/test-state/latest-effective-update>
 

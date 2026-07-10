@@ -18,7 +18,10 @@ SCENARIO_REQUIREMENTS = {
         "Chooses heartbeat rather than cron.",
         "Uses task dispatch with callback and verification fields.",
         "Refuses to infer completion from silence.",
-        "delete or pause heartbeat",
+        "fenced lease",
+        "ACTIVE -> DRAINING -> CLOSED",
+        "one final summary",
+        "confirmed delete or pause cleanup",
     ],
     "Scenario 2: Workspace Project Autopilot": [
         "Use $agent-orchestration",
@@ -32,6 +35,7 @@ SCENARIO_REQUIREMENTS = {
         "goal contract",
         "automation memory",
         "latest effective update",
+        "fenced lease and fencing token",
         "push, merge, publish, deploy",
     ],
     "Scenario 3: GitHub Issue/PR No-Op Poll": [
@@ -145,6 +149,32 @@ CORE_COVERAGE = {
         "Cron",
         "Existing Automation Check",
         "Safety Gates",
+        "AUTOMATION_CONCURRENCY.md",
+        "ACTIVE -> DRAINING -> CLOSED",
+    ],
+    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md": [
+        "scripts/automation_lease.py",
+        "fencing token",
+        "LEASE_BUSY",
+        "LEASE_NOT_OWNER",
+        "ACTIVE -> DRAINING -> CLOSED",
+        "scripts/heartbeat_lifecycle.py",
+        "final-summary key",
+        "cleanup confirmation",
+    ],
+    SKILL_DIR / "scripts" / "automation_lease.py": [
+        "fencing_token",
+        "LEASE_BUSY",
+        "LEASE_EXPIRED",
+        "LEASE_NOT_OWNER",
+        "LEASE_ALREADY_RELEASED",
+    ],
+    SKILL_DIR / "scripts" / "heartbeat_lifecycle.py": [
+        "ACTIVE",
+        "DRAINING",
+        "CLOSED",
+        "POST_FINAL_SUMMARY",
+        "CLOSE_HEARTBEAT",
     ],
     SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md": [
         "AGENTS.md",
@@ -329,10 +359,15 @@ RELEASE_SURFACES = {
     ROOT / ".github" / "workflows" / "validate.yml": [
         "python3 scripts/forward_test.py",
         "python3 scripts/protocol_test.py",
+        "python3 scripts/automation_test.py",
     ],
     ROOT / "README.md": ["python3 scripts/forward_test.py", "Project Autopilot loop"],
     ROOT / "README.zh-CN.md": ["python3 scripts/forward_test.py", "Project Autopilot 循环"],
-    ROOT / "AGENTS.md": ["python3 scripts/forward_test.py", "python3 scripts/protocol_test.py"],
+    ROOT / "AGENTS.md": [
+        "python3 scripts/forward_test.py",
+        "python3 scripts/protocol_test.py",
+        "python3 scripts/automation_test.py",
+    ],
 }
 
 
@@ -397,6 +432,11 @@ def main() -> int:
         "repeated event IDs as no-op",
         "old QA/review evidence after a new code commit",
         "coordinator `ACCEPTED`",
+        "fenced lease",
+        "`LEASE_BUSY` as a quiet no-op",
+        "stale fencing token",
+        "ACTIVE -> DRAINING -> CLOSED",
+        "one final summary and confirmed cleanup",
     ]
     review_section = extract_section(forward_text, "Review Checklist")
     for token in checklist_tokens:

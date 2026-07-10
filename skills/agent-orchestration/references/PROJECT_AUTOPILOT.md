@@ -38,7 +38,7 @@ Choose the narrowest automation surface:
 | cron | Workspace or worktree work that should recur independently, such as issue/PR polling, tests, backlog triage, or release readiness. | Use for durable project autopilot. |
 | Suggested create/update | Worktree automations or local-environment setup that the user should review before saving. | Use when environment setup or workspace destination is material. |
 
-When automation tools are available, use `AUTOMATION_TOOLING.md` and the app automation tool rather than writing raw automation directives. For existing automations, inspect the current automation before creating a duplicate, and prefer updating it while preserving fields that the user did not ask to change.
+When automation tools are available, use `AUTOMATION_TOOLING.md` and the app automation tool rather than writing raw automation directives. For existing automations, inspect the current automation before creating a duplicate, and prefer updating it while preserving fields that the user did not ask to change. Read `AUTOMATION_CONCURRENCY.md` and configure a lease state directory for any schedule that can overlap, retry, or wake on multiple workers.
 
 ## Goal Contract
 
@@ -58,15 +58,17 @@ If the user says "fully autonomous" or "keep working until done", still keep des
 
 Each automation tick should:
 
-1. Read the goal contract, project guidance, and automation memory.
-2. Inspect live state: git status, branch, issue/PR activity, role callbacks, test results, build state, logs, and known blockers.
-3. Compare the latest effective update against the stored memory to avoid duplicate comments or repeated work.
-4. Choose one smallest safe next action.
-5. Execute it only if it is inside the allowed autonomous actions.
-6. Run or record the relevant verification.
-7. Update automation memory with timestamp, observed state, action, evidence, and next step.
-8. If done, post a final summary and pause or delete the automation.
-9. If blocked or authority is missing, post `templates/escalation_report.template.md` and pause or wait according to the goal contract.
+1. Generate a unique tick ID and acquire a fenced lease with `scripts/automation_lease.py` before reading mutable memory. Exit quietly on `LEASE_ALREADY_HELD` or `LEASE_BUSY`.
+2. Read the goal contract, project guidance, and automation memory. Stop if memory has a greater fencing token.
+3. Inspect live state: git status, branch, issue/PR activity, role callbacks, test results, build state, logs, and known blockers.
+4. Compare the latest effective update and processed event IDs against memory to avoid duplicate comments or repeated work.
+5. Choose one smallest safe next action.
+6. Execute it only if it is inside allowed autonomous actions. Verify the lease immediately before any message or write.
+7. Run or record the relevant verification.
+8. Atomically update automation memory with timestamp, observed state, action, evidence, next step, lease fencing token, and idempotency keys.
+9. If done, post one final summary and pause or delete the automation. Do not record cleanup complete until the tool confirms it.
+10. If blocked or authority is missing, post `templates/escalation_report.template.md` and pause or wait according to the goal contract.
+11. Release the lease in a finally-equivalent cleanup path; a stale tick must discard its result.
 
 Do not use raw freshness alone as a trigger. A timestamp changed by metadata is not necessarily a new effective update.
 
@@ -89,6 +91,9 @@ Memory should record:
 - blocker history;
 - next safe action;
 - what user-facing comments or callbacks have already been posted.
+- lease owner, expiry, and latest fencing token;
+- processed orchestration event IDs and action idempotency keys;
+- automation lifecycle, final-summary key, cleanup request ID, and cleanup confirmation.
 
 ## AGENTS.md Feedback Loop
 
@@ -114,3 +119,5 @@ Pause or escalate when:
 - the same blocker appears across the configured limit;
 - the next action would exceed scope, budget, permissions, or safety limits;
 - a merge, push, deploy, external notification, or public release is needed without explicit permission.
+
+If a tick loses its lease, stop without posting an escalation: another tick owns progress. If a heartbeat reaches all terminal role states, use `ACTIVE -> DRAINING -> CLOSED` from `AUTOMATION_CONCURRENCY.md`; terminal role work still requires coordinator review.

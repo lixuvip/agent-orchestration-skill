@@ -32,6 +32,7 @@ Automation prompts must include:
 - target repository, cwd, branch, issue, PR, release, or thread IDs;
 - project instruction sources such as `AGENTS.md` and `AGENTS.override.md`;
 - automation memory path;
+- lease state directory, tick owner ID, TTL, and fencing-token policy;
 - latest effective update / idempotency key;
 - allowed autonomous actions;
 - confirmation gates;
@@ -58,11 +59,15 @@ If `CODEX_HOME` is unset, resolve through `$HOME/.codex`; never allow the path t
 
 Each run must update memory when it observes state, even when no user-facing action is needed.
 
+Recurring runs must follow `AUTOMATION_CONCURRENCY.md`: acquire before reading mutable memory, verify before external side effects or memory writes, record the fencing token, and release after cleanup. A run that receives `LEASE_ALREADY_HELD`, `LEASE_BUSY`, `LEASE_EXPIRED`, or `LEASE_NOT_OWNER` must not post or write.
+
 ## Lifecycle
 
 - Keep active when work is still `IN_PROGRESS` and within scope.
 - Pause when blocked, missing authority, or waiting for user confirmation.
-- Delete or pause after final done summary, depending on whether the user expects future reuse.
+- Heartbeat monitors use `ACTIVE -> DRAINING -> CLOSED`: stop new requests in `DRAINING`, post the final summary once, request pause/delete, and wait for tool confirmation.
+- Delete or pause after final done summary, depending on whether the user expects future reuse. Record `CLOSED` only after confirmation.
+- A cleanup retry must not repost the final summary, and a late callback must not recreate a `CLOSED` monitor.
 - Archive a completed thread only through the thread archive tool when the user asks for that behavior.
 
 ## Safety Gates

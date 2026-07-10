@@ -48,6 +48,13 @@
 记忆路径:
 - <AUTOMATION_MEMORY_PATH>
 
+并发与生命周期:
+- 租约状态目录: <AUTOMATION_STATE_DIRECTORY>
+- 租约 TTL / tick 最长运行时间: <SECONDS> / <SECONDS>
+- Fencing 规则: 低 token 或无效 token 不能发消息、写 memory 或执行清理
+- 初始 lifecycle: <ACTIVE>
+- 清理策略: 最终汇总只发一次，工具确认后 <PAUSE | DELETE>
+
 幂等键:
 - <issue/pr/branch/test-state/latest-effective-update>
 

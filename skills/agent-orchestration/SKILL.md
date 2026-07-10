@@ -29,14 +29,15 @@ Negative cue: if your first impulse is to inspect `gemini` CLI, stop and return 
 6. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
 7. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
 8. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
-9. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
-10. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, gate, heartbeat, or automation tick.
-11. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
-12. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
-13. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-14. Use `references/templates/task_dispatch.template.md` for every role task. Fill in dispatch identity, scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-15. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-16. Before final delivery, inspect role output, diff scope, verification evidence, exact artifact SHA, gate verdicts, and unresolved risks yourself. Only coordinator state `ACCEPTED` is delivery.
+9. Read `references/AUTOMATION_CONCURRENCY.md` before enabling any recurring automation that may overlap or retry. Use `scripts/automation_lease.py` for fenced tick ownership and `scripts/heartbeat_lifecycle.py` for monotonic heartbeat shutdown.
+10. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
+11. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, gate, heartbeat, or automation tick.
+12. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
+13. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
+14. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+15. Use `references/templates/task_dispatch.template.md` for every role task. Fill in dispatch identity, scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+16. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+17. Before final delivery, inspect role output, diff scope, verification evidence, exact artifact SHA, gate verdicts, and unresolved risks yourself. Only coordinator state `ACCEPTED` is delivery.
 
 ## Thread And Tool Handling
 
@@ -69,6 +70,8 @@ Apply these rules:
 - When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, `NEEDS_CONTEXT`, or `CANCELLED`, move completed work to coordinator review, summarize terminal outcomes, and disable or delete the heartbeat automation.
 - For recurring project work beyond status monitoring, read `references/PROJECT_AUTOPILOT.md` and create a goal contract, automation plan, tick prompt, memory file, and escalation rule before enabling cron automation.
 - Before creating a recurring automation, inspect existing automations when tools allow and update instead of duplicating.
+- Every recurring tick that can write memory, post a message, or perform work must acquire a fenced lease. `LEASE_ALREADY_HELD`, `LEASE_BUSY`, expired, or replaced ticks are quiet no-ops.
+- Heartbeats close monotonically through `ACTIVE -> DRAINING -> CLOSED`; post one final summary, wait for tool-confirmed cleanup, and never recreate a closed monitor from a late callback.
 - Treat target project `AGENTS.md` / `AGENTS.override.md` as persistent repository guidance, and automation memory as temporary task state. Do not silently put live task state into `AGENTS.md`.
 
 For Chinese-only teams, use the matching Chinese templates in `references/templates/*.zh-CN.template.md`.

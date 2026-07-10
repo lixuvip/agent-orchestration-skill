@@ -8,6 +8,23 @@ Automation ID: release-readiness-autopilot
 Workspace: /path/to/product
 Last updated: 2026-07-07T09:30:00+08:00
 
+## Concurrency Lease
+
+- State directory: /Users/example/.codex/automations/release-readiness/state
+- Last owner ID: tick-2026-07-07T09-30-00
+- Latest fencing token: 14
+- Lease expires at: 2026-07-07T09:45:00+08:00
+- Last lease result: RELEASED
+
+## Lifecycle
+
+- State: ACTIVE
+- Heartbeat generation: NOT_APPLICABLE
+- Final summary key: NONE
+- Final summary posted: NO
+- Cleanup request ID: NONE
+- Cleanup confirmed: NO
+
 ## Goal
 
 Keep the repository moving until the release-readiness checklist is complete.
@@ -31,6 +48,7 @@ Keep the repository moving until the release-readiness checklist is complete.
 - Verification: npm test: pass; npm run lint: pass
 - Result: IN_PROGRESS
 - Risks: release notes still need owner approval before publish
+- Fencing token: 14
 
 ## Next Safe Action
 
@@ -44,4 +62,11 @@ Ask release owner to confirm whether release notes can be finalized.
 ## Posted Messages
 
 - issue #42 comment 991: codex-next-action covered PR #77 checks and release-notes draft.
+
+## Processed Events And Actions
+
+- Event IDs: event-pr-77-checks-success
+- Status request keys: release-owner-approval-attempt-1
+- Action idempotency keys: docs-release-notes-pr77-abc1234
+- Escalation keys: NONE
 ```

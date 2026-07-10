@@ -28,7 +28,8 @@ Expected behavior:
 - Chooses heartbeat rather than cron.
 - Uses task dispatch with callback and verification fields.
 - Refuses to infer completion from silence.
-- Plans to delete or pause heartbeat after all roles are terminal.
+- Configures a fenced lease so overlapping heartbeat ticks cannot both act.
+- Moves heartbeat through `ACTIVE -> DRAINING -> CLOSED`, posts one final summary, and waits for confirmed delete or pause cleanup after all roles are terminal.
 
 ## Scenario 2: Workspace Project Autopilot
 
@@ -48,6 +49,7 @@ Expected behavior:
 - Chooses cron for workspace progress.
 - Creates or proposes a goal contract before automation.
 - Includes automation memory and latest effective update comparison.
+- Uses a fenced lease and fencing token so overlapping cron ticks cannot both act or write memory.
 - Escalates before push, merge, publish, deploy, destructive changes, or scope expansion.
 
 ## Scenario 3: GitHub Issue/PR No-Op Poll
@@ -219,3 +221,6 @@ Expected behavior:
 - Did it deduplicate repeated event IDs as no-op?
 - Did it invalidate old QA/review evidence after a new code commit?
 - Did it require coordinator `ACCEPTED` instead of treating role `DONE` as delivery?
+- Did every recurring tick acquire a fenced lease and treat `LEASE_BUSY` as a quiet no-op?
+- Did it prevent a stale fencing token from writing memory, posting, or closing a newer automation?
+- Did heartbeat shutdown move monotonically through `ACTIVE -> DRAINING -> CLOSED` with one final summary and confirmed cleanup?

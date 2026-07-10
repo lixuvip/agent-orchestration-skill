@@ -34,11 +34,15 @@ CORE_FILES = [
     SKILL_DIR / "scripts" / "ensure_agy_review_agents_guidance.py",
     SKILL_DIR / "scripts" / "append_agy_review_quality_log.py",
     SKILL_DIR / "scripts" / "orchestration_event.py",
+    SKILL_DIR / "scripts" / "automation_lease.py",
+    SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
+    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
+    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.zh-CN.md",
     SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
     SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
@@ -915,6 +919,22 @@ def main() -> int:
             "DONE_WITH_CONCERNS",
             "status request",
             "PROJECT_AUTOPILOT.md",
+            "AUTOMATION_CONCURRENCY.md",
+            "ACTIVE -> DRAINING -> CLOSED",
+            "CANCELLED",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
+        [
+            "scripts/automation_lease.py",
+            "fencing token",
+            "LEASE_BUSY",
+            "LEASE_NOT_OWNER",
+            "ACTIVE -> DRAINING -> CLOSED",
+            "scripts/heartbeat_lifecycle.py",
+            "final-summary key",
+            "cleanup confirmation",
         ],
     )
     require_all(
@@ -928,6 +948,8 @@ def main() -> int:
             "Tick Loop",
             "latest effective update",
             "automation memory",
+            "scripts/automation_lease.py",
+            "fencing token",
         ],
     )
     require_all(
@@ -938,6 +960,8 @@ def main() -> int:
             "Existing Automation Check",
             "Do not show raw RRULE",
             "Safety Gates",
+            "AUTOMATION_CONCURRENCY.md",
+            "ACTIVE -> DRAINING -> CLOSED",
         ],
     )
     require_all(
@@ -1192,6 +1216,8 @@ def main() -> int:
             "Requires confirmation:",
             "Verification commands:",
             "Memory path:",
+            "Concurrency and lifecycle:",
+            "Lease state directory:",
         ],
     )
     require_all(

@@ -25,12 +25,27 @@
 - 记忆路径: <AUTOMATION_MEMORY_PATH>
 - 最新有效更新键: <KEY>
 
+并发租约:
+- 状态目录: <AUTOMATION_STATE_DIRECTORY>
+- 租约 helper: scripts/automation_lease.py
+- 每次 tick 的唯一 owner: <TICK_ID_STRATEGY>
+- TTL / tick 最长运行时间: <SECONDS> / <SECONDS>
+- 重叠策略: LEASE_ALREADY_HELD 和 LEASE_BUSY 时安静 no-op
+
+生命周期:
+- 初始状态: <ACTIVE>
+- Heartbeat generation: <GENERATION_ID_OR_NOT_APPLICABLE>
+- 最终汇总幂等键: <KEY_OR_NOT_APPLICABLE>
+- 清理确认来源: <AUTOMATION_TOOL_RESULT_OR_NOT_APPLICABLE>
+
 提示词职责:
 - 读取 AGENTS.md、AGENTS.override.md、已配置 fallback 指令文件和相关项目文档。
 - 行动前读取 automation memory。
+- 读取可变 memory 前取得 fenced lease；发消息和写入前再次验证。
 - 检查实时 git、issue、PR、测试、线程或发布状态。
 - 每次 tick 只执行一个安全下一步。
 - 每次 tick 都更新 memory。
+- 记录 fencing token 和幂等键，然后在收尾路径释放租约。
 - 完成、阻塞或缺少权限时暂停、删除或升级给用户。
 
 保存前需要用户确认:
