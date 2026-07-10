@@ -6,6 +6,7 @@
 自动化计划
 
 名称: <AUTOMATION_NAME>
+编排模式: DURABLE
 目标 ID: <GOAL_ID>
 自动化类型: <heartbeat | cron>
 目标位置: <thread | local | worktree>

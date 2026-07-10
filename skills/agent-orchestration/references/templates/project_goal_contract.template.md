@@ -6,6 +6,7 @@ Use this before creating a recurring project autopilot automation.
 Project goal contract
 
 Goal ID: <GOAL_ID>
+Orchestration mode: DURABLE
 Project / workspace: <PATH_OR_REPOSITORY>
 Coordinator thread ID: <THREAD_ID_OR_NONE>
 

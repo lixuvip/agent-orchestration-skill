@@ -36,9 +36,12 @@ CORE_FILES = [
     SKILL_DIR / "scripts" / "orchestration_event.py",
     SKILL_DIR / "scripts" / "automation_lease.py",
     SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
+    SKILL_DIR / "scripts" / "route_orchestration.py",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.zh-CN.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
     SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
@@ -982,6 +985,19 @@ def main() -> int:
             "Do not ask when",
             "Execution surface",
             "project autopilot",
+            "ORCHESTRATION_ROUTING.md",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
+        [
+            "`LITE`",
+            "`STANDARD`",
+            "`DURABLE`",
+            "Minimum Safe Route",
+            "External-model review or research is a modifier",
+            "scripts/route_orchestration.py",
+            "ISOLATE_OR_SERIALIZE_SHARED_EDITS",
         ],
     )
     require_all(
@@ -1211,6 +1227,7 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md",
         [
+            "Orchestration mode: DURABLE",
             "Done when:",
             "Allowed autonomously:",
             "Requires confirmation:",
@@ -1242,6 +1259,7 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
         [
+            "Orchestration mode:",
             "Coordinator thread ID",
             "ORCHESTRATION_EVENT_V1",
             "Dispatch nonce",
@@ -1255,6 +1273,7 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
         [
+            "编排模式",
             "Coordinator thread ID",
             "ORCHESTRATION_EVENT_V1",
             "Dispatch nonce",

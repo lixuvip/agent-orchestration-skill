@@ -12,9 +12,9 @@ Copy this file to `TASK_BOARD.md` when a coordinator needs durable multi-role st
 
 ## Active Dispatches
 
-| Goal ID | Task ID | Role | Thread ID | Attempt | Dispatch nonce | Coordinator epoch | Expected SHA | Role state | Gate | Coordinator state | Next action |
-| --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
-| `<GOAL-001>` | `<TASK-001>` | `<ROLE>` | `<THREAD_ID>` | `<1>` | `<NONCE>` | `<EPOCH>` | `<SHA_OR_NONE>` | `TODO` | `PENDING` | `TODO` | `<NEXT_ACTION>` |
+| Mode | Goal ID | Task ID | Role | Thread ID | Attempt | Dispatch nonce | Coordinator epoch | Expected SHA | Role state | Gate | Coordinator state | Next action |
+| --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
+| `<STANDARD_OR_DURABLE>` | `<GOAL-001>` | `<TASK-001>` | `<ROLE>` | `<THREAD_ID>` | `<1>` | `<NONCE>` | `<EPOCH>` | `<SHA_OR_NONE>` | `TODO` | `PENDING` | `TODO` | `<NEXT_ACTION>` |
 
 ## Current Task Detail
 

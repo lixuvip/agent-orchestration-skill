@@ -30,7 +30,8 @@ agent_orchestration_kit/
 │   ├── append_agy_review_quality_log.py
 │   ├── orchestration_event.py
 │   ├── automation_lease.py
-│   └── heartbeat_lifecycle.py
+│   ├── heartbeat_lifecycle.py
+│   └── route_orchestration.py
 ├── PROJECT_CONTEXT.template.md
 ├── ROLE_REGISTRY.template.md
 ├── COMMUNICATION_PROTOCOL.md
@@ -39,6 +40,8 @@ agent_orchestration_kit/
 ├── AUTOMATION_CONCURRENCY.md
 ├── AUTOMATION_CONCURRENCY.zh-CN.md
 ├── ORCHESTRATION_INTAKE.md
+├── ORCHESTRATION_ROUTING.md
+├── ORCHESTRATION_ROUTING.zh-CN.md
 ├── ORCHESTRATION_PROTOCOL.md
 ├── ORCHESTRATION_PROTOCOL.zh-CN.md
 ├── CONTROLLER_LOOP.md
@@ -122,20 +125,21 @@ agent_orchestration_kit/
 4. 复制 `TASK_BOARD.template.md` 为 `TASK_BOARD.md`，用于追踪任务状态。
 5. 给每个角色对话发送对应的 `roles/*.md` 作为角色初始化说明。
 6. 如果分支、线程、回调、自动化、合并或推送策略不明确，先按 `ORCHESTRATION_INTAKE.md` 和 `templates/orchestration_intake.template.md` 做短确认。
-7. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
-8. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
-9. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
-10. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-11. 创建、更新、查看或删除 heartbeat / cron 自动化前，按 `AUTOMATION_TOOLING.md` 检查工具边界和重复自动化。
-12. 任何可能重叠或重试的 recurring automation 都按 `AUTOMATION_CONCURRENCY.md` 获取 fenced lease；中文团队可读 `AUTOMATION_CONCURRENCY.zh-CN.md`。使用 `scripts/automation_lease.py` 防并发 tick，使用 `scripts/heartbeat_lifecycle.py` 做 `ACTIVE -> DRAINING -> CLOSED` 收尾。
-13. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
-14. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
-15. 异步派发、回调、去重、过期消息判断和 commit 固定门禁按 `ORCHESTRATION_PROTOCOL.md` 执行；中文团队可读 `ORCHESTRATION_PROTOCOL.zh-CN.md`，机器校验使用 `scripts/orchestration_event.py`。
-16. 有多个任务状态时，按 `STATE_MACHINE.md` 分别记录角色执行状态、门禁结论和协调者状态。
-17. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-18. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先进入 `AGY_GEMINI_REVIEW.md`，并保持 Gemini 只通过本机 `agy` 调用。`scripts/run_agy_print.py` 固定使用 sandbox、宿主超时和输出上限；diff-only 审查不挂仓库，需要源码时先用 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。`ensure_agy_review_agents_guidance.py` 默认只检查，只有用户单独授权写入稳定项目规则时才加 `--write`。质量日志默认写入 `$CODEX_HOME/external-review-ledger/`，项目内日志也需要单独授权。
-19. 用户要求并行 Codex + Gemini 调研时，按 `AGY_GEMINI_RESEARCH.md` 保持两个研究流独立，并由协调者复核共同观点、Gemini-only、Codex-only 和被驳回观点。外部流同样使用有界 prompt 或 allowlist bundle，不静默扩大为整仓披露，不因一次性调研修改目标项目，并把 `task_type=research` 的质量记录写入默认 Codex 台账。
-20. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+7. 按 `ORCHESTRATION_ROUTING.md` 选择最低安全的 Lite/Standard/Durable；中文团队可读 `ORCHESTRATION_ROUTING.zh-CN.md`，需要确定性判断时用 `scripts/route_orchestration.py`。一次性外部模型第二意见只是 modifier，不自动升级成持久编排。
+8. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
+9. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
+10. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
+11. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
+12. 创建、更新、查看或删除 heartbeat / cron 自动化前，按 `AUTOMATION_TOOLING.md` 检查工具边界和重复自动化。
+13. 任何可能重叠或重试的 recurring automation 都按 `AUTOMATION_CONCURRENCY.md` 获取 fenced lease；中文团队可读 `AUTOMATION_CONCURRENCY.zh-CN.md`。使用 `scripts/automation_lease.py` 防并发 tick，使用 `scripts/heartbeat_lifecycle.py` 做 `ACTIVE -> DRAINING -> CLOSED` 收尾。
+14. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
+15. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
+16. 异步派发、回调、去重、过期消息判断和 commit 固定门禁按 `ORCHESTRATION_PROTOCOL.md` 执行；中文团队可读 `ORCHESTRATION_PROTOCOL.zh-CN.md`，机器校验使用 `scripts/orchestration_event.py`。
+17. 有多个任务状态时，按 `STATE_MACHINE.md` 分别记录角色执行状态、门禁结论和协调者状态。
+18. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
+19. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先进入 `AGY_GEMINI_REVIEW.md`，并保持 Gemini 只通过本机 `agy` 调用。`scripts/run_agy_print.py` 固定使用 sandbox、宿主超时和输出上限；diff-only 审查不挂仓库，需要源码时先用 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。`ensure_agy_review_agents_guidance.py` 默认只检查，只有用户单独授权写入稳定项目规则时才加 `--write`。质量日志默认写入 `$CODEX_HOME/external-review-ledger/`，项目内日志也需要单独授权。
+20. 用户要求并行 Codex + Gemini 调研时，按 `AGY_GEMINI_RESEARCH.md` 保持两个研究流独立，并由协调者复核共同观点、Gemini-only、Codex-only 和被驳回观点。外部流同样使用有界 prompt 或 allowlist bundle，不静默扩大为整仓披露，不因一次性调研修改目标项目，并把 `task_type=research` 的质量记录写入默认 Codex 台账。
+21. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
 
 ## 最小运行方式
 
@@ -155,6 +159,7 @@ agent_orchestration_kit/
 
 - 每个角色只做自己职责内的事。
 - 每次任务都必须写清楚可改范围和禁止范围。
+- 默认选择最低安全档位：一次性当前线程用 Lite，有限期多角色用 Standard，跨 tick 持续推进用 Durable。
 - 工程角色优先使用独立分支或 worktree。
 - QA 和 Reviewer 默认只读，除非明确分配修复任务。
 - 角色回复必须包含实际验证结果，不接受只回复“完成了”。

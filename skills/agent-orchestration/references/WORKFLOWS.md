@@ -2,6 +2,8 @@
 
 本文件定义通用角色编排的几种运行模式。
 
+先按 `ORCHESTRATION_ROUTING.md` 选择 Lite、Standard 或 Durable，再在本文件中选具体 workflow。一次性当前线程任务不要为了使用本 skill 而自动创建线程、task board 或 automation；异步多角色至少使用 Standard；跨 tick 项目推进使用 Durable。
+
 ## 1. 顺序门禁模式
 
 适合用户可见功能、共享代码、架构变更或风险较高的需求。

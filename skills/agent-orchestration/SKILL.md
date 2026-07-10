@@ -22,22 +22,23 @@ Negative cue: if your first impulse is to inspect `gemini` CLI, stop and return 
 ## Core Workflow
 
 1. Read `references/ORCHESTRATION_INTAKE.md` when branch, thread, callback, automation, merge, or push permissions are ambiguous.
-2. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
-3. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
-4. Read `references/ORCHESTRATION_PROTOCOL.md` before minting a dispatch identity, accepting a callback, deduplicating an event, or evaluating commit-pinned evidence. Use `scripts/orchestration_event.py` to validate machine-readable callbacks when stale or duplicate messages could change delivery.
-5. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
-6. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
-7. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
-8. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
-9. Read `references/AUTOMATION_CONCURRENCY.md` before enabling any recurring automation that may overlap or retry. Use `scripts/automation_lease.py` for fenced tick ownership and `scripts/heartbeat_lifecycle.py` for monotonic heartbeat shutdown.
-10. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
-11. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, gate, heartbeat, or automation tick.
-12. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
-13. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
-14. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-15. Use `references/templates/task_dispatch.template.md` for every role task. Fill in dispatch identity, scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-16. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-17. Before final delivery, inspect role output, diff scope, verification evidence, exact artifact SHA, gate verdicts, and unresolved risks yourself. Only coordinator state `ACCEPTED` is delivery.
+2. Read `references/ORCHESTRATION_ROUTING.md` and select the minimum safe `LITE`, `STANDARD`, or `DURABLE` mode. Use `scripts/route_orchestration.py` when a repeatable routing decision helps. External-model work is a modifier, not an automatic upgrade.
+3. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
+4. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
+5. Read `references/ORCHESTRATION_PROTOCOL.md` before minting a dispatch identity, accepting a callback, deduplicating an event, or evaluating commit-pinned evidence. Use `scripts/orchestration_event.py` to validate machine-readable callbacks when stale or duplicate messages could change delivery.
+6. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
+7. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
+8. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
+9. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
+10. Read `references/AUTOMATION_CONCURRENCY.md` before enabling any recurring automation that may overlap or retry. Use `scripts/automation_lease.py` for fenced tick ownership and `scripts/heartbeat_lifecycle.py` for monotonic heartbeat shutdown.
+11. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
+12. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, gate, heartbeat, or automation tick.
+13. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
+14. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
+15. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+16. Use `references/templates/task_dispatch.template.md` for every role task. Fill in dispatch identity, scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+17. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+18. Before final delivery, inspect role output, diff scope, verification evidence, exact artifact SHA, gate verdicts, and unresolved risks yourself. Only coordinator state `ACCEPTED` is delivery.
 
 ## Thread And Tool Handling
 

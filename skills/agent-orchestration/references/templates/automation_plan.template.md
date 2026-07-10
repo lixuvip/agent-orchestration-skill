@@ -6,6 +6,7 @@ Use this to prepare a heartbeat or cron automation before calling the automation
 Automation plan
 
 Name: <AUTOMATION_NAME>
+Orchestration mode: DURABLE
 Goal ID: <GOAL_ID>
 Automation kind: <heartbeat | cron>
 Destination: <thread | local | worktree>

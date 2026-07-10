@@ -2,7 +2,7 @@
 
 Use this reference when the coordinator manages child threads, subagents, branches, worktrees, status requests, heartbeat automation, project autopilot, or merge readiness.
 
-The controller loop keeps the main thread authoritative while allowing branch or role threads to work independently.
+The controller loop keeps the main thread authoritative while allowing branch or role threads to work independently. Use it for Standard or Durable routing; a Lite current-thread task normally does not need the full controller loop.
 
 ## Flow
 

@@ -4,6 +4,7 @@
 Project goal contract
 
 Goal ID: release-readiness-2026-07
+Orchestration mode: DURABLE
 Project / workspace: /path/to/product
 Coordinator thread ID: 019f-example-coordinator
 

@@ -6,6 +6,7 @@
 项目目标契约
 
 目标 ID: <GOAL_ID>
+编排模式: DURABLE
 项目 / 工作区: <PATH_OR_REPOSITORY>
 协调者线程 ID: <THREAD_ID_OR_NONE>
 

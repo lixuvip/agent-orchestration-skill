@@ -4,6 +4,7 @@
 
 ```text
 你当前扮演的角色：<ROLE_NAME>
+编排模式：<LITE | STANDARD | DURABLE>
 项目：<PROJECT_NAME>
 仓库：<REPO_PATH>
 角色边界：<ROLE_BOUNDARY>

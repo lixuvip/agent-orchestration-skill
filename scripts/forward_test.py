@@ -134,6 +134,21 @@ SCENARIO_REQUIREMENTS = {
         "scripts/orchestration_event.py",
         "ORCHESTRATION_EVENT_V1",
     ],
+    "Scenario 8: Lite To Durable Route Escalation": [
+        "Use $agent-orchestration",
+        "one read-only agy second opinion",
+        "one engineer and one read-only QA role asynchronously",
+        "every two hours",
+        "ORCHESTRATION_ROUTING.md",
+        "chooses Lite",
+        "external review as a modifier",
+        "Upgrades to Standard",
+        "dispatch identity, callbacks, task board, and heartbeat",
+        "Upgrades to Durable",
+        "goal contract, cron, durable memory, fenced lease, and lifecycle rules",
+        "requested Lite mode remove Durable safety requirements",
+        "Isolates or serializes parallel shared-file edits",
+    ],
 }
 
 CORE_COVERAGE = {
@@ -201,6 +216,24 @@ CORE_COVERAGE = {
         "Accepted Delivery Predicate",
         "Any subsequent code commit invalidates earlier QA and review verdicts",
         "scripts/orchestration_event.py",
+    ],
+    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md": [
+        "`LITE`",
+        "`STANDARD`",
+        "`DURABLE`",
+        "Minimum Safe Route",
+        "External-model review or research is a modifier",
+        "scripts/route_orchestration.py",
+        "ISOLATE_OR_SERIALIZE_SHARED_EDITS",
+    ],
+    SKILL_DIR / "scripts" / "route_orchestration.py": [
+        "minimum_mode",
+        "selected_mode",
+        "requested_mode_honored",
+        "HEARTBEAT",
+        "CRON",
+        "EXTERNAL_MODEL_SECOND_OPINION",
+        "ISOLATE_OR_SERIALIZE_SHARED_EDITS",
     ],
     SKILL_DIR / "scripts" / "orchestration_event.py": [
         "ORCHESTRATION_EVENT_V1",
@@ -360,6 +393,7 @@ RELEASE_SURFACES = {
         "python3 scripts/forward_test.py",
         "python3 scripts/protocol_test.py",
         "python3 scripts/automation_test.py",
+        "python3 scripts/routing_test.py",
     ],
     ROOT / "README.md": ["python3 scripts/forward_test.py", "Project Autopilot loop"],
     ROOT / "README.zh-CN.md": ["python3 scripts/forward_test.py", "Project Autopilot 循环"],
@@ -367,6 +401,7 @@ RELEASE_SURFACES = {
         "python3 scripts/forward_test.py",
         "python3 scripts/protocol_test.py",
         "python3 scripts/automation_test.py",
+        "python3 scripts/routing_test.py",
     ],
 }
 
@@ -437,6 +472,10 @@ def main() -> int:
         "stale fencing token",
         "ACTIVE -> DRAINING -> CLOSED",
         "one final summary and confirmed cleanup",
+        "Lite, Standard, and Durable from actual task shape",
+        "external-model second opinion as a modifier",
+        "upgrade when async roles or recurring progress appeared",
+        "refuse to downgrade recurring work below Durable safety requirements",
     ]
     review_section = extract_section(forward_text, "Review Checklist")
     for token in checklist_tokens:

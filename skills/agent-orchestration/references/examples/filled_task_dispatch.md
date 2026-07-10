@@ -2,6 +2,7 @@
 
 ```text
 You are acting as: Technical Engineer
+Orchestration mode: STANDARD
 Project: Example Analytics App
 Repository: /path/to/example-analytics
 Thread role boundary: Implement only the scoped export retry fix.

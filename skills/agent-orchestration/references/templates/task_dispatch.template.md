@@ -4,6 +4,7 @@ Copy this template into the role thread and replace every placeholder. The activ
 
 ```text
 You are acting as: <ROLE_NAME>
+Orchestration mode: <LITE | STANDARD | DURABLE>
 Project: <PROJECT_NAME>
 Repository: <REPO_PATH>
 Thread role boundary: <ROLE_BOUNDARY>

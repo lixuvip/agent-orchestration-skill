@@ -23,6 +23,7 @@ REQUIRED_FILES = [
     SKILL_DIR / "scripts" / "orchestration_event.py",
     SKILL_DIR / "scripts" / "automation_lease.py",
     SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
+    SKILL_DIR / "scripts" / "route_orchestration.py",
     SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
     SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
     SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.zh-CN.md",
@@ -32,6 +33,8 @@ REQUIRED_FILES = [
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.zh-CN.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
     SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
@@ -114,6 +117,7 @@ REQUIRED_FILES = [
     ROOT / "scripts" / "forward_test.py",
     ROOT / "scripts" / "protocol_test.py",
     ROOT / "scripts" / "automation_test.py",
+    ROOT / "scripts" / "routing_test.py",
 ]
 
 
@@ -121,6 +125,7 @@ TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".sh", ".py", ".svg"}
 
 TEMPLATE_REQUIREMENTS = {
     SKILL_DIR / "references" / "templates" / "task_dispatch.template.md": [
+        "Orchestration mode:",
         "ORCHESTRATION_EVENT_V1",
         "Dispatch nonce:",
         "Coordinator epoch:",
@@ -131,6 +136,7 @@ TEMPLATE_REQUIREMENTS = {
         "Merge policy:",
     ],
     SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md": [
+        "编排模式",
         "ORCHESTRATION_EVENT_V1",
         "Dispatch nonce:",
         "Coordinator epoch:",
@@ -141,12 +147,18 @@ TEMPLATE_REQUIREMENTS = {
         "合并策略",
     ],
     SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md": [
+        "Minimum safe mode:",
+        "Selected mode:",
+        "Monitoring:",
         "Execution surface:",
         "Callback behavior:",
         "Merge/push permission:",
         "Ask only if",
     ],
     SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md": [
+        "最低安全模式",
+        "选用模式",
+        "巡检",
         "执行位置",
         "回调方式",
         "合并/推送权限",
@@ -265,6 +277,7 @@ TEMPLATE_REQUIREMENTS = {
         "状态请求",
     ],
     SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md": [
+        "Orchestration mode: DURABLE",
         "Done when:",
         "Instruction sources:",
         "Allowed autonomously:",
@@ -275,6 +288,7 @@ TEMPLATE_REQUIREMENTS = {
         "Lease state directory:",
     ],
     SKILL_DIR / "references" / "templates" / "project_goal_contract.zh-CN.template.md": [
+        "编排模式: DURABLE",
         "完成条件",
         "指令来源",
         "可自动执行",
@@ -285,6 +299,7 @@ TEMPLATE_REQUIREMENTS = {
         "租约状态目录",
     ],
     SKILL_DIR / "references" / "templates" / "automation_plan.template.md": [
+        "Orchestration mode: DURABLE",
         "Automation kind:",
         "Existing automation check:",
         "Memory path:",
@@ -295,6 +310,7 @@ TEMPLATE_REQUIREMENTS = {
         "Requires user review before saving:",
     ],
     SKILL_DIR / "references" / "templates" / "automation_plan.zh-CN.template.md": [
+        "编排模式: DURABLE",
         "自动化类型",
         "已有自动化检查",
         "记忆路径",
@@ -591,6 +607,8 @@ TEMPLATE_REQUIREMENTS = {
 }
 
 DISCOVERABLE_REFERENCES = [
+    "ORCHESTRATION_ROUTING.md",
+    "ORCHESTRATION_ROUTING.zh-CN.md",
     "AUTOMATION_CONCURRENCY.md",
     "AUTOMATION_CONCURRENCY.zh-CN.md",
     "ORCHESTRATION_PROTOCOL.md",
@@ -635,6 +653,7 @@ DISCOVERABLE_REFERENCES = [
     "orchestration_event.py",
     "automation_lease.py",
     "heartbeat_lifecycle.py",
+    "route_orchestration.py",
     "agy_gemini_review_report.template.md",
     "agy_gemini_review_report.zh-CN.template.md",
     "role_reply.zh-CN.template.md",

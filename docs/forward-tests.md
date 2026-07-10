@@ -195,6 +195,29 @@ Expected behavior:
 - Redispatches QA and review with a new attempt or gate dispatch identity pinned to ccccccc.
 - Uses `scripts/orchestration_event.py` or applies the same `ORCHESTRATION_EVENT_V1` acceptance predicate.
 
+## Scenario 8: Lite To Durable Route Escalation
+
+Prompt:
+
+```text
+Use $agent-orchestration for three related requests.
+
+First, get one read-only agy second opinion on the current diff and synthesize it here. Do not create extra threads or recurring automation.
+Then, if a fix is needed, coordinate one engineer and one read-only QA role asynchronously.
+Finally, if the user asks to continue checking the issue and PR every two hours, keep it moving until the release checklist is complete.
+
+Choose the orchestration level at each stage without carrying unnecessary machinery forward.
+```
+
+Expected behavior:
+
+- Reads `ORCHESTRATION_ROUTING.md` and chooses Lite for the one-shot external-model pass.
+- Treats external review as a modifier, not a reason by itself to create task board, heartbeat, or cron.
+- Upgrades to Standard for asynchronous engineer plus QA coordination, using dispatch identity, callbacks, task board, and heartbeat.
+- Upgrades to Durable when recurring two-hour project progress begins, adding goal contract, cron, durable memory, fenced lease, and lifecycle rules.
+- Does not let a requested Lite mode remove Durable safety requirements once recurring work is requested.
+- Isolates or serializes parallel shared-file edits instead of assuming routing makes them safe.
+
 ## Review Checklist
 
 - Did the agent choose heartbeat vs cron correctly?
@@ -224,3 +247,7 @@ Expected behavior:
 - Did every recurring tick acquire a fenced lease and treat `LEASE_BUSY` as a quiet no-op?
 - Did it prevent a stale fencing token from writing memory, posting, or closing a newer automation?
 - Did heartbeat shutdown move monotonically through `ACTIVE -> DRAINING -> CLOSED` with one final summary and confirmed cleanup?
+- Did it choose Lite, Standard, and Durable from actual task shape rather than always using the heaviest mode?
+- Did it keep a one-shot external-model second opinion as a modifier instead of automatic recurring orchestration?
+- Did it upgrade when async roles or recurring progress appeared without discarding required protocol state?
+- Did it refuse to downgrade recurring work below Durable safety requirements?
