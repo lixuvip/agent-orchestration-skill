@@ -1,6 +1,6 @@
 # Agy / Gemini 调研 Prompt 模板
 
-将占位符填好后，把整个文本作为 `scripts/run_agy_print.py` 的 prompt 输入。在这个 workflow 里，Gemini 只能表示 Gemini via agy，不能替换成 standalone `gemini` CLI。仓库调研时要用 `--add-dir "{{REPO_PATH}}"` 显式挂上目标项目。默认用 `--expect-substring 'AGY_RESEARCH_V1'` 或其他稳定结构化标记做解析护栏；只有当你明确需要更严格的机器可解析检查，并且已经验证当前模型会把 schema token 放在首个非空行时，才加 `--expect-first-line 'AGY_RESEARCH_V1'`。如果手动调用 `agy`，prompt 必须紧跟在 `--print` 后面，也就是 `agy --add-dir "{{REPO_PATH}}" --print "$PROMPT" --model "{{MODEL_NAME}}" --sandbox`。为了便于协调者解析，结构化输出字段保持英文。
+将占位符填好后，把整个文本作为 `scripts/run_agy_print.py` 的 prompt 输入。Gemini 只能表示 Gemini via agy。优先使用有界 prompt；需要源码时，只挂载 `scripts/build_agy_context_bundle.py` 生成的 allowlist bundle。整仓披露必须另行获得明确授权。默认用 `--expect-substring 'AGY_RESEARCH_V1'`；只有已确认模型会把 token 放在首个非空行时才加 `--expect-first-line 'AGY_RESEARCH_V1'`。结构化输出字段保持英文。
 
 ```text
 You are an external research assistant invoked by Codex through agy.

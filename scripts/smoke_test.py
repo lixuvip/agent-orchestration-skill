@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 import tempfile
+import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +30,7 @@ SCENARIO_FILES = [
 CORE_FILES = [
     SKILL_DIR / "SKILL.md",
     SKILL_DIR / "scripts" / "run_agy_print.py",
+    SKILL_DIR / "scripts" / "build_agy_context_bundle.py",
     SKILL_DIR / "scripts" / "ensure_agy_review_agents_guidance.py",
     SKILL_DIR / "scripts" / "append_agy_review_quality_log.py",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
@@ -155,6 +158,8 @@ def verify_agy_print_helper_empty_output_failure() -> None:
         stub.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(0)\n", encoding="utf-8")
         stub.chmod(0o755)
 
+        env = os.environ.copy()
+        env["AGENT_ORCHESTRATION_TESTING"] = "1"
         completed = subprocess.run(
             [
                 sys.executable,
@@ -169,6 +174,7 @@ def verify_agy_print_helper_empty_output_failure() -> None:
             text=True,
             capture_output=True,
             check=False,
+            env=env,
         )
         if completed.returncode != 3:
             fail(
@@ -189,6 +195,8 @@ def verify_agy_print_helper_first_line_failure() -> None:
         )
         stub.chmod(0o755)
 
+        env = os.environ.copy()
+        env["AGENT_ORCHESTRATION_TESTING"] = "1"
         completed = subprocess.run(
             [
                 sys.executable,
@@ -205,6 +213,7 @@ def verify_agy_print_helper_first_line_failure() -> None:
             text=True,
             capture_output=True,
             check=False,
+            env=env,
         )
         if completed.returncode != 5:
             fail(
@@ -222,6 +231,8 @@ def verify_agy_print_helper_rejects_gemini_cli() -> None:
         stub.write_text("#!/usr/bin/env python3\nprint('wrong surface')\n", encoding="utf-8")
         stub.chmod(0o755)
 
+        env = os.environ.copy()
+        env["AGENT_ORCHESTRATION_TESTING"] = "1"
         completed = subprocess.run(
             [
                 sys.executable,
@@ -236,6 +247,7 @@ def verify_agy_print_helper_rejects_gemini_cli() -> None:
             text=True,
             capture_output=True,
             check=False,
+            env=env,
         )
         if completed.returncode != 2:
             fail(
@@ -246,12 +258,84 @@ def verify_agy_print_helper_rejects_gemini_cli() -> None:
             fail("run_agy_print.py did not explain the gemini CLI surface rejection")
 
 
+def verify_agy_print_helper_rejects_unsafe_flags() -> None:
+    script = SKILL_DIR / "scripts" / "run_agy_print.py"
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--prompt",
+            "noop",
+            "--mode",
+            "accept-edits",
+            "--no-sandbox",
+            "--dry-run",
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode == 0 or "AGY_PRINT_COMMAND_OK" in completed.stdout:
+        fail("run_agy_print.py still permits accept-edits or no-sandbox")
+
+
+def verify_agy_print_helper_host_timeout() -> None:
+    script = SKILL_DIR / "scripts" / "run_agy_print.py"
+    with tempfile.TemporaryDirectory() as tmp:
+        stub = Path(tmp) / "agy-slow"
+        stub.write_text(
+            "#!/usr/bin/env python3\nimport time\ntime.sleep(2)\nprint('READY')\n",
+            encoding="utf-8",
+        )
+        stub.chmod(0o755)
+        env = os.environ.copy()
+        env["AGENT_ORCHESTRATION_TESTING"] = "1"
+        started = time.monotonic()
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--agy-bin",
+                str(stub),
+                "--prompt",
+                "Reply exactly: READY",
+                "--print-timeout",
+                "20s",
+                "--host-timeout",
+                "0.1s",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        elapsed = time.monotonic() - started
+        if completed.returncode != 6 or "AGY_PRINT_HOST_TIMEOUT" not in completed.stderr:
+            fail(
+                "run_agy_print.py did not enforce its host timeout: "
+                f"code={completed.returncode} stderr={completed.stderr.strip()!r}"
+            )
+        if elapsed > 1.5:
+            fail(f"run_agy_print.py host timeout was too slow: {elapsed:.2f}s")
+
+
 def verify_agents_guidance_helper() -> None:
     script = SKILL_DIR / "scripts" / "ensure_agy_review_agents_guidance.py"
     with tempfile.TemporaryDirectory() as tmp:
         project_root = Path(tmp)
-        first = subprocess.run(
+        check_only = subprocess.run(
             [sys.executable, str(script), "--project-root", str(project_root)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if check_only.returncode == 0 or "AGENTS_GUIDANCE_MISSING" not in check_only.stdout:
+            fail("ensure_agy_review_agents_guidance.py did not default to check-only")
+        if (project_root / "AGENTS.md").exists():
+            fail("ensure_agy_review_agents_guidance.py wrote AGENTS.md without --write")
+
+        first = subprocess.run(
+            [sys.executable, str(script), "--project-root", str(project_root), "--write"],
             text=True,
             capture_output=True,
             check=False,
@@ -266,8 +350,6 @@ def verify_agents_guidance_helper() -> None:
             fail("ensure_agy_review_agents_guidance.py did not write the guidance marker")
         if "$agent-orchestration" not in agents_text:
             fail("ensure_agy_review_agents_guidance.py did not require the installed skill at first use")
-        if "AGENTS_GUIDANCE_PRESENT" not in agents_text or "AGENTS_GUIDANCE_WRITTEN" not in agents_text:
-            fail("ensure_agy_review_agents_guidance.py did not explain the readiness gate")
         if "--add-dir" not in agents_text:
             fail("ensure_agy_review_agents_guidance.py did not mention explicit workspace attachment")
         if "command -v agy" not in agents_text or "agy models" not in agents_text:
@@ -286,8 +368,8 @@ def verify_agents_guidance_helper() -> None:
             fail("ensure_agy_review_agents_guidance.py did not mention WRONG_EXECUTION_SURFACE")
         if "AGY_RESEARCH_V1" not in agents_text:
             fail("ensure_agy_review_agents_guidance.py did not mention research schema checks")
-        if "task_type" not in agents_text:
-            fail("ensure_agy_review_agents_guidance.py did not mention research log task_type")
+        if "external-review ledger" not in agents_text:
+            fail("ensure_agy_review_agents_guidance.py did not explain external review logging")
 
         second = subprocess.run(
             [sys.executable, str(script), "--project-root", str(project_root)],
@@ -310,13 +392,371 @@ def verify_agents_guidance_helper() -> None:
             fail("ensure_agy_review_agents_guidance.py did not report stale guidance")
 
         refresh = subprocess.run(
-            [sys.executable, str(script), "--project-root", str(project_root)],
+            [sys.executable, str(script), "--project-root", str(project_root), "--write"],
             text=True,
             capture_output=True,
             check=False,
         )
         if refresh.returncode != 0 or "AGENTS_GUIDANCE_WRITTEN" not in refresh.stdout:
             fail("ensure_agy_review_agents_guidance.py did not refresh stale guidance")
+
+        outside = project_root.parent / "outside-agents.md"
+        escaped = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--agents-file",
+                "../outside-agents.md",
+                "--write",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if escaped.returncode == 0 or outside.exists():
+            fail("ensure_agy_review_agents_guidance.py allowed AGENTS.md path escape")
+
+        linked = project_root / "linked-agents.md"
+        linked.symlink_to(project_root / "AGENTS.md")
+        symlinked = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--agents-file",
+                "linked-agents.md",
+                "--write",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if symlinked.returncode == 0:
+            fail("ensure_agy_review_agents_guidance.py allowed a symlinked AGENTS.md")
+
+        malformed = project_root / "malformed-agents.md"
+        malformed.write_text(
+            "<!-- agent-orchestration:agy-gemini-review:start -->\n",
+            encoding="utf-8",
+        )
+        malformed_result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--agents-file",
+                "malformed-agents.md",
+                "--write",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if malformed_result.returncode == 0:
+            fail("ensure_agy_review_agents_guidance.py accepted malformed guidance markers")
+
+
+def verify_quality_log_helper() -> None:
+    script = SKILL_DIR / "scripts" / "append_agy_review_quality_log.py"
+    entry = {
+        "review_id": "agy-task-smoke-001",
+        "task_type": "review",
+        "project": "smoke",
+        "model": "Gemini test",
+        "mode": "read-only sandbox",
+        "timeout": "20s",
+        "scope": "bounded fixture",
+        "status": "DONE",
+        "quality_score": 5,
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        project_root = root / "project"
+        project_root.mkdir()
+        codex_home = root / "codex-home"
+        env = os.environ.copy()
+        env["CODEX_HOME"] = str(codex_home)
+
+        first = subprocess.run(
+            [sys.executable, str(script), "--project-root", str(project_root)],
+            input=json.dumps(entry),
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        if first.returncode != 0 or "LOG_WRITTEN" not in first.stdout:
+            fail(f"quality log helper did not write the default ledger: {first.stderr.strip()}")
+        if (project_root / ".codex").exists():
+            fail("quality log helper wrote into the project by default")
+        ledger_paths = list((codex_home / "external-review-ledger").glob("*/agy-review-quality.jsonl"))
+        if len(ledger_paths) != 1:
+            fail("quality log helper did not create exactly one CODEX_HOME ledger")
+
+        duplicate = subprocess.run(
+            [sys.executable, str(script), "--project-root", str(project_root)],
+            input=json.dumps(entry),
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        if duplicate.returncode != 0 or "LOG_ALREADY_PRESENT" not in duplicate.stdout:
+            fail("quality log helper did not deduplicate review_id")
+
+        project_write = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--log-path",
+                ".codex/agent-orchestration/custom.jsonl",
+            ],
+            input=json.dumps({**entry, "review_id": "agy-task-smoke-002"}),
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        if project_write.returncode == 0:
+            fail("quality log helper allowed a project write without --allow-project-write")
+
+        authorized_project_write = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--log-path",
+                ".codex/agent-orchestration/custom.jsonl",
+                "--allow-project-write",
+            ],
+            input=json.dumps({**entry, "review_id": "agy-task-smoke-002"}),
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        if authorized_project_write.returncode != 0 or "LOG_WRITTEN" not in authorized_project_write.stdout:
+            fail("quality log helper rejected an explicitly authorized project-local log")
+
+        nested_secret = subprocess.run(
+            [sys.executable, str(script), "--project-root", str(project_root), "--dry-run"],
+            input=json.dumps(
+                {**entry, "coordinator_notes": [{"api_token": "not-for-logs"}]}
+            ),
+            text=True,
+            capture_output=True,
+            check=False,
+            env=env,
+        )
+        if nested_secret.returncode == 0 or "LOG_NOT_WRITTEN" not in nested_secret.stderr:
+            fail("quality log helper did not reject a nested sensitive key")
+
+        processes: list[subprocess.Popen[str]] = []
+        for index in range(8):
+            entry_file = root / f"entry-{index:02d}.json"
+            entry_file.write_text(
+                json.dumps({**entry, "review_id": f"agy-task-concurrent-{index:02d}"}),
+                encoding="utf-8",
+            )
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    str(script),
+                    "--project-root",
+                    str(project_root),
+                    "--entry-file",
+                    str(entry_file),
+                ],
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env,
+            )
+            processes.append(process)
+        for process in processes:
+            stdout, stderr = process.communicate()
+            if process.returncode != 0 or "LOG_WRITTEN" not in stdout:
+                fail(f"concurrent quality-log append failed: {stderr.strip()}")
+        lines = ledger_paths[0].read_text(encoding="utf-8").splitlines()
+        if len(lines) != 9:
+            fail(f"concurrent quality-log append lost or duplicated entries: {len(lines)}")
+        for line in lines:
+            json.loads(line)
+
+
+def verify_context_bundle_helper() -> None:
+    script = SKILL_DIR / "scripts" / "build_agy_context_bundle.py"
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        project_root = root / "project"
+        source_dir = project_root / "src"
+        source_dir.mkdir(parents=True)
+        (source_dir / "app.py").write_text("print('safe')\n", encoding="utf-8")
+        (project_root / ".env").write_text("SECRET=value\n", encoding="utf-8")
+        output_dir = root / "bundle"
+
+        bundled = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--output-dir",
+                str(output_dir),
+                "--include",
+                "src/app.py",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if bundled.returncode != 0 or "AGY_CONTEXT_WRITTEN" not in bundled.stdout:
+            fail(f"context bundle helper failed: {bundled.stderr.strip()}")
+        if not (output_dir / "src" / "app.py").is_file():
+            fail("context bundle helper omitted the allowlisted file")
+        if (output_dir / ".env").exists():
+            fail("context bundle helper copied an unlisted secret file")
+
+        blocked = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--output-dir",
+                str(root / "blocked-bundle"),
+                "--include",
+                ".env",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if blocked.returncode == 0 or "AGY_CONTEXT_NOT_WRITTEN" not in blocked.stderr:
+            fail("context bundle helper allowed a sensitive path")
+
+        escaped = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--project-root",
+                str(project_root),
+                "--output-dir",
+                str(root / "escaped-bundle"),
+                "--include",
+                "../outside.txt",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if escaped.returncode == 0:
+            fail("context bundle helper allowed a path escape")
+
+
+def verify_install_helper() -> None:
+    script = ROOT / "scripts" / "install_skill.py"
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        source = root / "source"
+        source.mkdir()
+        (source / "SKILL.md").write_text("---\nname: demo\ndescription: demo\n---\n", encoding="utf-8")
+        (source / "reference.md").write_text("v1\n", encoding="utf-8")
+        target_root = root / "skills"
+
+        dirty = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--source-dir",
+                str(source),
+                "--target-root",
+                str(target_root),
+                "--skill-name",
+                "demo",
+                "--source-commit",
+                "abc123",
+                "--source-dirty",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if dirty.returncode == 0:
+            fail("install helper accepted a dirty source without --allow-dirty")
+
+        installed = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--source-dir",
+                str(source),
+                "--target-root",
+                str(target_root),
+                "--skill-name",
+                "demo",
+                "--source-commit",
+                "abc123",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if installed.returncode != 0 or "INSTALL_COMPLETE" not in installed.stdout:
+            fail(f"install helper failed: {installed.stderr.strip()}")
+        manifest_path = target_root / ".demo.install-manifest.json"
+        if not manifest_path.exists():
+            fail("install helper did not write a provenance manifest")
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest.get("source_commit") != "abc123" or manifest.get("source_dirty") is not False:
+            fail("install helper provenance manifest is incomplete")
+
+        (source / "reference.md").write_text("v2\n", encoding="utf-8")
+        upgraded = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--source-dir",
+                str(source),
+                "--target-root",
+                str(target_root),
+                "--skill-name",
+                "demo",
+                "--source-commit",
+                "def456",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if upgraded.returncode != 0 or not (target_root / ".demo.previous").exists():
+            fail("install helper did not keep the previous installation")
+
+        restored = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--target-root",
+                str(target_root),
+                "--skill-name",
+                "demo",
+                "--restore",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if restored.returncode != 0 or "INSTALL_RESTORED" not in restored.stdout:
+            fail("install helper could not restore the previous installation")
+        if (target_root / "demo" / "reference.md").read_text(encoding="utf-8") != "v1\n":
+            fail("install helper restored the wrong content")
 
 
 def main() -> int:
@@ -329,7 +769,12 @@ def main() -> int:
     verify_agy_print_helper_empty_output_failure()
     verify_agy_print_helper_first_line_failure()
     verify_agy_print_helper_rejects_gemini_cli()
+    verify_agy_print_helper_rejects_unsafe_flags()
+    verify_agy_print_helper_host_timeout()
     verify_agents_guidance_helper()
+    verify_quality_log_helper()
+    verify_context_bundle_helper()
+    verify_install_helper()
 
     require_all(
         SKILL_DIR / "agents" / "openai.yaml",
@@ -426,9 +871,12 @@ def main() -> int:
             "dedicated report",
             "agy-review-quality.jsonl",
             "ensure_agy_review_agents_guidance.py",
-            "AGENTS_GUIDANCE_WRITTEN",
+            "check-only",
             "run_agy_print.py",
-            "--add-dir \"$PROJECT_ROOT\"",
+            "build_agy_context_bundle.py",
+            "--add-dir \"$CONTEXT_PARENT/context\"",
+            "host-side timeout",
+            "external-review-ledger",
             "agy --print <prompt>",
             "agy --print --model",
             "dual Codex + Gemini review",
@@ -436,6 +884,7 @@ def main() -> int:
             "Codex-only",
             "falsification check",
             "append_agy_review_quality_log.py",
+            "external-review-ledger",
             "LOG_WRITTEN",
             "template_tuning_suggestions",
             "Negative Guardrails",
@@ -504,6 +953,8 @@ def main() -> int:
             "agy-review-quality.jsonl",
             "append_agy_review_quality_log.py",
             "LOG_WRITTEN",
+            "LOG_ALREADY_PRESENT",
+            "external-review-ledger",
             "Do not store secrets",
             "quality_score",
             "template_tuning_suggestions",
@@ -516,6 +967,8 @@ def main() -> int:
             "agy-review-quality.jsonl",
             "append_agy_review_quality_log.py",
             "LOG_WRITTEN",
+            "LOG_ALREADY_PRESENT",
+            "external-review-ledger",
             "不要记录密钥",
             "quality_score",
             "template_tuning_suggestions",
@@ -527,7 +980,7 @@ def main() -> int:
         [
             "Agy External Review Report",
             "Preflight:",
-            "--add-dir <project_root>",
+            "--add-dir <allowlisted_context>",
             "--print <prompt> --sandbox",
             "Quality log:",
             "Agy Findings",
@@ -544,7 +997,7 @@ def main() -> int:
         [
             "Agy 外部审查报告",
             "前置检查",
-            "--add-dir <project_root>",
+            "--add-dir <allowlisted_context>",
             "--print <prompt> --sandbox",
             "质量日志",
             "Agy Findings",
@@ -600,6 +1053,7 @@ def main() -> int:
             "agy-review-quality.jsonl",
             "append_agy_review_quality_log.py",
             "\"task_type\": \"research\"",
+            "external-review-ledger",
             "valuable_takeaways",
             "follow_up_questions",
         ],
@@ -608,6 +1062,7 @@ def main() -> int:
         SKILL_DIR / "references" / "templates" / "agy_gemini_research_report.template.md",
         [
             "Agy External Research Report",
+            "--add-dir <allowlisted_context>",
             "Parallel Research Comparison",
             "Gemini-only points",
             "Codex-only points",

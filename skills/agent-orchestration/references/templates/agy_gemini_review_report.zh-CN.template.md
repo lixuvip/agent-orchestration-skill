@@ -7,7 +7,7 @@
 
 Status: `DONE | DONE_WITH_CONCERNS | BLOCKED`
 Model: `{{MODEL_NAME}}`
-Mode: `{{COMMAND_SHAPE}}`（期望：`agy --add-dir <project_root> --print <prompt> --sandbox`）
+Mode: `{{COMMAND_SHAPE}}`（期望：`agy --add-dir <allowlisted_context> --print <prompt> --sandbox`）
 Timeout: `{{PRINT_TIMEOUT}}`
 Scope: {{REVIEW_SCOPE}}
 
@@ -19,6 +19,7 @@ Scope: {{REVIEW_SCOPE}}
 - `agy models`：{{MODELS_CHECK_RESULT}}
 - 健康检查：{{HEALTH_CHECK_RESULT}}
 - diff / 空白检查：{{DIFF_CHECK_RESULT}}
+- Context manifest / 披露例外：{{CONTEXT_MANIFEST_OR_EXCEPTION}}
 - 仓库变更：{{MUTATION_RESULT}}
 - 质量日志：{{LOG_WRITTEN_OUTPUT_OR_NOT_WRITTEN_REASON}}
 

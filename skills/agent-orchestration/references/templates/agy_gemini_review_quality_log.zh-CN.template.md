@@ -3,12 +3,12 @@
 每次外部模型审查完成后，先准备一个 JSON 对象，再用 `scripts/append_agy_review_quality_log.py` 追加到：
 
 ```text
-<PROJECT_ROOT>/.codex/agent-orchestration/agy-review-quality.jsonl
+${CODEX_HOME:-$HOME/.codex}/external-review-ledger/<project-id>/agy-review-quality.jsonl
 ```
 
 使用 JSONL：每一行是一个紧凑 JSON 对象。不要记录密钥、token、cookie、私有 vault 正文、客户数据、完整 diff 或原始专有文档。只记录路径、哈希、findings 摘要和审查质量信号。
 
-如果目标仓库禁止写入，或用户明确要求只读审查，就在协调者回复中展示这条 JSONL 记录，并说明为什么没有写入文件。
+默认台账位于目标仓库之外。项目内路径必须另行获得明确授权，并在命令中加入 `--allow-project-write`。
 
 写入命令：
 
@@ -18,7 +18,7 @@ python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "{{P
 JSON
 ```
 
-只有 stdout 出现 `LOG_WRITTEN <path>` 才能声明质量日志已写入。如果脚本输出 `LOG_NOT_WRITTEN` 或非 0 退出，不要声称已经落盘。
+只有 stdout 出现 `LOG_WRITTEN <path>` 或 `LOG_ALREADY_PRESENT <path>` 才能声明质量日志已持久化。如果脚本输出 `LOG_NOT_WRITTEN` 或非 0 退出，不要声称已经落盘。
 
 ```json
 {
@@ -29,7 +29,7 @@ JSON
   "coordinator_thread_id": "{{COORDINATOR_THREAD_ID_OR_UNKNOWN}}",
   "review_id": "{{STABLE_REVIEW_ID}}",
   "model": "{{MODEL_NAME}}",
-  "mode": "run_agy_print.py -> agy --add-dir <project_root> --print <prompt> --sandbox",
+  "mode": "run_agy_print.py -> agy --add-dir <allowlisted_context> --print <prompt> --sandbox",
   "timeout": "{{PRINT_TIMEOUT}}",
   "scope": "{{REVIEW_SCOPE}}",
   "diff_summary": "{{DIFF_STAT_OR_SCOPE_SUMMARY}}",

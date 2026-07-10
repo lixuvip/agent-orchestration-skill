@@ -7,7 +7,7 @@ Use this template as the coordinator-facing display after the background `agy` r
 
 Status: `DONE | DONE_WITH_CONCERNS | BLOCKED`
 Model: `{{MODEL_NAME}}`
-Mode: `{{COMMAND_SHAPE}}` (expected: `agy --add-dir <project_root> --print <prompt> --sandbox`)
+Mode: `{{COMMAND_SHAPE}}` (expected: `agy --add-dir <allowlisted_context> --print <prompt> --sandbox`)
 Timeout: `{{PRINT_TIMEOUT}}`
 Scope: {{RESEARCH_SCOPE}}
 
@@ -19,6 +19,7 @@ Preflight:
 - `agy models`: {{MODELS_CHECK_RESULT}}
 - Health check: {{HEALTH_CHECK_RESULT}}
 - Scope attachment: {{SCOPE_ATTACHMENT_RESULT}}
+- Context manifest / disclosure exception: {{CONTEXT_MANIFEST_OR_EXCEPTION}}
 - Repository mutation: {{MUTATION_RESULT}}
 - Quality log: {{LOG_WRITTEN_OUTPUT_OR_NOT_WRITTEN_REASON}}
 

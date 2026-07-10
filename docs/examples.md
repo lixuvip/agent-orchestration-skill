@@ -56,7 +56,7 @@ Research rules:
 - Gemini via agy should run as a read-only second research stream.
 - Use run_agy_print.py so the prompt stays immediately after --print.
 - Do not use the standalone gemini CLI; if a process opens it and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
-- Attach the repository with --add-dir <project_root>.
+- Use a bounded prompt or build_agy_context_bundle.py; do not attach the full repository by default.
 - Add --expect-substring AGY_RESEARCH_V1 so narration-only output is rejected automatically.
 - Compare agreed points, Gemini-only points, Codex-only points, and rejected/speculative points before choosing the next engineering task.
 - Append a quality log entry with task_type=research after the run.
@@ -159,13 +159,13 @@ Use $agent-orchestration to add an agy/Gemini external review pass for the curre
 Treat agy as a read-only second opinion.
 In this workflow, Gemini means Gemini via agy only. Do not use the standalone gemini CLI.
 For broad or full-project review, run a dual Codex + Gemini review: keep a Codex reviewer role independent from the agy pass, then compare agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence.
-On first use in this project, ensure the stable agy/Gemini command-safety guidance is present in AGENTS.md before any agy health check or model discovery.
+Keep the pass read-only by default. Only write stable AGENTS.md guidance when that repository change was separately authorized.
 Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the negative guardrails from the review prompt template: do not drift into CLI/auth narration, do not claim commands ran, do not inflate scope beyond the diff, and do not pad with generic advice.
-Use run_agy_print.py in normal read-only print mode with --sandbox so the prompt is immediately after --print, attach the repository with --add-dir <project_root> for full-project review, and add --expect-substring READY or Status: when you need the wrapper to reject empty or narration-only output automatically.
+Use run_agy_print.py in fixed sandboxed mode. For source-backed review, attach an allowlisted context bundle rather than the project root. Add --expect-substring READY or Status: when the wrapper should reject narration-only output automatically.
 If a process opens gemini CLI and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
 Do not let agy edit files or claim tests passed unless exact command output is supplied.
 After the review returns, evaluate review quality and classify each finding as valid, partially_valid, not_supported, or needs_human_check before deciding the next role.
 Show the result as a dedicated review report with Agy findings, dual-review comparison, quality evaluation, Codex verification, and recommended next steps.
-Append a quality log entry to .codex/agent-orchestration/agy-review-quality.jsonl with append_agy_review_quality_log.py, and only claim logging succeeded if it prints LOG_WRITTEN.
+Append a quality log entry to the default Codex external-review ledger, and only claim persistence after LOG_WRITTEN or LOG_ALREADY_PRESENT.
 ```

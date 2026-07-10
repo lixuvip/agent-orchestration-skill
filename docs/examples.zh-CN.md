@@ -56,7 +56,7 @@ Research rules:
 - Gemini via agy should run as a read-only second research stream.
 - Use run_agy_print.py so the prompt stays immediately after --print.
 - 不要使用 standalone `gemini` CLI；如果某个进程误开它并返回 403，按 `WRONG_EXECUTION_SURFACE` 处理并改回 `agy` 重跑。
-- Attach the repository with --add-dir <project_root>.
+- 使用有界 prompt 或 build_agy_context_bundle.py；默认不要挂载整个仓库。
 - Add --expect-substring AGY_RESEARCH_V1 so narration-only output is rejected automatically.
 - Compare agreed points, Gemini-only points, Codex-only points, and rejected/speculative points before choosing the next engineering task.
 - Append a quality log entry with task_type=research after the run.
@@ -159,13 +159,13 @@ Use $agent-orchestration to add an agy/Gemini external review pass for the curre
 Treat agy as a read-only second opinion.
 在这个 workflow 里，Gemini 只能表示 Gemini via agy，不能直接使用 standalone `gemini` CLI。
 For broad or full-project review, run a dual Codex + Gemini review: keep a Codex reviewer role independent from the agy pass, then compare agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence.
-On first use in this project, ensure the stable agy/Gemini command-safety guidance is present in AGENTS.md before any agy health check or model discovery.
+默认保持只读；只有目标项目的稳定规则写入被单独授权时才修改 AGENTS.md。
 这个 workflow 的探测命令只允许 `command -v agy` 和 `agy models`，不要去跑 `command -v gemini`、`gemini --version` 或 `gemini --help`。
 使用审查 prompt 模板里的反向护栏：不要漂移到 CLI/auth 叙述，不要声称执行过命令，不要把范围扩到 diff 之外，也不要塞泛泛建议。
-通过 run_agy_print.py 走普通只读 print + `--sandbox` 模式，保证 prompt 紧跟在 --print 后面；做全项目审查时，再显式传入 --add-dir <项目根目录> 把仓库挂进 agy workspace；需要自动拦截 0 输出或 narration-only 输出时，加上 --expect-substring READY 或 Status:。
+通过 run_agy_print.py 走固定 sandboxed 模式；需要源码时挂载 allowlist bundle，不直接挂项目根目录。需要自动拦截 0 输出或 narration-only 输出时，加上 --expect-substring READY 或 Status:。
 如果某个进程误开 `gemini` CLI 并返回 403，按 `WRONG_EXECUTION_SURFACE` 处理并改回 `agy` 重跑。
 Do not let agy edit files or claim tests passed unless exact command output is supplied.
 After the review returns, evaluate review quality and classify each finding as valid, partially_valid, not_supported, or needs_human_check before deciding the next role.
 Show the result as a dedicated review report with Agy findings, dual-review comparison, quality evaluation, Codex verification, and recommended next steps.
-Append a quality log entry to .codex/agent-orchestration/agy-review-quality.jsonl with append_agy_review_quality_log.py, and only claim logging succeeded if it prints LOG_WRITTEN.
+把质量记录写入默认 Codex external-review ledger，只有出现 LOG_WRITTEN 或 LOG_ALREADY_PRESENT 才声明已持久化。
 ```

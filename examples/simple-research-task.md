@@ -13,7 +13,7 @@ Roles:
 - External Researcher (Gemini via agy): run a read-only second research pass on the same repository and objective.
 
 External agy/Gemini rule:
-On first use in the repository, persist the stable agy/Gemini guidance into AGENTS.md before any agy health check or model discovery. Do not probe command -v gemini, gemini --version, or gemini --help.
+Keep the pass read-only by default. Do not modify AGENTS.md or create project-local logs unless those writes were separately authorized. Use a bounded prompt or an allowlisted context bundle, and do not probe command -v gemini, gemini --version, or gemini --help.
 Use the research prompt negative guardrails too: no CLI/auth drift, no fake validation, no scope inflation, and no generic brainstorming filler.
 
 Callback:

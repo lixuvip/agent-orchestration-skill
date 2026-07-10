@@ -10,8 +10,8 @@ If any of these feels like the next step, stop and return to the documented pref
 
 - `command -v gemini`, `gemini --version`, or `gemini --help`
 - opening standalone `gemini` CLI to inspect auth, models, or workspace behavior
-- treating a missing `--add-dir` repo attachment as proof that the target repo is unavailable
-- continuing the external research path after the writable-repo guidance gate failed
+- attaching the entire repository when a bounded problem statement or allowlisted context bundle is sufficient
+- writing target-repository guidance or logs merely to prepare a read-only research pass
 - padding the research prompt with generic ideation language that ignores the supplied repository scope
 
 ## When To Use
@@ -28,21 +28,22 @@ If any of these feels like the next step, stop and return to the documented pref
 - Do not ask `agy` to claim current external facts unless those facts are already included in the prompt. Time-sensitive ecosystem claims still need Codex verification from primary sources.
 - Do not probe the standalone `gemini` CLI with `command -v gemini`, `gemini --version`, or `gemini --help`. Discovery for this workflow is `agy` only.
 - Do not invoke the standalone `gemini` CLI for this workflow. If a process does that and receives a `403`, classify it as `WRONG_EXECUTION_SURFACE` and rerun through `agy`.
+- Do not modify target `AGENTS.md` or create a project-local quality log unless the user explicitly authorized that separate repository write.
 
 ## Preflight
 
 1. Read target project instructions such as `AGENTS.md` and obey privacy, branch, and verification rules.
-2. Unless the user requested a strictly read-only pass or the target project forbids instruction edits, ensure the target repository has stable agy/Gemini command guidance in its root `AGENTS.md` before any `agy` health check or model discovery:
+2. Keep preflight read-only by default. The installed skill already contains the command-safety rules. Check project guidance only when it is relevant:
 
 ```bash
 python3 <SKILL_DIR>/scripts/ensure_agy_review_agents_guidance.py --project-root "$PROJECT_ROOT"
 ```
 
-Treat this as complete only when it prints `AGENTS_GUIDANCE_PRESENT <path>` or `AGENTS_GUIDANCE_WRITTEN <path>`. If it prints `AGENTS_GUIDANCE_NOT_WRITTEN` or exits non-zero, do not start the external research path until you have recorded the reason and either downgraded to Codex-only research or obtained a project-specific exception.
+The helper is check-only unless `--write` is explicitly supplied. Missing guidance does not block a one-shot research pass. Only after the user separately authorizes a durable repository instruction change may the coordinator run it with `--write`.
 
 3. Inspect `git status --short`, the relevant repository paths, and any provided docs so the research scope is explicit.
 4. Redact unsafe content before sending it to an external model.
-5. After the guidance gate passes, confirm the tool and models:
+5. Confirm the tool and models:
 
 ```bash
 command -v agy
@@ -65,16 +66,25 @@ python3 <SKILL_DIR>/scripts/run_agy_print.py \
 
 If the health check fails, returns empty stdout, or misses the expected token, report `AGY_UNAVAILABLE`, `HEALTH_CHECK_FAILED`, or `NO_STRUCTURED_OUTPUT` and continue with Codex-only research. If a role probes or opens standalone `gemini` CLI, or reports a `403` from that CLI, classify that as `WRONG_EXECUTION_SURFACE` and rerun the pass through `agy` instead of treating it as a research result.
 
-7. For repository research, attach the target project explicitly. `agy --print` uses Antigravity scratch unless you add the repository:
+7. Send the minimum necessary repository context. Prefer a bounded prompt. When source files are required, build an allowlisted bundle outside the project and attach that bundle:
 
 ```bash
+CONTEXT_PARENT="$(mktemp -d)"
+python3 <SKILL_DIR>/scripts/build_agy_context_bundle.py \
+  --project-root "$PROJECT_ROOT" \
+  --output-dir "$CONTEXT_PARENT/context" \
+  --include src/relevant_subsystem \
+  --include docs/relevant_design.md
+
 python3 <SKILL_DIR>/scripts/run_agy_print.py \
-  --add-dir "$PROJECT_ROOT" \
+  --add-dir "$CONTEXT_PARENT/context" \
   --print-timeout 20s \
   --model 'Gemini 3.5 Flash (High)' \
   --expect-substring 'AGY_RESEARCH_V1' \
   --prompt-file /tmp/agy-research-prompt.txt
 ```
+
+Attach the full project root only when the user explicitly approved whole-repository disclosure and the privacy rules allow it. Record the context-bundle manifest or the whole-repository exception in the final report.
 
 ## Model Selection
 
@@ -104,7 +114,7 @@ Do not substitute `gemini` CLI for `agy`, even if both are installed.
 
 ```bash
 python3 <SKILL_DIR>/scripts/run_agy_print.py \
-  --add-dir "$PROJECT_ROOT" \
+  --add-dir "$CONTEXT_PARENT/context" \
   --prompt-file /tmp/agy-research-prompt.txt \
   --print-timeout 3m0s \
   --expect-substring 'AGY_RESEARCH_V1' \
@@ -114,10 +124,10 @@ python3 <SKILL_DIR>/scripts/run_agy_print.py \
 If invoking `agy` manually, this exact argument order is required:
 
 ```bash
-agy --add-dir "$PROJECT_ROOT" --print-timeout 3m0s --print "$PROMPT" --model 'Gemini 3.5 Flash (High)' --sandbox
+agy --add-dir "$CONTEXT_PARENT/context" --print-timeout 3m0s --print "$PROMPT" --model 'Gemini 3.5 Flash (High)' --sandbox
 ```
 
-Never put flags between `--print` and the prompt. If a run says the workspace is missing, rerun once with `--add-dir "$PROJECT_ROOT"` before declaring failure. If a run exits 0 but stdout is empty, misses `AGY_RESEARCH_V1` when `--expect-substring` is used, or places narration before the schema token when `--expect-first-line` is used, treat it as `NO_STRUCTURED_OUTPUT`. `--expect-first-line` is an optional strict mode, not the default path, because some runs can still prepend narration before the schema token.
+Never put flags between `--print` and the prompt. If a run says the workspace is missing, confirm the bounded prompt or allowlisted bundle before expanding scope. If a run exits 0 but stdout is empty, misses `AGY_RESEARCH_V1` when `--expect-substring` is used, or places narration before the schema token when `--expect-first-line` is used, treat it as `NO_STRUCTURED_OUTPUT`. `--expect-first-line` is an optional strict mode, not the default path, because some runs can still prepend narration before the schema token.
 
 ## Scope Budget
 
@@ -140,10 +150,10 @@ Chinese-only teams may use the `*.zh-CN.template.md` versions; keep the structur
 
 ## Quality Log
 
-Default log path:
+Default log location:
 
 ```text
-<PROJECT_ROOT>/.codex/agent-orchestration/agy-review-quality.jsonl
+${CODEX_HOME:-$HOME/.codex}/external-review-ledger/<project-id>/agy-review-quality.jsonl
 ```
 
 This file now acts as the durable ledger for external read-only tasks. Set `"task_type": "research"` for research entries so later tuning can distinguish them from review runs.
@@ -155,7 +165,7 @@ python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "$PR
   "project": "example",
   "repository": "/absolute/path/to/project",
   "model": "Gemini 3.5 Flash (High)",
-  "mode": "run_agy_print.py -> agy --add-dir <project_root> --print <prompt> --sandbox",
+  "mode": "run_agy_print.py -> agy --add-dir <allowlisted_context> --print <prompt> --sandbox",
   "timeout": "3m0s",
   "scope": "repository research on retry architecture",
   "context_summary": "retry coordinator, queue adapters, existing failure handling docs",
@@ -179,7 +189,7 @@ python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "$PR
 JSON
 ```
 
-Treat the log as written only when the script exits 0 and prints `LOG_WRITTEN <path>`. If the target repository forbids writes or the user requested a read-only pass, display the JSONL entry in the coordinator reply instead of writing it.
+Treat the log as written only when the script exits 0 and prints `LOG_WRITTEN <path>`. Project-local logging requires an explicitly selected project path plus `--allow-project-write`; the normal read-only pass writes only to the Codex-owned ledger.
 
 ## Failure States
 
@@ -190,6 +200,7 @@ Report one of these terminal states instead of treating a failed run as research
 | `AGY_UNAVAILABLE` | `agy` is not installed or not on `PATH`. |
 | `HEALTH_CHECK_FAILED` | The tiny health check failed or did not return the expected token. |
 | `TIMED_OUT` | The research pass exceeded the selected timeout. |
+| `HOST_TIMEOUT` | The wrapper terminated a stalled process at its host-side deadline. |
 | `INTERACTIVE_CONFIRMATION_REQUIRED` | The run asked for user input and could not proceed non-interactively. |
 | `UNSAFE_INPUT` | The supplied context includes private or secret material that should not be sent. |
 | `SCOPE_DRIFT` | The output reasoned outside the supplied repo/context boundary. |
@@ -205,4 +216,4 @@ After `agy` returns, classify each point:
 - `speculative`: plausible, but not yet supported by the supplied scope.
 - `rejected`: contradicted, low-signal, or outside scope.
 
-Final delivery should include the model used, timeout, command shape, whether the repo was attached with `--add-dir`, which points were accepted, which were rejected, what Codex verified separately, and the quality-log path or why the log was not written.
+Final delivery should include the model used, timeout, command shape, context-bundle manifest or disclosure exception, which points were accepted, which were rejected, what Codex verified separately, and the quality-log path or why the log was not written.

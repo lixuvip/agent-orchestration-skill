@@ -24,7 +24,29 @@ cd agent-orchestration-skill
 ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 ```
 
+替换前，安装器会运行仓库验证栈，默认拒绝 dirty skill 源，暂存并校验新副本，在安装目录旁写入来源 manifest，并保留上一版用于回滚。
+
+明确安装本地开发中的 dirty 版本：
+
+```bash
+./scripts/install.sh --allow-dirty
+```
+
+只预览、不改当前安装：
+
+```bash
+./scripts/install.sh --allow-dirty --dry-run
+```
+
+恢复保留的上一版：
+
+```bash
+./scripts/install.sh --restore
+```
+
 ## 方式二：手动安装
+
+手工复制会跳过验证、来源记录和回滚能力；除非明确不需要这些保障，否则优先使用安装器。
 
 ```bash
 git clone https://github.com/lixuvip/agent-orchestration-skill.git
@@ -96,4 +118,4 @@ git pull
 ./scripts/install.sh
 ```
 
-安装脚本会替换已安装的 `agent-orchestration` 目录。
+安装器会暂存新副本、保留上一版，并在报告成功前验证源码与安装副本一致。

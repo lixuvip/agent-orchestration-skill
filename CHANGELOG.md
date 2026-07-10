@@ -2,23 +2,28 @@
 
 ## Unreleased
 
+- Hardened installation with clean-source enforcement, explicit `--allow-dirty`, staged replacement, provenance manifests, retained previous installs, dry-run support, and rollback.
+- Locked `run_agy_print.py` to sandboxed read-only execution, removed edit/no-sandbox bypasses, and added host-side timeout plus output limits.
+- Added `build_agy_context_bundle.py` so source-backed external passes can attach an allowlisted bundle instead of disclosing the full repository by default.
+- Made project guidance check-only by default; target `AGENTS.md` writes now require explicit `--write` authorization.
+- Moved quality logging to the Codex-owned external-review ledger by default, with strict fields, sensitive-content limits, locked appends, and `review_id` deduplication. Project-local logs require `--allow-project-write`.
 - Added a parallel Codex + Gemini research workflow for repository survey, idea expansion, and option comparison instead of forcing external-model research through the review path.
 - Added `AGY_GEMINI_RESEARCH.md` plus English and Chinese research prompt, quality, quality-log, and dedicated report templates.
-- Extended `scripts/append_agy_review_quality_log.py` so the same project JSONL ledger can record both review entries and research entries with `task_type`.
-- Expanded the durable `AGENTS.md` guidance snippet so first-use agy rules now cover read-only research passes as well as review passes.
+- Extended `scripts/append_agy_review_quality_log.py` so the same Codex-owned JSONL ledger can record both review entries and research entries with `task_type`.
+- Expanded the optional durable `AGENTS.md` guidance snippet so explicitly authorized project rules cover read-only research passes as well as review passes.
 - Updated examples, READMEs, and forward tests so the skill can be triggered for parallel Codex + Gemini research and later tuned from the shared quality ledger.
 - Added an optional `agy` / Gemini external review workflow with read-only command guardrails, model-selection guidance, structured review prompts, quality evaluation templates, and coordinator acceptance rules.
 - Added a dedicated Agy review report template for displaying external findings, quality evaluation, Codex verification, and recommended next steps directly in chat.
 - Added dual Codex + Gemini review guidance for full-project audits or user-requested comparisons, including agreed/Gemini-only/Codex-only/rejected finding buckets and verification contrast in the report.
-- Added an Agy review quality-log template that records per-review scores, weak points, unsupported claims, omissions, accepted/rejected findings, and template tuning suggestions in `.codex/agent-orchestration/agy-review-quality.jsonl`.
+- Added an Agy review quality-log template that records per-review scores, weak points, unsupported claims, omissions, accepted/rejected findings, and template tuning suggestions in the external-review ledger.
 - Added `scripts/append_agy_review_quality_log.py` so review-quality logging is a deterministic append step with a `LOG_WRITTEN` success signal instead of only a prose instruction.
 - Added `scripts/run_agy_print.py` to enforce the required `agy --print <prompt> ...` argument order and avoid first-run failures caused by putting flags between `--print` and the prompt.
-- Updated `scripts/run_agy_print.py` and the external-review workflow to support `--add-dir <project_root>` so full-repository reviews do not silently run against Antigravity scratch instead of the target codebase.
+- Updated the external-review workflow to attach bounded allowlisted source bundles through `--add-dir`; whole-repository disclosure is an explicit exception.
 - Updated the external-review workflow to standardize on `Gemini 3.5 Flash (High)` and treat empty or narration-only output as failure through `run_agy_print.py` plus optional schema checks.
 - Hardened the agy/Gemini workflow so Gemini always means "Gemini via agy", never the standalone `gemini` CLI; added `WRONG_EXECUTION_SURFACE` guidance for accidental `gemini` CLI `403` failures and made `run_agy_print.py` reject `--agy-bin gemini`.
-- Tightened first-use agy/Gemini entry rules so writable repos must persist the target `AGENTS.md` guidance before any agy health check or model discovery, and documented that standalone `gemini` CLI probing such as `command -v gemini`, `gemini --version`, or `gemini --help` is the wrong execution surface.
+- Tightened agy/Gemini entry rules so one-shot passes remain read-only by default, while standalone `gemini` CLI probing such as `command -v gemini`, `gemini --version`, or `gemini --help` remains the wrong execution surface.
 - Added explicit reverse-prompt guardrails to the AGY review/research prompt templates and target `AGENTS.md` snippet so the workflow now pushes back on CLI/auth narration, fake validation claims, scope inflation, and generic filler.
-- Added `scripts/ensure_agy_review_agents_guidance.py` so the first agy/Gemini review in a writable project can persist stable command-safety rules into the target `AGENTS.md`.
+- Added `scripts/ensure_agy_review_agents_guidance.py` so coordinators can check stable command-safety guidance and persist it only after explicit project-write authorization.
 - Added forward-test, smoke-test, and validation coverage for external review resources so the templates stay discoverable and include anti-hallucination fields.
 - Updated README and examples to document external model review as a second opinion rather than an automatic replacement for Codex review or real test evidence.
 

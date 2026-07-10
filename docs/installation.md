@@ -24,7 +24,29 @@ The script installs the skill to:
 ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 ```
 
+Before replacement, the installer runs the repository validation stack, refuses a dirty skill source by default, stages and verifies the new copy, records a provenance manifest beside the installed skill, and retains the previous installation for rollback.
+
+For an intentional local development install:
+
+```bash
+./scripts/install.sh --allow-dirty
+```
+
+Preview without changing the installed copy:
+
+```bash
+./scripts/install.sh --allow-dirty --dry-run
+```
+
+Restore the retained previous installation:
+
+```bash
+./scripts/install.sh --restore
+```
+
 ## Option 2: Manual Install
+
+Manual copying skips validation, provenance, and rollback. Prefer the installer unless those guarantees are intentionally unnecessary.
 
 ```bash
 git clone https://github.com/lixuvip/agent-orchestration-skill.git
@@ -96,4 +118,4 @@ git pull
 ./scripts/install.sh
 ```
 
-The installer replaces the previously installed `agent-orchestration` folder.
+The installer stages the new copy, keeps the prior version under the skills root, and verifies source/install parity before reporting success.

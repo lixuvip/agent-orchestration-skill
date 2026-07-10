@@ -3,12 +3,12 @@
 Prepare one JSON object per completed external review and append it with `scripts/append_agy_review_quality_log.py` to:
 
 ```text
-<PROJECT_ROOT>/.codex/agent-orchestration/agy-review-quality.jsonl
+${CODEX_HOME:-$HOME/.codex}/external-review-ledger/<project-id>/agy-review-quality.jsonl
 ```
 
 Use JSONL: each line is one compact JSON object. Do not store secrets, tokens, cookies, private vault note contents, customer data, full diffs, or raw proprietary documents. Store paths, hashes, summarized findings, and review-quality signals only.
 
-If the target repository forbids writes or the user requested a read-only pass, display the JSONL entry in the coordinator reply and record why it was not written.
+The default ledger is outside the target repository. A project-local path requires explicit authorization and `--allow-project-write`.
 
 Write command:
 
@@ -18,7 +18,7 @@ python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "{{P
 JSON
 ```
 
-Success requires `LOG_WRITTEN <path>` in stdout. If the helper prints `LOG_NOT_WRITTEN` or exits non-zero, do not claim the log was written.
+Success requires `LOG_WRITTEN <path>` or `LOG_ALREADY_PRESENT <path>` in stdout. If the helper prints `LOG_NOT_WRITTEN` or exits non-zero, do not claim the log was persisted.
 
 ```json
 {
@@ -29,7 +29,7 @@ Success requires `LOG_WRITTEN <path>` in stdout. If the helper prints `LOG_NOT_W
   "coordinator_thread_id": "{{COORDINATOR_THREAD_ID_OR_UNKNOWN}}",
   "review_id": "{{STABLE_REVIEW_ID}}",
   "model": "{{MODEL_NAME}}",
-  "mode": "run_agy_print.py -> agy --add-dir <project_root> --print <prompt> --sandbox",
+  "mode": "run_agy_print.py -> agy --add-dir <allowlisted_context> --print <prompt> --sandbox",
   "timeout": "{{PRINT_TIMEOUT}}",
   "scope": "{{REVIEW_SCOPE}}",
   "diff_summary": "{{DIFF_STAT_OR_SCOPE_SUMMARY}}",

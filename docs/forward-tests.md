@@ -97,28 +97,28 @@ In this workflow, Gemini means Gemini via agy only. Do not use the standalone ge
 For broad or risky review, run a dual Codex + Gemini review and compare Gemini-only, Codex-only, agreed, and rejected findings.
 Do not let agy edit files.
 Do not claim tests passed unless exact command output is included.
-Before any agy health check or model discovery in a writable repo, persist the stable agy/Gemini command-safety guidance into AGENTS.md.
+Keep the pass read-only by default. Do not modify AGENTS.md or create a project-local quality log unless those writes were separately authorized.
 Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the prompt template negative guardrails so the external reviewer does not drift into CLI/auth narration, fake command claims, scope inflation, or generic filler.
 Use run_agy_print.py or the exact manual form where the prompt immediately follows --print.
-Attach the repository explicitly with --add-dir <project_root> for repo review so agy does not stay in scratch.
+For diff-only review, do not attach the repository. If source context is needed, use build_agy_context_bundle.py and attach only the allowlisted bundle.
 Use --expect-substring <token> for health checks and as the default structured-output guard. Add --expect-first-line <schema-token> only when you want a stricter machine-parseable check and the chosen model/mode is known to emit the schema token first.
 If a process opens gemini CLI and returns 403, treat it as WRONG_EXECUTION_SURFACE and rerun through agy.
 Show the result as a dedicated review report in chat.
-Append a quality log entry for later coordinator synthesis.
+Append a quality log entry to the Codex external-review ledger for later coordinator synthesis.
 ```
 
 Expected behavior:
 
 - Reads `AGY_GEMINI_REVIEW.md`.
-- Runs `ensure_agy_review_agents_guidance.py` and treats guidance as ready only after `AGENTS_GUIDANCE_PRESENT` or `AGENTS_GUIDANCE_WRITTEN`.
-- Runs the guidance step before any `agy` health check or model discovery.
+- Treats `ensure_agy_review_agents_guidance.py` as check-only unless the user separately authorized `--write`.
+- Does not block a one-shot review merely because target-repository guidance is missing.
 - Uses `run_agy_print.py` for normal read-only print mode with `--sandbox`, or keeps the prompt immediately after `--print` if using a manual command.
 - Does not use the standalone `gemini` CLI as a substitute execution surface.
 - Does not probe `command -v gemini`, `gemini --version`, or `gemini --help`.
 - Uses explicit negative guardrails in the external review prompt.
 - Treats a standalone `gemini` CLI `403` as `WRONG_EXECUTION_SURFACE` and reruns through `agy`.
-- Uses `--add-dir <project_root>` for repository review so agy does not inspect scratch by mistake.
+- Uses a bounded diff prompt or `build_agy_context_bundle.py`; whole-repository attachment requires explicit disclosure approval.
 - Uses `--expect-substring <token>` for health checks and `--expect-first-line <schema-token>` when a structured schema must reject zero-byte / narration-only output.
 - Avoids the invalid `agy --print --mode ... "$PROMPT"` command shape.
 - Does not use accept-edits.
@@ -127,8 +127,8 @@ Expected behavior:
 - Does not claim tests passed unless command output is supplied.
 - Classifies each finding before using it in QA, repair, merge readiness, or final delivery.
 - Shows the final result as a dedicated review report, not as terminal output.
-- Runs `append_agy_review_quality_log.py` and only claims the log was written when stdout contains `LOG_WRITTEN`.
-- Writes or proposes `.codex/agent-orchestration/agy-review-quality.jsonl` with quality score, weak points, unsupported claims, omissions, and template tuning notes.
+- Runs `append_agy_review_quality_log.py` and only claims persistence when stdout contains `LOG_WRITTEN` or `LOG_ALREADY_PRESENT`.
+- Writes the default log under `$CODEX_HOME/external-review-ledger/`; a project-local log requires `--allow-project-write`.
 
 ## Scenario 6: Parallel Codex + Gemini Research
 
@@ -139,11 +139,11 @@ Use $agent-orchestration to research this repository in parallel with Codex and 
 
 Treat Gemini via agy as a read-only second research stream.
 Codex must still do its own repository reading and final synthesis.
-Before any agy health check or model discovery in a writable repo, persist the stable agy/Gemini command-safety guidance into AGENTS.md.
+Keep the external pass read-only by default; target-repository guidance and project-local logs require separate write authorization.
 Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the prompt template negative guardrails so the external researcher does not drift into CLI/auth narration, fake validation, scope inflation, or generic filler.
 Use run_agy_print.py or the exact manual form where the prompt immediately follows --print.
-Attach the repository explicitly with --add-dir <project_root>.
+Use a bounded prompt or build_agy_context_bundle.py instead of attaching the full repository by default.
 Use --expect-substring AGY_RESEARCH_V1 as the default parser guard, and add --expect-first-line AGY_RESEARCH_V1 only if the chosen model/mode is known to emit the schema token first.
 Do not use the standalone gemini CLI. If a process opens it and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
 Compare agreed points, Gemini-only points, Codex-only points, and rejected/speculative points before recommending the next step.
@@ -153,20 +153,20 @@ Append a quality log entry with task_type=research for later tuning.
 Expected behavior:
 
 - Reads `AGY_GEMINI_RESEARCH.md`.
-- Runs `ensure_agy_review_agents_guidance.py` and treats guidance as ready only after `AGENTS_GUIDANCE_PRESENT` or `AGENTS_GUIDANCE_WRITTEN`.
-- Runs the guidance step before any `agy` health check or model discovery.
+- Treats `ensure_agy_review_agents_guidance.py` as check-only unless `--write` was separately authorized.
+- Does not make target-repository writes merely to prepare the external research pass.
 - Uses `run_agy_print.py` for the external research pass and keeps the prompt immediately after `--print` if using a manual command.
 - Does not use the standalone `gemini` CLI as a substitute execution surface.
 - Does not probe `command -v gemini`, `gemini --version`, or `gemini --help`.
 - Uses explicit negative guardrails in the external research prompt.
 - Treats a standalone `gemini` CLI `403` as `WRONG_EXECUTION_SURFACE` and reruns through `agy`.
-- Uses `--add-dir <project_root>` for repository research so agy does not inspect scratch by mistake.
+- Uses a bounded prompt or allowlisted context bundle; whole-repository attachment requires explicit disclosure approval.
 - Uses `--expect-first-line AGY_RESEARCH_V1` when a structured schema must reject narration before the schema token, and can keep `--expect-substring AGY_RESEARCH_V1` as a backup check.
 - Keeps the external pass read-only and does not claim tests or current external facts are verified without evidence.
 - Uses the agy Gemini research prompt and research-quality templates.
 - Produces a dedicated research report with agreed points, Gemini-only points, Codex-only points, rejected/speculative points, and recommended next steps.
-- Runs `append_agy_review_quality_log.py` with `task_type=research` and only claims the log was written when stdout contains `LOG_WRITTEN`.
-- Writes or proposes `.codex/agent-orchestration/agy-review-quality.jsonl` with quality score, weak points, unsupported claims, missed angles, and template tuning notes.
+- Runs `append_agy_review_quality_log.py` with `task_type=research` and only claims persistence after `LOG_WRITTEN` or `LOG_ALREADY_PRESENT`.
+- Writes the default log outside the target repository under `$CODEX_HOME/external-review-ledger/`.
 
 ## Review Checklist
 
@@ -181,11 +181,11 @@ Expected behavior:
 - Did it include explicit negative guardrails against CLI/auth drift, fake validation, scope inflation, and generic filler?
 - Did it avoid the invalid `agy --print --mode ... "$PROMPT"` command shape?
 - Did it use `--expect-first-line <schema-token>` when structured output needed a strict first-line check?
-- Did it attach the repository explicitly with `--add-dir <project_root>` for repo review?
+- Did it use a bounded prompt or an allowlisted context bundle instead of disclosing the full repository by default?
 - Did it treat exit-0 but zero-byte stdout as a failed review run rather than as success?
-- Did it persist stable agy/Gemini command-safety guidance in `AGENTS.md` when writes were allowed?
-- Did it persist that guidance before any agy health check or model discovery?
+- Did it keep guidance check-only unless `--write` was separately authorized?
+- Did it avoid target-repository writes during a normal read-only pass?
 - Did it display the external review through a dedicated review report?
-- Did it preserve a quality log entry for later template tuning through the helper script rather than only describing the log?
+- Did it preserve a quality log in the Codex external-review ledger rather than writing the target repository by default?
 - Did it distinguish external review from external research and choose the correct template family?
 - Did it compare Codex-only and Gemini-only research points before accepting external ideas?

@@ -3,14 +3,14 @@
 Prepare one JSON object per completed external research pass and append it with `scripts/append_agy_review_quality_log.py` to:
 
 ```text
-<PROJECT_ROOT>/.codex/agent-orchestration/agy-review-quality.jsonl
+${CODEX_HOME:-$HOME/.codex}/external-review-ledger/<project-id>/agy-review-quality.jsonl
 ```
 
 This file is the shared ledger for external read-only tasks. Set `"task_type": "research"` so later tuning can separate research runs from review runs.
 
 Do not store secrets, tokens, cookies, private vault note bodies, customer data, full diffs, or raw proprietary documents. Store paths, scope summaries, quality signals, and concise findings only.
 
-If the target repository forbids writes, or the user explicitly requested a read-only pass, show the JSONL record in the coordinator reply and explain why it was not written.
+The default ledger is outside the target repository. A project-local path requires explicit authorization and `--allow-project-write`.
 
 ```bash
 python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "{{PROJECT_ROOT}}" <<'JSON'
@@ -18,7 +18,7 @@ python3 <SKILL_DIR>/scripts/append_agy_review_quality_log.py --project-root "{{P
 JSON
 ```
 
-Only claim success when stdout contains `LOG_WRITTEN <path>`.
+Only claim success when stdout contains `LOG_WRITTEN <path>` or `LOG_ALREADY_PRESENT <path>`.
 
 ```json
 {
@@ -30,7 +30,7 @@ Only claim success when stdout contains `LOG_WRITTEN <path>`.
   "coordinator_thread_id": "{{COORDINATOR_THREAD_ID_OR_UNKNOWN}}",
   "review_id": "{{STABLE_RESEARCH_ID}}",
   "model": "{{MODEL_NAME}}",
-  "mode": "run_agy_print.py -> agy --add-dir <project_root> --print <prompt> --sandbox",
+  "mode": "run_agy_print.py -> agy --add-dir <allowlisted_context> --print <prompt> --sandbox",
   "timeout": "{{PRINT_TIMEOUT}}",
   "scope": "{{RESEARCH_SCOPE}}",
   "context_summary": "{{SCOPE_SUMMARY}}",

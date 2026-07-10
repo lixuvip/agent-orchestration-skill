@@ -1,6 +1,6 @@
 # Agy / Gemini Review Prompt Template
 
-Use this template as the prompt for `scripts/run_agy_print.py`. In this workflow, Gemini means Gemini via agy only, never the standalone `gemini` CLI. For repository review, attach the target project with `--add-dir "{{REPO_PATH}}"`. Keep `--expect-substring 'AGY_REVIEW_V2'` or another stable schema token as the default parser guard. Add `--expect-first-line 'AGY_REVIEW_V2'` only when the coordinator wants a stricter machine-parseable check and the chosen model is known to emit the schema token first. If invoking `agy` manually, the prompt must appear immediately after `--print` as `agy --add-dir "{{REPO_PATH}}" --print "$PROMPT" --model "{{MODEL_NAME}}" --sandbox`.
+Use this template as the prompt for `scripts/run_agy_print.py`. Gemini means Gemini via agy only, never the standalone `gemini` CLI. Diff-only review needs no repository attachment. If source context is required, attach only an allowlisted bundle produced by `scripts/build_agy_context_bundle.py`; attach the full repository only with explicit disclosure approval. Keep `--expect-substring 'AGY_REVIEW_V2'` as the default parser guard. Add `--expect-first-line 'AGY_REVIEW_V2'` only when the chosen model is known to emit the token first.
 
 ```text
 You are an external code reviewer invoked by Codex through agy.
