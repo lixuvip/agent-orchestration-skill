@@ -13,7 +13,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "agent-orchestration"
 
-STATUSES = ["DONE", "DONE_WITH_CONCERNS", "BLOCKED", "NEEDS_CONTEXT"]
+STATUSES = ["DONE", "DONE_WITH_CONCERNS", "BLOCKED", "NEEDS_CONTEXT", "CANCELLED"]
 
 SCENARIO_FILES = [
     ROOT / "examples" / "bugfix-with-qa.md",
@@ -33,9 +33,12 @@ CORE_FILES = [
     SKILL_DIR / "scripts" / "build_agy_context_bundle.py",
     SKILL_DIR / "scripts" / "ensure_agy_review_agents_guidance.py",
     SKILL_DIR / "scripts" / "append_agy_review_quality_log.py",
+    SKILL_DIR / "scripts" / "orchestration_event.py",
     SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
     SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
+    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
     SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
     SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
@@ -84,6 +87,10 @@ CORE_FILES = [
     SKILL_DIR / "references" / "templates" / "status_request.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "role_reply.template.md",
     SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "qa_report.template.md",
+    SKILL_DIR / "references" / "templates" / "qa_report.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "review_findings.template.md",
+    SKILL_DIR / "references" / "templates" / "review_findings.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md",
     SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.zh-CN.template.md",
 ]
@@ -759,6 +766,99 @@ def verify_install_helper() -> None:
             fail("install helper restored the wrong content")
 
 
+def verify_orchestration_event_helper() -> None:
+    script = SKILL_DIR / "scripts" / "orchestration_event.py"
+    event = {
+        "protocol_version": "ORCHESTRATION_EVENT_V1",
+        "goal_id": "GOAL-smoke",
+        "task_id": "TASK-smoke",
+        "attempt": 2,
+        "dispatch_nonce": "dispatch-smoke-2",
+        "coordinator_epoch": "epoch-smoke-1",
+        "event_id": "event-smoke-qa-pass",
+        "event_timestamp": "2026-07-10T12:00:00+08:00",
+        "role": "QA Tester",
+        "coordinator_thread_id": "thread-coordinator",
+        "role_thread_id": "thread-qa",
+        "base_sha": "0123456789abcdef0123456789abcdef01234567",
+        "expected_head_sha": "1111111111111111111111111111111111111111",
+        "observed_head_sha": "1111111111111111111111111111111111111111",
+        "execution_status": "DONE",
+        "gate_verdict": "PASS",
+        "coordinator_state": "ACCEPTED",
+    }
+    expectation = {
+        key: event[key]
+        for key in (
+            "goal_id",
+            "task_id",
+            "attempt",
+            "dispatch_nonce",
+            "coordinator_epoch",
+            "expected_head_sha",
+        )
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        event_file = root / "event.json"
+        expectation_file = root / "expectation.json"
+        event_file.write_text(json.dumps(event), encoding="utf-8")
+        expectation_file.write_text(json.dumps(expectation), encoding="utf-8")
+
+        accepted = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--event-file",
+                str(event_file),
+                "--expectation-file",
+                str(expectation_file),
+                "--require-accepted-delivery",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if accepted.returncode != 0 or accepted.stdout.strip() != "EVENT_ACCEPTED":
+            fail(f"orchestration event helper rejected current accepted evidence: {accepted.stderr}")
+
+        duplicate = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--event-file",
+                str(event_file),
+                "--expectation-file",
+                str(expectation_file),
+                "--seen-event-id",
+                str(event["event_id"]),
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if duplicate.returncode != 0 or duplicate.stdout.strip() != "EVENT_DUPLICATE":
+            fail("orchestration event helper did not deduplicate event_id")
+
+        stale_event = {**event, "attempt": 1, "event_id": "event-smoke-old-attempt"}
+        event_file.write_text(json.dumps(stale_event), encoding="utf-8")
+        stale = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--event-file",
+                str(event_file),
+                "--expectation-file",
+                str(expectation_file),
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if stale.returncode != 3 or stale.stdout.strip() != "EVENT_STALE":
+            fail("orchestration event helper did not reject an old attempt as stale")
+
+
 def main() -> int:
     combined_core = "\n".join(read(path) for path in CORE_FILES)
     for status in STATUSES:
@@ -775,6 +875,7 @@ def main() -> int:
     verify_quality_log_helper()
     verify_context_bundle_helper()
     verify_install_helper()
+    verify_orchestration_event_helper()
 
     require_all(
         SKILL_DIR / "agents" / "openai.yaml",
@@ -789,7 +890,21 @@ def main() -> int:
         [
             "TODO -> IN_PROGRESS",
             "IN_PROGRESS -> DONE",
-            "Silence is never completion.",
+            "Silence: never completion",
+            "Role `DONE` moves the coordinator to `IN_REVIEW`",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
+        [
+            "ORCHESTRATION_EVENT_V1",
+            "dispatch_nonce",
+            "coordinator_epoch",
+            "DUPLICATE",
+            "STALE",
+            "Accepted Delivery Predicate",
+            "Any subsequent code commit invalidates earlier QA and review verdicts",
+            "scripts/orchestration_event.py",
         ],
     )
     require_all(
@@ -1102,7 +1217,9 @@ def main() -> int:
         SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
         [
             "Coordinator thread ID",
-            "Callback format",
+            "ORCHESTRATION_EVENT_V1",
+            "Dispatch nonce",
+            "Expected head SHA",
             "Stop and report if",
             "Verification",
             "Branch / worktree",
@@ -1112,8 +1229,10 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
         [
-            "协调者线程 ID",
-            "回调格式",
+            "Coordinator thread ID",
+            "ORCHESTRATION_EVENT_V1",
+            "Dispatch nonce",
+            "Expected head SHA",
             "遇到以下情况请停止并报告",
             "验证要求",
             "分支 / 工作区",
@@ -1134,9 +1253,11 @@ def main() -> int:
         [
             "Task ID:",
             "Branch / worktree:",
-            "Status:",
+            "Execution status:",
+            "Gate verdict:",
+            "ORCHESTRATION_EVENT_V1",
             "Verification:",
-            "Next coordinator action:",
+            "Suggested coordinator action:",
         ],
     )
     require_all(
@@ -1153,7 +1274,9 @@ def main() -> int:
             "Merge readiness",
             "Base branch:",
             "Working tree:",
-            "Tests:",
+            "Expected head SHA:",
+            "Gates pinned to observed head SHA:",
+            "Coordinator state:",
             "Push permission:",
         ],
     )

@@ -168,6 +168,31 @@ Expected behavior:
 - Runs `append_agy_review_quality_log.py` with `task_type=research` and only claims persistence after `LOG_WRITTEN` or `LOG_ALREADY_PRESENT`.
 - Writes the default log outside the target repository under `$CODEX_HOME/external-review-ledger/`.
 
+## Scenario 7: Stale Callback And Commit-Pinned Gates
+
+Prompt:
+
+```text
+Use $agent-orchestration to coordinate engineering, QA, and review for one branch.
+
+Engineering attempt 1 reported DONE at commit aaaaaaa, but the coordinator returned it.
+Engineering attempt 2 produced commit bbbbbbb and QA passed bbbbbbb.
+Now a delayed callback from attempt 1 arrives, followed by a duplicate QA callback for bbbbbbb.
+After that, engineering creates commit ccccccc to fix a review finding.
+
+Decide what can be accepted and what must be rerun.
+```
+
+Expected behavior:
+
+- Reads `ORCHESTRATION_PROTOCOL.md` and keeps role execution, gate verdict, and coordinator state separate.
+- Classifies the attempt 1 callback as stale by attempt and dispatch nonce, without overwriting current state.
+- Treats the repeated QA event ID as a duplicate no-op.
+- Does not treat role `DONE` as coordinator `ACCEPTED`.
+- Invalidates QA evidence for bbbbbbb after the new code commit ccccccc.
+- Redispatches QA and review with a new attempt or gate dispatch identity pinned to ccccccc.
+- Uses `scripts/orchestration_event.py` or applies the same `ORCHESTRATION_EVENT_V1` acceptance predicate.
+
 ## Review Checklist
 
 - Did the agent choose heartbeat vs cron correctly?
@@ -189,3 +214,8 @@ Expected behavior:
 - Did it preserve a quality log in the Codex external-review ledger rather than writing the target repository by default?
 - Did it distinguish external review from external research and choose the correct template family?
 - Did it compare Codex-only and Gemini-only research points before accepting external ideas?
+- Did it separate role execution status, gate verdict, and coordinator state?
+- Did it reject stale attempt, nonce, epoch, or SHA callbacks without mutating current state?
+- Did it deduplicate repeated event IDs as no-op?
+- Did it invalidate old QA/review evidence after a new code commit?
+- Did it require coordinator `ACCEPTED` instead of treating role `DONE` as delivery?

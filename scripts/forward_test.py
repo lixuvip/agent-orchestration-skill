@@ -114,6 +114,22 @@ SCENARIO_REQUIREMENTS = {
         "LOG_ALREADY_PRESENT",
         "$CODEX_HOME/external-review-ledger/",
     ],
+    "Scenario 7: Stale Callback And Commit-Pinned Gates": [
+        "Use $agent-orchestration",
+        "Engineering attempt 1 reported DONE at commit aaaaaaa",
+        "attempt 2 produced commit bbbbbbb",
+        "duplicate QA callback",
+        "commit ccccccc",
+        "ORCHESTRATION_PROTOCOL.md",
+        "role execution, gate verdict, and coordinator state separate",
+        "stale by attempt and dispatch nonce",
+        "duplicate no-op",
+        "role `DONE` as coordinator `ACCEPTED`",
+        "Invalidates QA evidence for bbbbbbb",
+        "pinned to ccccccc",
+        "scripts/orchestration_event.py",
+        "ORCHESTRATION_EVENT_V1",
+    ],
 }
 
 CORE_COVERAGE = {
@@ -142,8 +158,26 @@ CORE_COVERAGE = {
         "不把“未读取到最终回复”的任务当作完成。",
     ],
     SKILL_DIR / "references" / "STATE_MACHINE.md": [
-        "Silence is never completion.",
-        "Do not infer completion.",
+        "Silence: never completion",
+        "Role `DONE` moves the coordinator to `IN_REVIEW`",
+        "A code-changing retry invalidates earlier QA and review evidence.",
+    ],
+    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md": [
+        "ORCHESTRATION_EVENT_V1",
+        "dispatch_nonce",
+        "coordinator_epoch",
+        "DUPLICATE",
+        "STALE",
+        "Accepted Delivery Predicate",
+        "Any subsequent code commit invalidates earlier QA and review verdicts",
+        "scripts/orchestration_event.py",
+    ],
+    SKILL_DIR / "scripts" / "orchestration_event.py": [
+        "ORCHESTRATION_EVENT_V1",
+        "classify_event",
+        "accepted_delivery",
+        "EVENT_DUPLICATE",
+        "EVENT_STALE",
     ],
     SKILL_DIR / "references" / "CONTROLLER_LOOP.md": [
         "status request",
@@ -292,10 +326,13 @@ CORE_COVERAGE = {
 }
 
 RELEASE_SURFACES = {
-    ROOT / ".github" / "workflows" / "validate.yml": ["python3 scripts/forward_test.py"],
+    ROOT / ".github" / "workflows" / "validate.yml": [
+        "python3 scripts/forward_test.py",
+        "python3 scripts/protocol_test.py",
+    ],
     ROOT / "README.md": ["python3 scripts/forward_test.py", "Project Autopilot loop"],
     ROOT / "README.zh-CN.md": ["python3 scripts/forward_test.py", "Project Autopilot 循环"],
-    ROOT / "AGENTS.md": ["python3 scripts/forward_test.py"],
+    ROOT / "AGENTS.md": ["python3 scripts/forward_test.py", "python3 scripts/protocol_test.py"],
 }
 
 
@@ -355,6 +392,11 @@ def main() -> int:
         "external-review ledger",
         "external review from external research",
         "Codex-only and Gemini-only research points",
+        "role execution status, gate verdict, and coordinator state",
+        "stale attempt, nonce, epoch, or SHA callbacks",
+        "repeated event IDs as no-op",
+        "old QA/review evidence after a new code commit",
+        "coordinator `ACCEPTED`",
     ]
     review_section = extract_section(forward_text, "Review Checklist")
     for token in checklist_tokens:

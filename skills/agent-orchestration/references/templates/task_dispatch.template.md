@@ -1,17 +1,26 @@
 # Task Dispatch Template
 
-将本模板复制到目标角色对话中，替换占位符后发送。
+Copy this template into the role thread and replace every placeholder. The active dispatch identity must also be recorded on the coordinator task board.
 
 ```text
 You are acting as: <ROLE_NAME>
 Project: <PROJECT_NAME>
 Repository: <REPO_PATH>
 Thread role boundary: <ROLE_BOUNDARY>
-Task ID: <TASK_ID>
-Coordinator thread ID: <COORDINATOR_THREAD_ID>
-This role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
 Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
 Merge policy: <SUMMARIZE_ONLY | COMMIT_ALLOWED | PUSH_BRANCH_ALLOWED | MERGE_REQUIRES_CONFIRMATION | PR_ALLOWED>
+
+Active dispatch identity:
+- Protocol version: ORCHESTRATION_EVENT_V1
+- Goal ID: <GOAL_ID>
+- Task ID: <TASK_ID>
+- Attempt: <POSITIVE_INTEGER>
+- Dispatch nonce: <UNIQUE_NONCE_FOR_THIS_ATTEMPT>
+- Coordinator epoch: <ACTIVE_COORDINATOR_EPOCH>
+- Coordinator thread ID: <COORDINATOR_THREAD_ID>
+- Role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
+- Base SHA: <EXACT_SHA | NONE>
+- Expected head SHA: <EXACT_SHA | UNKNOWN | NONE>
 
 Goal:
 <ONE_SENTENCE_GOAL>
@@ -41,38 +50,20 @@ Verification:
 - <VERIFY_COMMAND_OR_MANUAL_CHECK_2>
 
 Callback:
-- On completion, send a callback to the coordinator thread if thread messaging tools are available.
-- If callback is unavailable or fails, include `CALLBACK_FAILED: <REASON>` in your final reply.
-- If branch or worktree work is involved, include branch, commit, tests, risks, and merge readiness in the callback.
-- Callback format:
-  Coordinator callback:
-  Task ID: <TASK_ID>
-  Role: <ROLE_NAME>
-  Role thread ID: <ROLE_THREAD_ID_OR_UNKNOWN>
-  Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
-  Commit: <COMMIT_OR_NONE>
-  Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-  Summary:
-  - <ONE_TO_THREE_BULLETS>
-  Verification:
-  - <COMMAND_OR_CHECK>: <RESULT>
-  Risks:
-  - <NONE_OR_RISK>
+- Reply with the same goal ID, task ID, attempt, dispatch nonce, and coordinator epoch.
+- Generate a unique event ID and a timezone-qualified ISO-8601 event timestamp.
+- Report the exact observed head SHA. Do not substitute a branch name or `latest`.
+- A role reports execution state and evidence; only the coordinator can accept delivery.
+- On completion, send the callback to the coordinator thread when thread messaging tools are available.
+- If callback is unavailable or fails, include `CALLBACK_FAILED: <REASON>` in the final reply.
+- Use `coordinator_state: IN_REVIEW` for a completed role callback; this requests inspection and does not claim acceptance.
 
 Stop and report if:
 - the task requires secrets, paid access, external login, production deployment, destructive git operations, or large downloads;
-- the requested files already have conflicting changes;
-- the acceptance criteria are unclear enough that continuing would require guessing;
-- you need to modify files outside the editable scope.
+- requested files already have conflicting changes;
+- acceptance criteria are unclear enough that continuing would require guessing;
+- files outside editable scope must be modified;
+- the branch head no longer matches the dispatch expectation and the coordinator has not refreshed it.
 
-Reply using this format:
-Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-Summary:
-Changed files / Files inspected:
-Verification run:
-Risks / concerns:
-Branch / worktree:
-Commit:
-Coordinator callback:
-Recommended next role:
+Reply using `role_reply.template.md` and include one complete `ORCHESTRATION_EVENT_V1` envelope.
 ```

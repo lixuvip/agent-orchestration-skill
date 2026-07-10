@@ -1,42 +1,52 @@
 # Task Board
 
-复制本文件为 `TASK_BOARD.md`，用于协调者追踪多角色任务状态。
+Copy this file to `TASK_BOARD.md` when a coordinator needs durable multi-role state. Record role state, gate verdict, and coordinator state separately.
 
-## 状态说明
+## State Dimensions
 
-| 状态 | 含义 |
+| Dimension | Values |
 | --- | --- |
-| `TODO` | 尚未派发。 |
-| `DISPATCHED` | 已发送给角色，等待回复。 |
-| `IN_REVIEW` | 协调者正在检查角色交付。 |
-| `RETURNED` | 已退回角色补充或修复。 |
-| `BLOCKED` | 被权限、环境、需求或冲突阻塞。 |
-| `DONE` | 已验收完成。 |
+| Role execution | `TODO`, `IN_PROGRESS`, `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, `NEEDS_CONTEXT`, `CANCELLED` |
+| Gate verdict | `PENDING`, `PASS`, `FAIL`, `BLOCKED`, `WAIVED`, `NOT_APPLICABLE` |
+| Coordinator | `TODO`, `DISPATCHED`, `IN_PROGRESS`, `IN_REVIEW`, `RETURNED`, `ACCEPTED`, `ESCALATED`, `CANCELLED` |
 
-## 任务表
+## Active Dispatches
 
-| Task ID | 标题 | 负责人角色 | 对话 ID | 状态 | 分支 / 工作区 | 下一步 |
+| Goal ID | Task ID | Role | Thread ID | Attempt | Dispatch nonce | Coordinator epoch | Expected SHA | Role state | Gate | Coordinator state | Next action |
+| --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
+| `<GOAL-001>` | `<TASK-001>` | `<ROLE>` | `<THREAD_ID>` | `<1>` | `<NONCE>` | `<EPOCH>` | `<SHA_OR_NONE>` | `TODO` | `PENDING` | `TODO` | `<NEXT_ACTION>` |
+
+## Current Task Detail
+
+### `<TASK-001>` — `<TITLE>`
+
+| Field | Value |
+| --- | --- |
+| Goal | `<GOAL>` |
+| Context | `<CONTEXT>` |
+| Editable scope | `<EDITABLE_SCOPE>` |
+| Read-only scope | `<READ_ONLY_SCOPE>` |
+| Out of scope | `<OUT_OF_SCOPE>` |
+| Acceptance criteria | `<ACCEPTANCE_CRITERIA>` |
+| Verification | `<VERIFICATION>` |
+| Base SHA | `<SHA_OR_NONE>` |
+| Expected head SHA | `<SHA_OR_NONE>` |
+| Last observed head SHA | `<SHA_OR_NONE>` |
+| Current blocker | `<BLOCKER_OR_NONE>` |
+| Explicit waivers | `<WAIVER_AND_REASON_OR_NONE>` |
+
+## Processed Events
+
+Keep this ledger append-only for the active goal. Duplicate event IDs are no-op acknowledgements.
+
+| Event timestamp | Event ID | Task ID | Attempt | Observed SHA | Classification | Summary |
+| --- | --- | --- | ---: | --- | --- | --- |
+| `<ISO_8601>` | `<EVENT_ID>` | `<TASK_ID>` | `<1>` | `<SHA_OR_NONE>` | `ACCEPT | DUPLICATE | STALE | REJECTED` | `<SUMMARY>` |
+
+## Transition Log
+
+| Time | Task ID | Role execution | Gate verdict | Coordinator state | Evidence SHA | Next action |
 | --- | --- | --- | --- | --- | --- | --- |
-| `<TASK-001>` | `<TITLE>` | `<ROLE>` | `<THREAD_ID>` | `TODO` | `<BRANCH_OR_WORKTREE>` | `<NEXT_ACTION>` |
+| `<ISO_8601>` | `<TASK_ID>` | `<STATUS>` | `<VERDICT>` | `<STATE>` | `<SHA_OR_NONE>` | `<NEXT_ACTION>` |
 
-## 当前任务详情
-
-### `<TASK-001>` - `<TITLE>`
-
-| 字段 | 内容 |
-| --- | --- |
-| 目标 | `<GOAL>` |
-| 背景 | `<CONTEXT>` |
-| 可编辑范围 | `<EDITABLE_SCOPE>` |
-| 只读范围 | `<READ_ONLY_SCOPE>` |
-| 禁止范围 | `<OUT_OF_SCOPE>` |
-| 验收标准 | `<ACCEPTANCE_CRITERIA>` |
-| 验证方式 | `<VERIFICATION>` |
-| 当前阻塞 | `<BLOCKER_OR_NONE>` |
-
-## 流转记录
-
-| 时间 | 角色 | 状态 | 摘要 | 下一步 |
-| --- | --- | --- | --- | --- |
-| `<YYYY-MM-DD HH:MM>` | `<ROLE>` | `<STATUS>` | `<SUMMARY>` | `<NEXT_ACTION>` |
-
+Never overwrite current state from a stale callback. Never write `ACCEPTED` merely because a role reported `DONE`.

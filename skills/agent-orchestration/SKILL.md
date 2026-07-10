@@ -24,18 +24,19 @@ Negative cue: if your first impulse is to inspect `gemini` CLI, stop and return 
 1. Read `references/ORCHESTRATION_INTAKE.md` when branch, thread, callback, automation, merge, or push permissions are ambiguous.
 2. Read `references/PROJECT_CONTEXT.template.md` if project context is missing, or ask the user for the missing project facts.
 3. Read `references/ROLE_REGISTRY.template.md` when role-to-thread IDs need to be created, recorded, or updated.
-4. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
-5. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
-6. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
-7. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
-8. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
-9. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, heartbeat, or automation tick.
-10. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
-11. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
-12. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
-13. Use `references/templates/task_dispatch.template.md` for every role task. Fill in scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
-14. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
-15. Before final delivery, inspect role output, diff scope, verification evidence, and unresolved risks yourself.
+4. Read `references/ORCHESTRATION_PROTOCOL.md` before minting a dispatch identity, accepting a callback, deduplicating an event, or evaluating commit-pinned evidence. Use `scripts/orchestration_event.py` to validate machine-readable callbacks when stale or duplicate messages could change delivery.
+5. Read `references/COMMUNICATION_PROTOCOL.md` before dispatching work to other threads.
+6. Read `references/CONTROLLER_LOOP.md` when coordinating child-thread callbacks, branch handoffs, status requests, heartbeat automation, or merge readiness.
+7. Read `references/PROJECT_AUTOPILOT.md` when the user wants recurring automation to keep a project moving until a goal, checklist, issue, PR, release, or branch state is complete.
+8. Read `references/AUTOMATION_TOOLING.md` before creating, updating, viewing, or deleting heartbeat or cron automations.
+9. Read `references/PROJECT_INSTRUCTIONS_DISCOVERY.md` when recurring work depends on `AGENTS.md`, `AGENTS.override.md`, fallback instruction files, `.codex/config.toml`, or target-repo docs.
+10. Read `references/STATE_MACHINE.md` when tracking more than one task, thread, role, gate, heartbeat, or automation tick.
+11. Read `references/AGY_GEMINI_REVIEW.md` when the user asks to use `agy`, Gemini, Antigravity, or an external model as a review pass or review-quality log; in this workflow Gemini must run through `agy`, never through the standalone `gemini` CLI. Use `scripts/run_agy_print.py` for a sandboxed read-only call, use `scripts/build_agy_context_bundle.py` when repository source context is needed, and write quality logs to the Codex external-review ledger by default. Treat target-repository `AGENTS.md` changes and project-local quality logs as separate writes that require explicit authorization.
+12. Read `references/AGY_GEMINI_RESEARCH.md` when the user asks for parallel Codex + Gemini research, idea expansion, repository survey, architecture option comparison, or an external-model research-quality log; here too Gemini must run through `agy`, never through the standalone `gemini` CLI. Keep the external pass read-only, minimize attached context through the allowlisted bundle helper, compare Codex findings with external-model findings before adopting them, and do not make target-repository writes merely to prepare the research pass.
+13. Read `references/WORKFLOWS.md` and choose the narrowest workflow that fits the task.
+14. Use `references/templates/task_dispatch.template.md` for every role task. Fill in dispatch identity, scope, branch/worktree, merge policy, stop conditions, verification, callback, and monitoring fields.
+15. Require role replies to match `references/templates/role_reply.template.md` or `references/templates/coordinator_callback.template.md` when replying directly to the coordinator thread.
+16. Before final delivery, inspect role output, diff scope, verification evidence, exact artifact SHA, gate verdicts, and unresolved risks yourself. Only coordinator state `ACCEPTED` is delivery.
 
 ## Thread And Tool Handling
 
@@ -59,12 +60,13 @@ For asynchronous multi-thread tasks, read `references/AUTOMATION_MONITORING.md`.
 Apply these rules:
 
 - Include the coordinator thread ID and task ID in each dispatched role prompt.
+- Mint and record the goal ID, attempt, dispatch nonce, coordinator epoch, base SHA, and expected head SHA for every asynchronous dispatch.
 - Ask each role to callback to the coordinator thread on completion when thread messaging tools are available.
 - If callback is unavailable, require `CALLBACK_FAILED: <reason>` in the role's final reply.
 - When two or more role threads are active, create a recurring heartbeat automation if automation tools are available.
 - The default heartbeat interval is 5 minutes.
 - Use `references/templates/monitoring_heartbeat.template.md` as the automation prompt.
-- When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`, summarize results and disable or delete the heartbeat automation.
+- When all tracked roles reach `DONE`, `DONE_WITH_CONCERNS`, `BLOCKED`, `NEEDS_CONTEXT`, or `CANCELLED`, move completed work to coordinator review, summarize terminal outcomes, and disable or delete the heartbeat automation.
 - For recurring project work beyond status monitoring, read `references/PROJECT_AUTOPILOT.md` and create a goal contract, automation plan, tick prompt, memory file, and escalation rule before enabling cron automation.
 - Before creating a recurring automation, inspect existing automations when tools allow and update instead of duplicating.
 - Treat target project `AGENTS.md` / `AGENTS.override.md` as persistent repository guidance, and automation memory as temporary task state. Do not silently put live task state into `AGENTS.md`.
@@ -73,12 +75,11 @@ For Chinese-only teams, use the matching Chinese templates in `references/templa
 
 ## Status Semantics
 
-- `DONE`: Complete and verified.
-- `DONE_WITH_CONCERNS`: Complete, but risk or coverage gaps remain; preserve those concerns in the final answer.
-- `NEEDS_CONTEXT`: The role cannot continue without missing facts.
-- `BLOCKED`: The role hit an environment, permissions, conflict, or safety blocker.
+- Role execution status says what the role claims about its work.
+- Gate verdict says whether verification, QA, or review evidence passes for the exact observed SHA.
+- Coordinator state says whether work is dispatched, under review, returned, accepted, escalated, or cancelled.
 
-Do not treat `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT` as successful completion. They are terminal states for monitoring, not automatic acceptance.
+Do not collapse these dimensions. Role `DONE` means ready for inspection, not accepted delivery. `DONE_WITH_CONCERNS`, `BLOCKED`, `NEEDS_CONTEXT`, and `CANCELLED` are terminal for monitoring but never automatic success. Read `references/ORCHESTRATION_PROTOCOL.md` for the accepted-delivery predicate.
 
 ## Delivery Rules
 

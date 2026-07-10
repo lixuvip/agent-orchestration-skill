@@ -1,51 +1,71 @@
 # State Machine
 
-Use this reference when coordinating more than one role, thread, repository, or heartbeat monitor.
+Use this reference when coordinating more than one role, thread, repository, gate, or heartbeat monitor. Read `ORCHESTRATION_PROTOCOL.md` first; this file describes transitions while the protocol defines the canonical event envelope.
 
-## States
+## Role Execution State
 
-| State | Meaning | Terminal | Coordinator action |
-| --- | --- | --- | --- |
-| `TODO` | Task is known but not dispatched. | No | Fill scope, owner, verification, and stop conditions. |
-| `IN_PROGRESS` | Role has accepted or started the task. | No | Wait, poll, or heartbeat. Do not infer completion. |
-| `DONE` | Role completed and verified the task. | Yes | Inspect output, diff scope, and verification before accepting. |
-| `DONE_WITH_CONCERNS` | Role completed but risk or coverage gaps remain. | Yes | Preserve concerns and decide whether to remediate or escalate. |
-| `NEEDS_CONTEXT` | Role cannot continue without missing facts. | Yes | Provide context, narrow scope, or ask the user. |
-| `BLOCKED` | Role hit an environment, permissions, conflict, or safety blocker. | Yes | Resolve blocker or escalate to the user. |
-| `CANCELLED` | Coordinator or user intentionally stopped the task. | Yes | Record reason and do not treat it as delivered. |
-
-## Allowed Transitions
+| State | Meaning | Terminal for the role attempt |
+| --- | --- | --- |
+| `TODO` | Work is known but not started. | No |
+| `IN_PROGRESS` | Work has started or a status request confirms activity. | No |
+| `DONE` | Work and claimed verification are ready for coordinator inspection. | Yes |
+| `DONE_WITH_CONCERNS` | Work is ready for inspection with explicit risk or coverage gaps. | Yes |
+| `NEEDS_CONTEXT` | Missing facts prevent safe continuation. | Yes |
+| `BLOCKED` | Environment, permission, conflict, dependency, or safety boundary prevents continuation. | Yes |
+| `CANCELLED` | User or coordinator intentionally stopped the attempt. | Yes |
 
 ```text
 TODO -> IN_PROGRESS
 TODO -> CANCELLED
-IN_PROGRESS -> DONE
-IN_PROGRESS -> DONE_WITH_CONCERNS
-IN_PROGRESS -> NEEDS_CONTEXT
-IN_PROGRESS -> BLOCKED
-IN_PROGRESS -> CANCELLED
-NEEDS_CONTEXT -> TODO
-BLOCKED -> TODO
-DONE_WITH_CONCERNS -> TODO
+IN_PROGRESS -> DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED | CANCELLED
+NEEDS_CONTEXT | BLOCKED | DONE_WITH_CONCERNS -> new attempt at TODO
 ```
 
-Do not transition directly from `TODO` to `DONE`. A role must explicitly report terminal status with evidence.
+Do not transition directly from `TODO` to `DONE`. Retrying a terminal attempt increments `attempt` and mints a new `dispatch_nonce`.
 
-## Stale Or Silent Roles
+## Coordinator State
 
-If a role has no explicit terminal status:
+| State | Meaning | Typical next state |
+| --- | --- | --- |
+| `TODO` | Task is being scoped. | `DISPATCHED`, `CANCELLED` |
+| `DISPATCHED` | Current attempt and nonce were sent. | `IN_PROGRESS`, `IN_REVIEW`, `ESCALATED`, `CANCELLED` |
+| `IN_PROGRESS` | Current callback confirms active work. | `IN_REVIEW`, `ESCALATED`, `CANCELLED` |
+| `IN_REVIEW` | Role reported a terminal result; coordinator or gate is inspecting it. | `ACCEPTED`, `RETURNED`, `ESCALATED`, `CANCELLED` |
+| `RETURNED` | Current attempt was rejected and a new attempt must be dispatched. | `DISPATCHED`, `CANCELLED` |
+| `ACCEPTED` | Coordinator accepted commit-pinned, gate-satisfying evidence. | Terminal |
+| `ESCALATED` | User input or external authority is required. | `DISPATCHED`, `CANCELLED` |
+| `CANCELLED` | User or coordinator intentionally stopped the task. | Terminal |
 
-1. Keep it `IN_PROGRESS`.
-2. Read the latest role thread message when tools allow.
-3. Send a focused status request if needed.
-4. Mark `BLOCKED` only when the latest evidence shows a blocker.
-5. Mark `CANCELLED` only when the user or coordinator intentionally stops the task.
+Role `DONE` moves the coordinator to `IN_REVIEW`, never directly to `ACCEPTED`.
 
-Silence is never completion.
+## Gate Verdict
+
+| Verdict | Meaning |
+| --- | --- |
+| `PENDING` | Required evidence has not been evaluated. |
+| `PASS` | Required check passed against the exact expected SHA. |
+| `FAIL` | Check found a defect or unmet criterion. |
+| `BLOCKED` | Check could not execute due to an external blocker. |
+| `WAIVED` | Coordinator explicitly waived a check and recorded why. |
+| `NOT_APPLICABLE` | This task has no such gate. |
+
+`FAIL` returns the task for another attempt. A code-changing retry invalidates earlier QA and review evidence.
+
+## Stale, Duplicate, Or Silent Roles
+
+Process callbacks in the order defined by `ORCHESTRATION_PROTOCOL.md`.
+
+- Old attempt, nonce, coordinator epoch, or SHA: record as `STALE`; do not mutate current state.
+- Repeated event ID: record as `DUPLICATE`; perform no external side effect.
+- No explicit status: keep the current coordinator state and ask for status.
+- Silence: never completion, failure, or cancellation.
+- `BLOCKED`: use only when evidence names the blocker.
+- `CANCELLED`: use only when the user or coordinator intentionally stops work.
 
 ## Acceptance Rules
 
-- Accept `DONE` only after checking scope, changed files, verification, and risks.
-- Accept `DONE_WITH_CONCERNS` only as a terminal status for monitoring; it is not a risk-free delivery.
-- Do not deliver if any required role is `TODO` or `IN_PROGRESS`.
-- Do not hide `BLOCKED`, `NEEDS_CONTEXT`, `CANCELLED`, or unverified work in the final summary.
+- Inspect output, diff scope, verification, risks, and exact commit SHA before acceptance.
+- Require current gate evidence; do not reuse a verdict from an older SHA.
+- `DONE_WITH_CONCERNS` may be accepted only with the concerns preserved and an allowed gate verdict.
+- Do not deliver while a required role is `TODO` or `IN_PROGRESS`, a gate is `PENDING`, `FAIL`, or `BLOCKED`, or coordinator state is not `ACCEPTED`.
+- Do not hide `BLOCKED`, `NEEDS_CONTEXT`, `CANCELLED`, stale evidence, or waived checks in final delivery.
