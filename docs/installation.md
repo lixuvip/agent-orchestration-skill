@@ -24,7 +24,7 @@ The script installs the skill to:
 ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 ```
 
-Before replacement, the installer runs the repository validation stack, refuses a dirty skill source by default, stages and verifies the new copy, records a provenance manifest beside the installed skill, and retains the previous installation for rollback.
+Before replacement, the installer runs repository, smoke, forward, protocol, concurrency/lifecycle, routing, skill-creator, and diff checks; refuses a dirty skill source by default; stages and verifies the new copy; records a provenance manifest beside the installed skill; and retains the previous installation for rollback.
 
 For an intentional local development install:
 

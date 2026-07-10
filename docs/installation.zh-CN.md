@@ -24,7 +24,7 @@ cd agent-orchestration-skill
 ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 ```
 
-替换前，安装器会运行仓库验证栈，默认拒绝 dirty skill 源，暂存并校验新副本，在安装目录旁写入来源 manifest，并保留上一版用于回滚。
+替换前，安装器会运行仓库、smoke、forward、协议、并发/生命周期、路由、skill-creator 和 diff 检查；默认拒绝 dirty skill 源；暂存并校验新副本；在安装目录旁写入来源 manifest；并保留上一版用于回滚。
 
 明确安装本地开发中的 dirty 版本：
 
