@@ -93,6 +93,7 @@ Roles:
 - Code Reviewer: inspect high-risk diffs.
 
 Do not publish release notes until QA and review have terminal statuses.
+角色终态只进入 IN_REVIEW；只有 QA/Review 证据绑定当前 commit SHA 且协调者为 ACCEPTED，才算发布就绪。
 ```
 
 ## 示例 6：需要回调的长任务
@@ -104,6 +105,7 @@ Dispatch this long-running migration to a separate engineering thread.
 Require the role to callback to this coordinator thread when complete.
 If callback fails, require CALLBACK_FAILED in the role's final reply.
 Also create a heartbeat monitor that checks the role every 5 minutes.
+重叠 tick 使用 fenced lease，并按 ACTIVE -> DRAINING -> CLOSED 关闭；最终汇总只发一次，等待工具确认清理。
 ```
 
 ## 示例 7：分支回调主线程控制循环
@@ -126,7 +128,7 @@ Use $agent-orchestration to create a project autopilot loop for this repository.
 Read AGENTS.md, AGENTS.override.md, project docs, and the release checklist first.
 Create a goal contract with done criteria, allowed autonomous actions, confirmation gates, cadence, memory path, and stop conditions.
 Use cron automation for workspace progress and heartbeat only for coordinator-thread callbacks.
-Each tick should compare the latest effective update, take one safe next action, run verification, update automation memory, and escalate if merge/push/deploy or scope expansion is needed.
+Each tick should acquire a fenced lease, compare the latest effective update and idempotency keys, take one safe next action, verify the lease before side effects and memory writes, and escalate if merge/push/deploy or scope expansion is needed.
 ```
 
 ## 示例 9：GitHub Issue 和 PR Autopilot
@@ -147,7 +149,7 @@ Read issue body, labels, comments, linked PR commits, files, checks, and review 
 Use $agent-orchestration to audit this skill release before publishing.
 
 Check that the forward-test scenarios still cover heartbeat callbacks, cron project autopilot, GitHub issue/PR no-op polling, missing AGENTS.md guidance, automation memory, latest effective update comparison, and escalation gates.
-Run python3 scripts/forward_test.py with the normal validation suite.
+Run python3 scripts/forward_test.py, scripts/protocol_test.py, scripts/automation_test.py, and scripts/routing_test.py with the normal validation suite.
 Report any missing trigger coverage before preparing release notes.
 ```
 
@@ -168,4 +170,42 @@ Do not let agy edit files or claim tests passed unless exact command output is s
 After the review returns, evaluate review quality and classify each finding as valid, partially_valid, not_supported, or needs_human_check before deciding the next role.
 Show the result as a dedicated review report with Agy findings, dual-review comparison, quality evaluation, Codex verification, and recommended next steps.
 把质量记录写入默认 Codex external-review ledger，只有出现 LOG_WRITTEN 或 LOG_ALREADY_PRESENT 才声明已持久化。
+```
+
+## 示例 12：从 Lite 逐步升级到 Durable
+
+```text
+Use $agent-orchestration，并在每个阶段选择最低安全模式。
+
+阶段 1：对当前 diff 获取一次只读 agy 第二意见，并在当前线程综合。保持 Lite，不创建额外线程或 recurring automation。
+阶段 2：如果需要修复，异步协调一个隔离工程角色和一个只读 QA 角色。升级到 Standard，使用版本化回调、task board、commit 固定门禁和带租约 heartbeat。
+阶段 3：只有我要求每两小时继续检查 issue/PR 时，升级 Durable，加入目标契约、cron、automation memory、fenced lease 和 lifecycle 规则。
+
+说明所选模式和原因，不要把后续重流程提前带进前一阶段。
+```
+
+## 示例 13：拒绝过期回调
+
+```text
+Use $agent-orchestration 判断这些回调。
+
+当前有效任务是 attempt 2，dispatch nonce 为 dispatch-2，coordinator epoch 为 epoch-7，expected commit 为 bbbbbbb。
+这时晚到一个 attempt 1、commit aaaaaaa 的 DONE 回调。
+随后 bbbbbbb 的 QA event 用相同 event ID 到达两次。
+最后工程根据 review 反馈产生 ccccccc。
+
+分类 stale 和 duplicate，不能改变当前状态。不能把角色 DONE 当成交付。产生 ccccccc 后，使 bbbbbbb 的 QA/Review 证据失效，并对新精确 SHA 重新派发门禁。
+```
+
+## 示例 14：重叠 Autopilot Tick
+
+```text
+Use $agent-orchestration 的 Durable 模式运行每两小时一次的 issue/PR autopilot。
+
+假设两个 cron tick 可能重叠，或旧 tick 在租约过期后恢复。
+读取可变 memory 前取得文件锁租约。
+LEASE_ALREADY_HELD 和 LEASE_BUSY 都安静 no-op。
+发消息、写 memory 或 cleanup 前验证当前 owner token。
+保存最新 fencing token，拒绝更低 token 写入。
+heartbeat 全员终态后按 ACTIVE -> DRAINING -> CLOSED 收尾，最终汇总只发一次，并等待 automation 工具确认清理。
 ```

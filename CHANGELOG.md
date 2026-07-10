@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Added Lite, Standard, and Durable orchestration routing plus `scripts/route_orchestration.py`, preventing simple one-shot work from inheriting unnecessary threads or automation while preserving a non-bypassable safety floor for async and recurring work.
+- Added `ORCHESTRATION_EVENT_V1` and `scripts/orchestration_event.py` with attempt, dispatch nonce, coordinator epoch, event ID, and artifact identity validation for stale-callback rejection and duplicate no-op handling.
+- Split role execution status, QA/review gate verdict, and coordinator state; role `DONE` now enters `IN_REVIEW`, while delivery requires coordinator `ACCEPTED` and current artifact-pinned evidence.
+- Pinned QA, review, and merge-readiness evidence to exact commit SHAs and invalidated old gate verdicts after code-changing commits; non-Git tasks retain a consistent `NONE` artifact path.
+- Added file-locked automation leases with expiry, redacted busy responses, monotonic fencing tokens, takeover protection, renewal, verification, and idempotent release through `scripts/automation_lease.py`.
+- Added `ACTIVE -> DRAINING -> CLOSED` heartbeat lifecycle evaluation through `scripts/heartbeat_lifecycle.py`, including one final summary, cleanup confirmation, and permanent no-op behavior after closure.
+- Expanded automation memory and prompt contracts with processed event IDs, action keys, fencing tokens, final-summary keys, cleanup request IDs, and tool-confirmed cleanup.
+- Added behavior tests for protocol semantics, overlapping automation leases, stale-owner takeover, heartbeat shutdown, and orchestration mode routing; wired all suites into CI.
+- Added English and Chinese routing, callback protocol, concurrency, QA, review, heartbeat, goal-contract, and real-world usage documentation.
 - Hardened installation with clean-source enforcement, explicit `--allow-dirty`, staged replacement, provenance manifests, retained previous installs, dry-run support, and rollback.
 - Locked `run_agy_print.py` to sandboxed read-only execution, removed edit/no-sandbox bypasses, and added host-side timeout plus output limits.
 - Added `build_agy_context_bundle.py` so source-backed external passes can attach an allowlisted bundle instead of disclosing the full repository by default.

@@ -8,6 +8,10 @@
 python3 scripts/validate.py
 python3 scripts/smoke_test.py
 python3 scripts/forward_test.py
+python3 scripts/protocol_test.py
+python3 scripts/automation_test.py
+python3 scripts/routing_test.py
+git diff --check
 git status --short
 ```
 
@@ -58,6 +62,10 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/validate.py` 通过。
 - [ ] `python3 scripts/smoke_test.py` 通过。
 - [ ] `python3 scripts/forward_test.py` 通过。
+- [ ] `python3 scripts/protocol_test.py` 通过。
+- [ ] `python3 scripts/automation_test.py` 通过。
+- [ ] `python3 scripts/routing_test.py` 通过。
+- [ ] `git diff --check` 通过。
 - [ ] 安装脚本能在干净 checkout 上运行。
 - [ ] README 安装命令指向真实 GitHub URL。
 - [ ] 没有私有仓库路径、token、客户数据或组织专属凭据。

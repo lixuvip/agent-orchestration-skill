@@ -8,6 +8,10 @@ Use this checklist before publishing the repository to GitHub.
 python3 scripts/validate.py
 python3 scripts/smoke_test.py
 python3 scripts/forward_test.py
+python3 scripts/protocol_test.py
+python3 scripts/automation_test.py
+python3 scripts/routing_test.py
+git diff --check
 git status --short
 ```
 
@@ -53,6 +57,10 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/validate.py` passes.
 - [ ] `python3 scripts/smoke_test.py` passes.
 - [ ] `python3 scripts/forward_test.py` passes.
+- [ ] `python3 scripts/protocol_test.py` passes.
+- [ ] `python3 scripts/automation_test.py` passes.
+- [ ] `python3 scripts/routing_test.py` passes.
+- [ ] `git diff --check` passes.
 - [ ] Installation script works on a clean checkout.
 - [ ] README installation command points to the real GitHub URL.
 - [ ] No private repository paths, tokens, or customer data are present.

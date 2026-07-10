@@ -22,11 +22,13 @@ Constraints:
 
 协调者会读取：
 
+- `references/ORCHESTRATION_ROUTING.md`
+- `references/ORCHESTRATION_PROTOCOL.md`
 - `references/COMMUNICATION_PROTOCOL.md`
 - `references/WORKFLOWS.md`
 - `references/templates/task_dispatch.template.md`
 
-对于小型 bug，通常选择 emergency fix 或 engineering implementation 工作流。
+工程加异步 QA 通常使用 Standard。当前线程的一次性检查保持 Lite；需要周期性推进时使用 Durable。
 
 ## 3. 分发角色任务
 
@@ -38,6 +40,7 @@ Constraints:
 - 停止条件；
 - 验证要求；
 - 回调要求。
+- 异步交接所需的 goal/task ID、attempt、dispatch nonce、coordinator epoch 和预期产物 SHA。
 
 ## 4. 跟踪完成状态
 
@@ -48,7 +51,7 @@ Constraints:
 - `references/AUTOMATION_MONITORING.md`
 - `references/templates/monitoring_heartbeat.template.md`
 
-心跳监控每 5 分钟检查一次各角色状态，并在所有角色到达终态后关闭自身。
+心跳每 5 分钟检查角色、校验版本化回调，并通过 fenced lease 防止重叠 tick 同时执行。所有角色终态后按 `ACTIVE -> DRAINING -> CLOSED` 收尾，最终汇总只发一次并等待清理确认。
 
 ## 5. 用 Project Autopilot 做周期性推进
 
@@ -66,6 +69,7 @@ Use:
 - project_goal_contract.template.md for done criteria and permissions;
 - automation_tick.template.md for each recurring run;
 - automation_memory.template.md so repeated runs do not duplicate work.
+- AUTOMATION_CONCURRENCY.md so every tick acquires a lease, records a fencing token, and discards stale-owner results.
 
 Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
 ```
@@ -82,3 +86,4 @@ Escalate before merge, push, deploy, destructive changes, public API contract ch
 - 未解决的风险；
 - 相关 commit 或分支名。
 - 哪些自动化已经暂停、删除或仍保持运行。
+- 最终验收的精确产物 SHA，以及 coordinator state 是否达到 `ACCEPTED`。

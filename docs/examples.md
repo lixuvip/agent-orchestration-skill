@@ -93,6 +93,7 @@ Roles:
 - Code Reviewer: inspect high-risk diffs.
 
 Do not publish release notes until QA and review have terminal statuses.
+Treat terminal role status as IN_REVIEW; publish readiness requires coordinator ACCEPTED with QA/review evidence pinned to the current commit SHA.
 ```
 
 ## Example 6: Callback-Required Long Task
@@ -104,6 +105,7 @@ Dispatch this long-running migration to a separate engineering thread.
 Require the role to callback to this coordinator thread when complete.
 If callback fails, require CALLBACK_FAILED in the role's final reply.
 Also create a heartbeat monitor that checks the role every 5 minutes.
+Use a fenced lease for overlapping ticks and close through ACTIVE -> DRAINING -> CLOSED with one final summary and confirmed cleanup.
 ```
 
 ## Example 7: Branch Callback Controller Loop
@@ -126,7 +128,7 @@ Use $agent-orchestration to create a project autopilot loop for this repository.
 Read AGENTS.md, AGENTS.override.md, project docs, and the release checklist first.
 Create a goal contract with done criteria, allowed autonomous actions, confirmation gates, cadence, memory path, and stop conditions.
 Use cron automation for workspace progress and heartbeat only for coordinator-thread callbacks.
-Each tick should compare the latest effective update, take one safe next action, run verification, update automation memory, and escalate if merge/push/deploy or scope expansion is needed.
+Each tick should acquire a fenced lease, compare the latest effective update and idempotency keys, take one safe next action, verify the lease before side effects and memory writes, and escalate if merge/push/deploy or scope expansion is needed.
 ```
 
 ## Example 9: GitHub Issue And PR Autopilot
@@ -147,7 +149,7 @@ Read issue body, labels, comments, linked PR commits, files, checks, and review 
 Use $agent-orchestration to audit this skill release before publishing.
 
 Check that the forward-test scenarios still cover heartbeat callbacks, cron project autopilot, GitHub issue/PR no-op polling, missing AGENTS.md guidance, automation memory, latest effective update comparison, and escalation gates.
-Run python3 scripts/forward_test.py with the normal validation suite.
+Run python3 scripts/forward_test.py, scripts/protocol_test.py, scripts/automation_test.py, and scripts/routing_test.py with the normal validation suite.
 Report any missing trigger coverage before preparing release notes.
 ```
 
@@ -168,4 +170,42 @@ Do not let agy edit files or claim tests passed unless exact command output is s
 After the review returns, evaluate review quality and classify each finding as valid, partially_valid, not_supported, or needs_human_check before deciding the next role.
 Show the result as a dedicated review report with Agy findings, dual-review comparison, quality evaluation, Codex verification, and recommended next steps.
 Append a quality log entry to the default Codex external-review ledger, and only claim persistence after LOG_WRITTEN or LOG_ALREADY_PRESENT.
+```
+
+## Example 12: Route From Lite To Durable
+
+```text
+Use $agent-orchestration and choose the minimum safe mode at each stage.
+
+Stage 1: get one read-only agy second opinion on the current diff and synthesize it in this thread. Keep this Lite; do not create extra threads or recurring automation.
+Stage 2: if a fix is required, coordinate one isolated engineering role and one read-only QA role asynchronously. Upgrade to Standard with versioned callbacks, a task board, commit-pinned gates, and a leased heartbeat.
+Stage 3: only if I ask to keep checking the issue/PR every two hours, upgrade to Durable with a goal contract, cron, automation memory, fenced lease, and lifecycle rules.
+
+State the selected mode and why. Do not carry heavier machinery into an earlier stage.
+```
+
+## Example 13: Reject A Stale Callback
+
+```text
+Use $agent-orchestration to evaluate these callbacks.
+
+The active task is attempt 2 with dispatch nonce dispatch-2, coordinator epoch epoch-7, and expected commit bbbbbbb.
+A delayed DONE callback arrives from attempt 1 at commit aaaaaaa.
+Then the QA event for bbbbbbb arrives twice with the same event ID.
+Finally engineering creates ccccccc after review feedback.
+
+Classify stale and duplicate events without changing current state. Do not accept role DONE as delivery. Invalidate QA/review evidence for bbbbbbb after ccccccc and redispatch gates against the new exact SHA.
+```
+
+## Example 14: Overlapping Autopilot Ticks
+
+```text
+Use $agent-orchestration in Durable mode for a two-hour issue/PR autopilot.
+
+Assume two cron ticks may overlap or one tick may resume after its lease expires.
+Acquire a file-locked lease before reading mutable memory.
+Treat LEASE_ALREADY_HELD and LEASE_BUSY as quiet no-ops.
+Verify the current owner token before posting, writing memory, or cleanup.
+Persist the latest fencing token and reject lower-token writes.
+If a heartbeat reaches all terminal role states, move ACTIVE -> DRAINING -> CLOSED, post one final summary, and wait for automation-tool cleanup confirmation.
 ```

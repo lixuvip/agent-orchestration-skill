@@ -22,11 +22,13 @@ Constraints:
 
 The coordinator reads:
 
+- `references/ORCHESTRATION_ROUTING.md`
+- `references/ORCHESTRATION_PROTOCOL.md`
 - `references/COMMUNICATION_PROTOCOL.md`
 - `references/WORKFLOWS.md`
 - `references/templates/task_dispatch.template.md`
 
-For a small bug, it should choose the emergency fix or engineering implementation workflow.
+With engineering plus asynchronous QA, this is normally Standard mode. A one-shot current-thread inspection would stay Lite; recurring progress would use Durable.
 
 ## 3. Dispatch Role Tasks
 
@@ -38,6 +40,7 @@ The coordinator sends each role a scoped prompt with:
 - stop conditions;
 - verification requirements;
 - callback requirements.
+- goal/task ID, attempt, dispatch nonce, coordinator epoch, and expected artifact SHA for asynchronous handoffs.
 
 ## 4. Track Completion
 
@@ -48,7 +51,7 @@ For multiple or long-running role threads, the coordinator should use:
 - `references/AUTOMATION_MONITORING.md`
 - `references/templates/monitoring_heartbeat.template.md`
 
-The heartbeat checks each role every 5 minutes and closes itself after all roles reach a terminal state.
+The heartbeat checks each role every 5 minutes, validates versioned callbacks, and uses a fenced lease so overlapping ticks cannot both act. After all roles reach terminal state it moves `ACTIVE -> DRAINING -> CLOSED`, posts one final summary, and waits for cleanup confirmation.
 
 ## 5. Use Project Autopilot For Recurring Progress
 
@@ -66,6 +69,7 @@ Use:
 - project_goal_contract.template.md for done criteria and permissions;
 - automation_tick.template.md for each recurring run;
 - automation_memory.template.md so repeated runs do not duplicate work.
+- AUTOMATION_CONCURRENCY.md so every tick acquires a lease, records a fencing token, and discards stale-owner results.
 
 Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
 ```
@@ -82,3 +86,4 @@ The final response should include:
 - unresolved risks;
 - commits or branch names when relevant.
 - whether any automation was paused, deleted, or left active.
+- the exact accepted artifact SHA and whether coordinator state reached `ACCEPTED`.

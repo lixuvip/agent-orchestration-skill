@@ -97,6 +97,7 @@ REQUIRED_FILES = [
     ROOT / "README.md",
     ROOT / "README.zh-CN.md",
     ROOT / "AGENTS.md",
+    ROOT / "CHANGELOG.md",
     ROOT / "docs" / "installation.md",
     ROOT / "docs" / "installation.zh-CN.md",
     ROOT / "docs" / "quickstart.md",
