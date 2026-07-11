@@ -1,9 +1,5 @@
 # Agent Orchestration Skill for Codex
 
-[![Validate](https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml/badge.svg)](https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/lixuvip/agent-orchestration-skill)](https://github.com/lixuvip/agent-orchestration-skill/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 <p align="center">
   <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
 </p>
@@ -15,7 +11,7 @@
 <p align="center">
   <a href="README.zh-CN.md">中文说明</a> ·
   <a href="#quick-start">Quick Start</a> ·
-  <a href="#unreleased-reliability-pass">Reliability Pass</a> ·
+  <a href="#v020-progressive-orchestration">v0.2.0</a> ·
   <a href="#demo-workflow">Demo Workflow</a> ·
   <a href="docs/examples.md">Examples</a> ·
   <a href="docs/installation.md">Installation</a>
@@ -30,54 +26,68 @@
 
 ![Agent orchestration workflow overview](docs/images/workflow-overview.svg)
 
-`agent-orchestration` is a Codex skill that scales from a Lite one-shot workflow to Standard multi-role coordination and Durable project autopilot. It helps one coordinator conversation split complex work across planner, researcher, coder, reviewer, release docs, QA, and monitor roles without forcing heavyweight machinery onto simple tasks.
+`agent-orchestration` is a Codex skill for work that needs more than one uninterrupted agent loop: role delegation, user-visible thread coordination, branch/worktree handoffs, QA and review gates, callbacks, finite monitoring, recurring project automation, or an external `agy` / Gemini second opinion.
 
-Instead of asking one agent to handle everything in a long linear thread, this skill gives Codex a repeatable orchestration layer for scoped delegation, versioned callbacks, commit-pinned QA/review evidence, fenced recurring ticks, heartbeat lifecycle management, and final coordinator acceptance.
+The skill deliberately does not turn every request into a multi-agent workflow. It selects the minimum safe route, loads only the matching capability pack and templates, and keeps the coordinator responsible for scope, evidence, authority, and final acceptance.
 
-It is especially useful when another Codex thread or branch is doing work and the main thread needs a reliable way to receive callbacks, request status, verify QA/review output, and decide whether a branch is ready to merge or push. It can also pair Codex automations with `AGENTS.md` project guidance so recurring work keeps moving toward a clear goal instead of becoming a loose reminder.
+## Choose The Right Weight
 
-It can also add a read-only `agy` / Gemini review or research pass as an external second opinion. The coordinator still owns the final decision: every external finding or idea must be checked against the diff, repo context, or actual evidence before it affects planning, QA, repair, merge readiness, or delivery.
+| Mode | Use it when | Runtime context |
+| --- | --- | --- |
+| Lite | One-shot work in the current conversation, including a read-only external-model pass. | No core pack, task board, callback envelope, heartbeat, cron, or memory. |
+| Standard | Multiple roles, async/user-visible threads, cross-repository handoffs, finite long work, or formal QA/review/release gates. | One language version of `COORDINATION_RUNBOOK.md` plus only the templates actually needed. |
+| Durable | Work must recur or recover across ticks until explicit done criteria are met. | Standard pack plus the matching `PROJECT_AUTOPILOT.md`; goal contract, memory, lease, lifecycle, and escalation templates. |
 
-External-task quality is logged outside the target repository by default under `${CODEX_HOME:-$HOME/.codex}/external-review-ledger/`. Review entries use `task_type=review`; research entries use `task_type=research`. The workflow does not modify target `AGENTS.md` or create a project-local ledger merely to prepare a read-only pass. Those repository writes require separate authorization.
+`scripts/route_orchestration.py` makes this decision deterministic when the route is not obvious. A requested lighter mode cannot bypass the minimum safety requirements. External review/research is an independent modifier, not an automatic upgrade.
+
+## v0.2.0: Progressive Orchestration
+
+`v0.2.0` unifies the features added since `v0.1.4` into one smaller, safer operating model.
+
+| Capability | What it provides | Why it matters |
+| --- | --- | --- |
+| Progressive loading | `SKILL.md` is 42 lines; 14 overlapping core references are consolidated into four bilingual capability-pack files. | Simple work stays light; complex work still has a complete contract. |
+| Versioned callbacks | `ORCHESTRATION_EVENT_V1` carries attempt, nonce, coordinator epoch, unique event ID, and exact artifact identity. | Duplicate and stale callbacks are no-ops instead of state corruption. |
+| Commit-pinned gates | Role status, gate verdict, and coordinator state remain separate; QA/review verdicts name the inspected SHA. | Role `DONE` cannot impersonate acceptance, and a later code commit invalidates old evidence. |
+| Recoverable automation | File-locked leases, monotonic fencing tokens, idempotency keys, and `ACTIVE -> DRAINING -> CLOSED`. | Overlapping or resumed ticks cannot duplicate messages, overwrite memory, or close a newer run. |
+| Durable project progress | Goal contract, project instructions, one safe action per tick, durable memory, no-op polling, and escalation gates. | Autopilot keeps moving toward done criteria without silently gaining merge, push, deploy, or scope authority. |
+| Bounded external review/research | Sandboxed `agy` helpers, allowlisted context bundles, structured output checks, and a Codex-owned quality ledger. | Gemini remains a read-only second opinion until Codex verifies and accepts its output. |
+| Auditable installation | Clean-source enforcement, staged replacement, provenance manifest, parity check, retained previous copy, dry-run, and restore. | The installed skill can be traced, verified, and rolled back. |
+| Regression guards | Static, smoke, forward, protocol, automation, routing, scale-budget, built-in skill, and diff checks. | Safety semantics and context budgets are executable release requirements. |
+
+Full release notes and migration guidance: [v0.2.0](docs/releases/v0.2.0.md).
+
+## Core Guarantees
+
+- Every delegated task has one owner and explicit editable, read-only, and out-of-scope boundaries.
+- Shared-file edits are isolated or serialized; routing never makes overlapping writes safe.
+- Silence is never completion. Verification claims must name commands that actually ran and their results.
+- Role `DONE` moves work into coordinator review; only coordinator `ACCEPTED` is delivery.
+- QA/review evidence is valid only for the exact artifact inspected.
+- Recurring ticks verify lease ownership before external writes, messages, cleanup, or memory commits.
+- Merge, push, deploy, publish, destructive actions, spending, secrets, and scope expansion remain behind user/project authority.
+
+## Best Fit
+
+- An engineer branch needs a read-only QA pass and callback to the main coordinator.
+- Multiple repositories or worktrees must be finalized against one contract.
+- A release needs implementation, QA, review, docs, and exact merge-readiness evidence.
+- A long-running role needs finite heartbeat monitoring and reliable cleanup.
+- An issue, PR, checklist, or workspace should progress every few hours until measurable done criteria pass.
+- A risky diff or design choice benefits from independent Codex and `agy` / Gemini review or research.
+
+Keep single-file edits, explanations, and one-shot debugging in the current conversation when independent ownership, async recovery, formal gates, or recurrence would not help.
 
 ## Quick Links
 
 - [Install the skill](docs/installation.md)
 - [Start in 3 minutes](docs/quickstart.md)
+- [Read the v0.2.0 release and migration notes](docs/releases/v0.2.0.md)
 - [Coordinate a multi-project release](docs/tutorial.md)
-- [Copy example prompts](docs/examples.md): [research](examples/simple-research-task.md), [coding + review](examples/coding-review-workflow.md), [branch callback](examples/branch-callback-controller-loop.md), [project autopilot](examples/continuous-project-autopilot.md), [GitHub issue/PR autopilot](examples/github-issue-pr-autopilot.md), [product planning](examples/multi-agent-product-planning.md)
+- [Copy ready-to-use prompts](docs/examples.md)
 - [Review forward-test scenarios](docs/forward-tests.md)
-- [Read the v0.1.4 release notes](docs/releases/v0.1.4.md)
-- [Read the Chinese docs](README.zh-CN.md)
+- [Read the Chinese documentation](README.zh-CN.md)
 - [Publish or fork your own version](docs/publishing.md)
-
-## Unreleased Reliability Pass
-
-The current unreleased branch focuses on safe real-world operation. It does not publish, merge, or push anything automatically.
-
-| Area | What changed | Operational effect |
-| --- | --- | --- |
-| Mode routing | Adds deterministic Lite, Standard, and Durable routing through `route_orchestration.py` and compact capability packs. | A one-shot task loads no core reference; Standard loads one runbook; Durable adds one Autopilot pack. |
-| Context budget | Consolidates 14 overlapping core references into four bilingual capability-pack files and caps `SKILL.md` at 70 lines through `scale_test.py`. | New and existing safety features share one runtime path without making every request preload protocol, monitoring, and automation prose. |
-| Callback protocol | Adds `ORCHESTRATION_EVENT_V1` with attempt, dispatch nonce, coordinator epoch, event ID, and artifact SHA. | Duplicate and stale callbacks become no-ops; role `DONE` cannot masquerade as coordinator acceptance. |
-| Commit-pinned gates | Separates role execution status, gate verdict, and coordinator state. QA and review evidence names the exact candidate SHA. | A new code commit invalidates old QA/review evidence instead of silently reusing it. |
-| Automation concurrency | Adds file-locked leases, expiry, and monotonic fencing tokens. | Overlapping cron or heartbeat ticks elect one owner; stale ticks cannot post, write memory, or close a newer automation. |
-| Heartbeat lifecycle | Adds `ACTIVE -> DRAINING -> CLOSED` with one final summary and confirmed cleanup. | Shutdown is idempotent and late callbacks cannot recreate a closed monitor. |
-| External-pass safety | Keeps `agy` sandboxed and bounded, uses allowlisted context bundles, and moves quality logs outside target repositories by default. | One-shot external review/research remains read-only unless a separate repository write is authorized. |
-| Install safety | Adds clean-source enforcement, staged replacement, provenance, retained previous install, dry-run, and restore. | Local skill updates are auditable and recoverable. |
-| Behavior tests | Adds protocol, concurrency/lifecycle, routing, and scale-budget tests in addition to static validation, smoke tests, and forward tests. | CI checks real stale-event, duplicate, lease-takeover, shutdown, route-selection, and context-budget behavior. |
-
-## What v0.1.4 Adds
-
-`v0.1.4` hardens the Project Autopilot workflow from `v0.1.3` with CI-backed forward tests and clearer visual documentation.
-
-| Area | What changed | Why it helps |
-| --- | --- | --- |
-| Forward-test guard | Adds `scripts/forward_test.py` and runs it in GitHub Actions. | Trigger coverage for heartbeat callbacks, cron Autopilot, no-op GitHub polling, and missing `AGENTS.md` guidance is checked before release. |
-| Project Autopilot | Keeps the goal-driven recurring automation workflow for project progress. | Codex can continue checking and taking safe next steps until done criteria are met. |
-| Automation memory | Keeps templates for memory, idempotency, latest effective updates, blockers, and posted messages. | Cron runs avoid duplicate comments, repeated status requests, and repeated work. |
-| Escalation gates | Keeps explicit stop rules for merge, push, deploy, destructive changes, public API contract changes, and scope expansion. | Automation can move quickly without taking authority it does not have. |
-| Visual docs | Adds Project Autopilot loop diagrams. | Users can understand the runtime loop before copying automation prompts. |
 
 ## Project Autopilot
 
@@ -96,52 +106,6 @@ Autopilot combines:
 - `ACTIVE -> DRAINING -> CLOSED` heartbeat shutdown with one final summary and tool-confirmed cleanup.
 - Escalation reports when merge, push, deploy, scope expansion, or repeated verification failure needs user input.
 - Forward-test scenarios and filled examples for no-op ticks, escalation, goal contracts, and automation memory.
-
-## Why This Exists
-
-Codex is powerful, but complex projects often need more than one linear agent thread. Long-running AI coding tasks can fail because progress is hidden, context gets mixed, or subtasks are forgotten.
-
-This skill adds a small coordination layer that makes Codex workflows more observable, modular, and reliable:
-
-- Split one goal into multiple role-specific agents.
-- Give every role explicit scope, stop conditions, verification, and callback rules.
-- Route work through Lite, Standard, or Durable mode based on actual coordination and recovery needs.
-- Confirm branch, thread, callback, merge, and push behavior before risky orchestration.
-- Track role execution, QA/review gate verdict, and coordinator acceptance as separate states.
-- Reject duplicate event IDs and stale attempt, nonce, epoch, or artifact-SHA callbacks without changing current state.
-- Use heartbeat monitoring for long-running or asynchronous work.
-- Use project autopilot for recurring automation that can continue a workspace toward a defined goal.
-- Fence recurring ticks and close heartbeat monitors monotonically so crashes and overlaps remain recoverable.
-- Add an optional read-only `agy` / Gemini review pass while guarding against scope drift and unsupported test claims.
-- Run parallel Codex + Gemini research for repo surveys, option comparison, or idea expansion without forcing those tasks into review mode.
-- Preserve per-task quality logs for later prompt, model, and scope tuning.
-- Require the coordinator to inspect role output, risks, and verification before final delivery.
-- Run merge-readiness checks before branch finalization.
-
-## Best For
-
-- Multi-agent coding workflows.
-- Research plus implementation pipelines.
-- Product planning with role-based AI agents.
-- QA and code review gates for AI-assisted development.
-- Optional external `agy` / Gemini review gates for high-risk diffs or second-opinion review.
-- Optional external `agy` / Gemini research passes for implementation options, repo surveys, and idea expansion.
-- Multi-repository release coordination.
-- Long-running Codex tasks that need monitoring and callbacks.
-- Branch/worktree handoffs that need status requests, QA gates, and merge readiness.
-- Recurring project automation that should read `AGENTS.md`, keep memory, choose one safe next step per run, and stop when the goal is met.
-
-## What It Solves
-
-Use this skill when a task is too large or risky for one uninterrupted conversation:
-
-- Multi-repository changes that need separate implementation and verification threads.
-- Parallel work across product, engineering, QA, review, and release docs roles.
-- Long-running Codex threads where the coordinator must poll status instead of relying on memory.
-- Handoffs that require explicit changed files, verification commands, risks, and final status.
-- Workflows where child threads should call back to the coordinator and a heartbeat automation should check status every 5 minutes.
-- Branch or worktree workflows that need status requests, coordinator callbacks, and merge-readiness checks.
-- Projects that need recurring cron automation to inspect issues/PRs/tests, act idempotently, and keep moving without losing project rules.
 
 ## Optional Agy / Gemini Review
 

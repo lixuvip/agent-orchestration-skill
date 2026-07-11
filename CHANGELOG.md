@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-07-11
+
 - Consolidated 14 overlapping routing, protocol, state, controller, monitoring, concurrency, tooling, instruction-discovery, and workflow references into one bilingual Standard coordination pack plus one bilingual Durable Autopilot pack.
 - Reduced `SKILL.md` from 98 to 42 lines and made progressive disclosure explicit: Lite loads no core pack, Standard loads one language runbook, Durable adds one language Autopilot pack, and agy review/research remains an independent modifier.
 - Simplified role replies to a human result and moved the complete machine identity into the canonical callback envelope, removing duplicated callback fields without changing `ORCHESTRATION_EVENT_V1` semantics.

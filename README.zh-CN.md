@@ -11,7 +11,7 @@
 <p align="center">
   <a href="README.md">English</a> ·
   <a href="#快速开始">快速开始</a> ·
-  <a href="#未发布可靠性优化">可靠性优化</a> ·
+  <a href="#v020渐进式编排">v0.2.0</a> ·
   <a href="#演示流程">演示流程</a> ·
   <a href="docs/examples.zh-CN.md">使用示例</a> ·
   <a href="docs/installation.zh-CN.md">安装说明</a>
@@ -26,54 +26,68 @@
 
 ![Agent orchestration 中文流程图](docs/images/workflow-overview.zh-CN.svg)
 
-`agent-orchestration` 是一个可以从 Lite 一次性任务扩展到 Standard 多角色协调，再扩展到 Durable 项目 Autopilot 的 Codex skill。它用于角色化任务分发、QA/审查门禁、发布协作、版本化回调和自动化收口，但不会强迫简单任务使用重流程。
+`agent-orchestration` 是一个面向复杂 Codex 工作流的协调 skill：当任务需要角色分工、用户可见线程、分支/worktree 交接、QA/Review 门禁、回调、有限期巡检、周期性项目推进，或者 `agy` / Gemini 外部第二意见时，由一个协调者统一管理范围、证据、权限和最终验收。
 
-与其让一个 Agent 在一条很长的会话里独自处理所有事情，这个 skill 会让一个 Codex 会话担任协调者，把任务拆给 planner、researcher、coder、reviewer、release docs、QA 和 monitor 等角色，再用版本化事件、commit 固定证据、并发租约和协调者验收收口。
+它不会把每个请求都变成多 Agent 流程，而是选择最低安全模式，只加载对应能力包和实际需要的模板。简单任务保持简单，复杂任务获得可恢复、可验证、可交接的执行契约。
 
-它尤其适合“另一个 Codex 线程/分支正在改东西，主线程需要可靠收口”的场景：回调主线程、请求状态、检查 QA/审查结果、判断分支是否可以合并或推送。它也可以把 Codex 自动化和项目 `AGENTS.md` 常驻指令结合起来，让周期性任务围绕明确目标持续推进，而不是变成普通提醒。
+## 选择合适的重量
 
-它也可以把本机 `agy` / Gemini 作为只读外部审查或外部调研第二意见接入。最终判断仍由协调者负责：所有外部模型 findings 或观点都必须经过 diff、源码上下文、仓库证据或真实测试输出复核，才能进入规划、QA、修复、合并就绪或最终交付。
+| 模式 | 适用情况 | 运行时上下文 |
+| --- | --- | --- |
+| Lite | 当前对话内一次性完成，包括一次只读外部模型审查/调研。 | 不加载核心包，不创建 task board、回调信封、heartbeat、cron 或 memory。 |
+| Standard | 多角色、异步/用户可见线程、跨仓库交接、有限期长任务或正式 QA/Review/Release 门禁。 | 只加载一个语言版本的 `COORDINATION_RUNBOOK.md` 和实际用到的模板。 |
+| Durable | 必须周期运行或跨 tick 恢复，直到明确完成条件满足。 | Standard 能力包加同语言 `PROJECT_AUTOPILOT.md`，以及目标、记忆、租约、生命周期和升级模板。 |
 
-外部只读任务的质量记录默认写入目标仓库之外的 `${CODEX_HOME:-$HOME/.codex}/external-review-ledger/`。审查使用 `task_type=review`，调研使用 `task_type=research`。一次性只读流程不会为了准备工作修改目标 `AGENTS.md` 或创建项目内日志；这些仓库写入都需要单独授权。
+路由不明显时，`scripts/route_orchestration.py` 会确定最低安全模式和精确模板集合。用户要求的轻模式不能绕过安全下限；外部审查/调研是独立 modifier，本身不会自动升级编排模式。
+
+## v0.2.0：渐进式编排
+
+`v0.2.0` 把 `v0.1.4` 之后增加的能力统一成一套更轻、更稳的运行模型。
+
+| 能力 | 提供什么 | 实际价值 |
+| --- | --- | --- |
+| 渐进加载 | `SKILL.md` 只有 42 行；14 份重叠核心参考合并为 4 个中英文能力包文件。 | 简单任务不背负重上下文，复杂任务仍有完整契约。 |
+| 版本化回调 | `ORCHESTRATION_EVENT_V1` 携带 attempt、nonce、coordinator epoch、唯一 event ID 和精确产物身份。 | 重复或过期回调只做 no-op，不会污染当前状态。 |
+| Commit 固定门禁 | 角色状态、门禁结论和协调者状态相互独立；QA/Review 绑定实际检查的 SHA。 | 角色 `DONE` 不能冒充验收，新代码 commit 会使旧证据失效。 |
+| 可恢复自动化 | 文件锁租约、单调 fencing token、幂等键和 `ACTIVE -> DRAINING -> CLOSED`。 | 重叠或恢复的 tick 不能重复发消息、覆盖 memory 或关闭新运行。 |
+| 持续项目推进 | 目标契约、项目指令、每 tick 一个安全动作、持久 memory、静默 no-op 和升级门禁。 | Autopilot 能持续向完成条件推进，但不会自行获得 merge、push、deploy 或扩大范围的权限。 |
+| 有界外部审查/调研 | Sandboxed `agy` helper、allowlist 上下文、结构化输出检查和 Codex 自有质量台账。 | Gemini 保持只读第二意见，必须经过 Codex 验证和验收。 |
+| 可审计安装 | 干净来源检查、staging 替换、provenance manifest、一致性校验、保留旧版、dry-run 和 restore。 | 本机安装来源可追踪、可验证、可回滚。 |
+| 回归护栏 | 静态、smoke、forward、protocol、automation、routing、scale、内置 skill 和 diff 检查。 | 安全语义和上下文预算都成为可执行发布标准。 |
+
+完整发布说明和迁移指南：[v0.2.0](docs/releases/v0.2.0.md)。
+
+## 核心保证
+
+- 每个委派任务只有一个 owner，并明确可编辑、只读和禁止范围。
+- 重叠文件编辑必须隔离或串行；路由不能让共享写入自动变安全。
+- 静默不代表完成；验证必须写明真实运行的命令及结果。
+- 角色 `DONE` 只进入协调者检查，只有协调者 `ACCEPTED` 才是交付。
+- QA/Review 证据只对实际检查的精确产物有效。
+- recurring tick 在外部写入、消息、cleanup 和 memory commit 前重新验证 lease owner。
+- merge、push、deploy、publish、破坏性动作、费用、密钥和范围扩大始终受用户/项目权限约束。
+
+## 最适合的场景
+
+- 工程分支需要只读 QA，并在完成后回调主协调线程。
+- 多仓库或多个 worktree 需要围绕一个契约统一收口。
+- 一次发布需要实现、QA、Review、文档和精确 merge-readiness 证据。
+- 长任务需要有限期 heartbeat 监控和可靠清理。
+- issue、PR、checklist 或 workspace 需要每隔几小时推进，直到可衡量完成条件通过。
+- 高风险 diff 或设计决策需要独立 Codex 与 `agy` / Gemini 审查或调研。
+
+如果只是单文件修改、解释或一次性调试，并不需要独立 owner、异步恢复、正式门禁或周期运行，就留在当前对话直接完成。
 
 ## 快速入口
 
 - [安装这个 skill](docs/installation.zh-CN.md)
 - [3 分钟快速开始](docs/quickstart.zh-CN.md)
+- [查看 v0.2.0 发布说明和迁移指南](docs/releases/v0.2.0.md)
 - [协调一次多项目发布](docs/tutorial.zh-CN.md)
-- [复制可用示例 Prompt](docs/examples.zh-CN.md)：[研究任务](examples/simple-research-task.md)、[编码加审查](examples/coding-review-workflow.md)、[分支回调](examples/branch-callback-controller-loop.md)、[项目 Autopilot](examples/continuous-project-autopilot.md)、[GitHub issue/PR Autopilot](examples/github-issue-pr-autopilot.md)、[产品规划](examples/multi-agent-product-planning.md)
+- [复制可直接使用的 Prompt](docs/examples.zh-CN.md)
 - [查看前向测试场景](docs/forward-tests.md)
-- [查看 v0.1.4 更新说明](docs/releases/v0.1.4.md)
 - [查看英文文档](README.md)
 - [发布或 Fork 自己的版本](docs/publishing.zh-CN.md)
-
-## 未发布可靠性优化
-
-当前未发布分支重点解决真实运行中的安全和恢复问题，不会自动发布、合并或推送。
-
-| 模块 | 更新内容 | 实际效果 |
-| --- | --- | --- |
-| 模式路由 | 通过 `route_orchestration.py` 和精简能力包确定 Lite、Standard、Durable。 | Lite 不加载核心参考；Standard 只加载一个 runbook；Durable 再增加一个 Autopilot 包。 |
-| 上下文预算 | 把 14 份重叠核心参考合并为 4 个中英文能力包文件，并由 `scale_test.py` 把 `SKILL.md` 限制在 70 行以内。 | 新旧安全能力共用一条运行路径，不再让每个请求预读协议、巡检和自动化说明。 |
-| 回调协议 | 新增带 attempt、dispatch nonce、coordinator epoch、event ID 和产物 SHA 的 `ORCHESTRATION_EVENT_V1`。 | 重复和过期回调成为 no-op；角色 `DONE` 不能冒充协调者验收。 |
-| Commit 固定门禁 | 分离角色执行状态、门禁结论和协调者状态，QA/Review 绑定精确候选 SHA。 | 产生新代码 commit 后，旧 QA/Review 证据自动失效。 |
-| 自动化并发 | 新增文件锁租约、过期接管和单调递增 fencing token。 | 重叠 cron/heartbeat 只选一个 owner；旧 tick 不能发消息、写 memory 或关闭新 automation。 |
-| Heartbeat 生命周期 | 新增 `ACTIVE -> DRAINING -> CLOSED`、一次最终汇总和工具确认清理。 | 关闭过程幂等，晚到回调不会重建已关闭巡检。 |
-| 外部只读安全 | `agy` 固定 sandbox 和有界上下文，质量日志默认写到目标仓库外。 | 一次性审查/调研保持只读，仓库写入需要单独授权。 |
-| 安装安全 | 新增干净来源检查、分阶段替换、provenance、保留旧版本、dry-run 和 restore。 | 本机 skill 更新可审计、可回滚。 |
-| 行为测试 | 在静态、smoke、forward test 之外增加协议、并发/生命周期、路由和规模预算测试。 | CI 会检查过期事件、重复事件、租约接管、收尾、模式选择和上下文预算。 |
-
-## v0.1.4 更新内容
-
-`v0.1.4` 在 `v0.1.3` 的 Project Autopilot 基础上，补强了 CI 可检查的前向测试和更清晰的可视化说明。
-
-| 模块 | 更新内容 | 价值 |
-| --- | --- | --- |
-| 前向测试护栏 | 新增 `scripts/forward_test.py`，并接入 GitHub Actions。 | 发布前能自动检查 heartbeat 回调、cron Autopilot、GitHub no-op 巡检和缺失 `AGENTS.md` 等触发覆盖。 |
-| Project Autopilot | 保留围绕目标契约运行的周期性自动化流程。 | Codex 可以持续检查并执行安全下一步，直到完成条件满足。 |
-| 自动化记忆 | 保留 memory、幂等键、最新有效更新、阻塞和已发送消息模板。 | cron 运行可以避免重复评论、重复状态请求和重复工作。 |
-| 升级门禁 | 保留 merge、push、deploy、破坏性改动、公开 API 契约变化和范围扩大前必须停止的规则。 | 自动化能快速推进，但不会越权。 |
-| 可视化文档 | 新增 Project Autopilot 循环图。 | 用户复制自动化 prompt 前，可以先理解循环如何运行。 |
 
 ## Project Autopilot
 
@@ -92,40 +106,6 @@ Autopilot 会结合：
 - `ACTIVE -> DRAINING -> CLOSED` heartbeat 收尾：最终汇总只发一次，等待工具确认清理。
 - 升级报告：遇到 merge、push、deploy、范围扩大或验证反复失败时交给用户决策。
 - 前向测试场景和填充样例：覆盖 no-op tick、升级、目标契约和 automation memory。
-
-## 为什么需要它
-
-Codex 很强，但复杂项目通常不适合只靠一个线性 Agent 线程完成。长任务容易出现进度不可见、上下文混杂、子任务遗漏、验证结果不清晰等问题。
-
-这个 skill 增加了一个小型编排层，让 Codex 工作流更可观察、更模块化、更可靠：
-
-- 把一个目标拆给多个角色化 Agent。
-- 给每个角色明确可编辑范围、停止条件、验证要求和回调规则。
-- 按真实任务形态选择 Lite、Standard 或 Durable，而不是默认套最重流程。
-- 在高风险编排前确认分支、线程、回调、合并和推送策略。
-- 分别追踪角色执行状态、QA/Review 门禁结论和协调者验收状态。
-- 对重复 event ID 和旧 attempt、nonce、epoch、产物 SHA 回调做 no-op，不覆盖当前状态。
-- 对长时间运行或异步任务使用心跳监控。
-- 对需要周期性推进的项目使用 Project Autopilot，让自动化带着目标、记忆和停止条件运行。
-- 给 recurring tick 加 fenced lease，并让 heartbeat 单向关闭，保证重叠和崩溃后仍可恢复。
-- 可选接入只读 `agy` / Gemini 审查，并防止范围漂移和无依据的测试通过声明。
-- 可选接入并行 Codex + Gemini 调研，把仓库盘点、方案对比和扩思路这类任务纳入稳定工作流。
-- 保留每次外部只读任务的质量日志，用于后续优化 prompt、模型选择和范围。
-- 要求协调者在最终交付前检查角色输出、风险和验证证据。
-- 在分支收尾前执行合并就绪检查。
-
-## 适用场景
-
-- 多仓库改动，需要分别实现、验证和汇总。
-- 产品、工程、QA、代码审查、发布文档等角色并行协作。
-- 长时间运行的 Codex 线程，需要协调者轮询状态。
-- 交接时必须明确变更文件、验证命令、风险和最终状态。
-- 子线程完成后需要回调协调线程，并由定时心跳监控任务状态。
-- 分支或 worktree 任务需要状态请求、回调主线程和合并就绪检查。
-- 需要周期性自动化读取 `AGENTS.md`、保留 memory、每轮选择一个安全下一步并持续推进的项目。
-- 高风险 diff 需要 `agy` / Gemini 外部第二意见，但仍由 Codex 协调者复核。
-- 方案对比、仓库盘点或扩思路场景，希望 Codex 和 Gemini 并行调研后再统一综合。
-- AI coding workflow、研究加实现流水线、产品原型设计、多 Agent 实验。
 
 ## 可选 Agy / Gemini 审查
 
