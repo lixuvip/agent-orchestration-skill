@@ -22,11 +22,8 @@ Constraints:
 
 The coordinator reads:
 
-- `references/ORCHESTRATION_ROUTING.md`
-- `references/ORCHESTRATION_PROTOCOL.md`
-- `references/COMMUNICATION_PROTOCOL.md`
-- `references/WORKFLOWS.md`
-- `references/templates/task_dispatch.template.md`
+- `references/COORDINATION_RUNBOOK.md` for Standard work;
+- only the specific dispatch/callback/QA templates used, starting with `task_dispatch.template.md`.
 
 With engineering plus asynchronous QA, this is normally Standard mode. A one-shot current-thread inspection would stay Lite; recurring progress would use Durable.
 
@@ -39,7 +36,7 @@ The coordinator sends each role a scoped prompt with:
 - editable and read-only scope;
 - stop conditions;
 - verification requirements;
-- callback requirements.
+- callback requirements;
 - goal/task ID, attempt, dispatch nonce, coordinator epoch, and expected artifact SHA for asynchronous handoffs.
 
 ## 4. Track Completion
@@ -48,7 +45,7 @@ For one or two short-running role threads, the coordinator can manually read the
 
 For multiple or long-running role threads, the coordinator should use:
 
-- `references/AUTOMATION_MONITORING.md`
+- `references/COORDINATION_RUNBOOK.md`
 - `references/templates/monitoring_heartbeat.template.md`
 
 The heartbeat checks each role every 5 minutes, validates versioned callbacks, and uses a fenced lease so overlapping ticks cannot both act. After all roles reach terminal state it moves `ACTIVE -> DRAINING -> CLOSED`, posts one final summary, and waits for cleanup confirmation.
@@ -64,12 +61,10 @@ Goal:
 Keep this repository moving until the release-readiness checklist is complete.
 
 Use:
-- AGENTS.md and AGENTS.override.md for durable project rules;
-- PROJECT_AUTOPILOT.md for the recurring control loop;
+- PROJECT_AUTOPILOT.md for the unified instruction, automation, memory, lease, fencing, and lifecycle contract;
 - project_goal_contract.template.md for done criteria and permissions;
 - automation_tick.template.md for each recurring run;
 - automation_memory.template.md so repeated runs do not duplicate work.
-- AUTOMATION_CONCURRENCY.md so every tick acquires a lease, records a fencing token, and discards stale-owner results.
 
 Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
 ```
@@ -84,6 +79,6 @@ The final response should include:
 - which roles participated;
 - exact verification evidence;
 - unresolved risks;
-- commits or branch names when relevant.
-- whether any automation was paused, deleted, or left active.
+- commits or branch names when relevant;
+- whether any automation was paused, deleted, or left active;
 - the exact accepted artifact SHA and whether coordinator state reached `ACCEPTED`.

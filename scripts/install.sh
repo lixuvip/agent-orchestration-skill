@@ -88,6 +88,7 @@ python3 "${SCRIPT_DIR}/forward_test.py"
 python3 "${SCRIPT_DIR}/protocol_test.py"
 python3 "${SCRIPT_DIR}/automation_test.py"
 python3 "${SCRIPT_DIR}/routing_test.py"
+python3 "${SCRIPT_DIR}/scale_test.py"
 python3 "${HOME}/.codex/skills/.system/skill-creator/scripts/quick_validate.py" "${SOURCE_DIR}"
 git -C "${REPO_ROOT}" diff --check
 

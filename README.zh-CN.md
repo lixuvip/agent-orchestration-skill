@@ -53,14 +53,15 @@
 
 | 模块 | 更新内容 | 实际效果 |
 | --- | --- | --- |
-| 模式路由 | 通过 `ORCHESTRATION_ROUTING.md` 和 `route_orchestration.py` 确定 Lite、Standard、Durable。 | 一次性任务保持轻量；异步多角色增加回调和任务追踪；跨 tick 工作增加持久控制。 |
+| 模式路由 | 通过 `route_orchestration.py` 和精简能力包确定 Lite、Standard、Durable。 | Lite 不加载核心参考；Standard 只加载一个 runbook；Durable 再增加一个 Autopilot 包。 |
+| 上下文预算 | 把 14 份重叠核心参考合并为 4 个中英文能力包文件，并由 `scale_test.py` 把 `SKILL.md` 限制在 70 行以内。 | 新旧安全能力共用一条运行路径，不再让每个请求预读协议、巡检和自动化说明。 |
 | 回调协议 | 新增带 attempt、dispatch nonce、coordinator epoch、event ID 和产物 SHA 的 `ORCHESTRATION_EVENT_V1`。 | 重复和过期回调成为 no-op；角色 `DONE` 不能冒充协调者验收。 |
 | Commit 固定门禁 | 分离角色执行状态、门禁结论和协调者状态，QA/Review 绑定精确候选 SHA。 | 产生新代码 commit 后，旧 QA/Review 证据自动失效。 |
 | 自动化并发 | 新增文件锁租约、过期接管和单调递增 fencing token。 | 重叠 cron/heartbeat 只选一个 owner；旧 tick 不能发消息、写 memory 或关闭新 automation。 |
 | Heartbeat 生命周期 | 新增 `ACTIVE -> DRAINING -> CLOSED`、一次最终汇总和工具确认清理。 | 关闭过程幂等，晚到回调不会重建已关闭巡检。 |
 | 外部只读安全 | `agy` 固定 sandbox 和有界上下文，质量日志默认写到目标仓库外。 | 一次性审查/调研保持只读，仓库写入需要单独授权。 |
 | 安装安全 | 新增干净来源检查、分阶段替换、provenance、保留旧版本、dry-run 和 restore。 | 本机 skill 更新可审计、可回滚。 |
-| 行为测试 | 在静态、smoke、forward test 之外增加协议、并发/生命周期和路由测试。 | CI 会检查过期事件、重复事件、租约接管、收尾和模式选择的真实行为。 |
+| 行为测试 | 在静态、smoke、forward test 之外增加协议、并发/生命周期、路由和规模预算测试。 | CI 会检查过期事件、重复事件、租约接管、收尾、模式选择和上下文预算。 |
 
 ## v0.1.4 更新内容
 
@@ -213,23 +214,15 @@ flowchart TD
 │       │   ├── orchestration_event.py
 │       │   └── route_orchestration.py
 │       └── references/
-│           ├── AUTOMATION_CONCURRENCY.md
-│           ├── AUTOMATION_MONITORING.md
-│           ├── AUTOMATION_TOOLING.md
 │           ├── AGY_GEMINI_REVIEW.md
 │           ├── AGY_GEMINI_RESEARCH.md
-│           ├── COMMUNICATION_PROTOCOL.md
-│           ├── CONTROLLER_LOOP.md
-│           ├── ORCHESTRATION_INTAKE.md
-│           ├── ORCHESTRATION_PROTOCOL.md
-│           ├── ORCHESTRATION_ROUTING.md
+│           ├── COORDINATION_RUNBOOK.md
+│           ├── COORDINATION_RUNBOOK.zh-CN.md
 │           ├── PROJECT_AUTOPILOT.md
-│           ├── PROJECT_INSTRUCTIONS_DISCOVERY.md
+│           ├── PROJECT_AUTOPILOT.zh-CN.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
-│           ├── STATE_MACHINE.md
 │           ├── TASK_BOARD.template.md
-│           ├── WORKFLOWS.md
 │           ├── examples/
 │           ├── roles/
 │           └── templates/
@@ -254,6 +247,7 @@ flowchart TD
 │   ├── automation_test.py
 │   ├── protocol_test.py
 │   ├── routing_test.py
+│   ├── scale_test.py
 │   ├── smoke_test.py
 │   ├── forward_test.py
 │   └── validate.py
@@ -331,6 +325,7 @@ python3 scripts/forward_test.py
 python3 scripts/protocol_test.py
 python3 scripts/automation_test.py
 python3 scripts/routing_test.py
+python3 scripts/scale_test.py
 git diff --check
 ```
 
@@ -347,7 +342,7 @@ python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/a
 - 没有私有路径、真实客户信息、密钥、令牌或生产凭据。
 - 示例项目名都是通用名称，不包含内部项目代号。
 - README 中的 GitHub URL 已替换为真实公开仓库地址。
-- `validate.py`、`smoke_test.py`、`forward_test.py`、`protocol_test.py`、`automation_test.py`、`routing_test.py` 和 `git diff --check` 全部通过。
+- `validate.py`、`smoke_test.py`、`forward_test.py`、`protocol_test.py`、`automation_test.py`、`routing_test.py`、`scale_test.py` 和 `git diff --check` 全部通过。
 - 安装脚本能在干净 checkout 上正常运行。
 
 ## 许可证

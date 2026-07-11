@@ -57,14 +57,15 @@ The current unreleased branch focuses on safe real-world operation. It does not 
 
 | Area | What changed | Operational effect |
 | --- | --- | --- |
-| Mode routing | Adds deterministic Lite, Standard, and Durable routing through `ORCHESTRATION_ROUTING.md` and `route_orchestration.py`. | A one-shot task stays small; async roles gain callbacks and task tracking; recurring work gains durable controls. |
+| Mode routing | Adds deterministic Lite, Standard, and Durable routing through `route_orchestration.py` and compact capability packs. | A one-shot task loads no core reference; Standard loads one runbook; Durable adds one Autopilot pack. |
+| Context budget | Consolidates 14 overlapping core references into four bilingual capability-pack files and caps `SKILL.md` at 70 lines through `scale_test.py`. | New and existing safety features share one runtime path without making every request preload protocol, monitoring, and automation prose. |
 | Callback protocol | Adds `ORCHESTRATION_EVENT_V1` with attempt, dispatch nonce, coordinator epoch, event ID, and artifact SHA. | Duplicate and stale callbacks become no-ops; role `DONE` cannot masquerade as coordinator acceptance. |
 | Commit-pinned gates | Separates role execution status, gate verdict, and coordinator state. QA and review evidence names the exact candidate SHA. | A new code commit invalidates old QA/review evidence instead of silently reusing it. |
 | Automation concurrency | Adds file-locked leases, expiry, and monotonic fencing tokens. | Overlapping cron or heartbeat ticks elect one owner; stale ticks cannot post, write memory, or close a newer automation. |
 | Heartbeat lifecycle | Adds `ACTIVE -> DRAINING -> CLOSED` with one final summary and confirmed cleanup. | Shutdown is idempotent and late callbacks cannot recreate a closed monitor. |
 | External-pass safety | Keeps `agy` sandboxed and bounded, uses allowlisted context bundles, and moves quality logs outside target repositories by default. | One-shot external review/research remains read-only unless a separate repository write is authorized. |
 | Install safety | Adds clean-source enforcement, staged replacement, provenance, retained previous install, dry-run, and restore. | Local skill updates are auditable and recoverable. |
-| Behavior tests | Adds protocol, concurrency/lifecycle, and routing tests in addition to static validation, smoke tests, and forward tests. | CI checks real stale-event, duplicate, lease-takeover, shutdown, and route-selection behavior. |
+| Behavior tests | Adds protocol, concurrency/lifecycle, routing, and scale-budget tests in addition to static validation, smoke tests, and forward tests. | CI checks real stale-event, duplicate, lease-takeover, shutdown, route-selection, and context-budget behavior. |
 
 ## What v0.1.4 Adds
 
@@ -254,23 +255,15 @@ flowchart TD
 │       │   ├── orchestration_event.py
 │       │   └── route_orchestration.py
 │       └── references/
-│           ├── AUTOMATION_CONCURRENCY.md
-│           ├── AUTOMATION_MONITORING.md
-│           ├── AUTOMATION_TOOLING.md
 │           ├── AGY_GEMINI_REVIEW.md
 │           ├── AGY_GEMINI_RESEARCH.md
-│           ├── COMMUNICATION_PROTOCOL.md
-│           ├── CONTROLLER_LOOP.md
-│           ├── ORCHESTRATION_INTAKE.md
-│           ├── ORCHESTRATION_PROTOCOL.md
-│           ├── ORCHESTRATION_ROUTING.md
+│           ├── COORDINATION_RUNBOOK.md
+│           ├── COORDINATION_RUNBOOK.zh-CN.md
 │           ├── PROJECT_AUTOPILOT.md
-│           ├── PROJECT_INSTRUCTIONS_DISCOVERY.md
+│           ├── PROJECT_AUTOPILOT.zh-CN.md
 │           ├── PROJECT_CONTEXT.template.md
 │           ├── ROLE_REGISTRY.template.md
-│           ├── STATE_MACHINE.md
 │           ├── TASK_BOARD.template.md
-│           ├── WORKFLOWS.md
 │           ├── examples/
 │           ├── roles/
 │           └── templates/
@@ -295,6 +288,7 @@ flowchart TD
 │   ├── automation_test.py
 │   ├── protocol_test.py
 │   ├── routing_test.py
+│   ├── scale_test.py
 │   ├── smoke_test.py
 │   ├── forward_test.py
 │   └── validate.py
@@ -381,6 +375,7 @@ python3 scripts/forward_test.py
 python3 scripts/protocol_test.py
 python3 scripts/automation_test.py
 python3 scripts/routing_test.py
+python3 scripts/scale_test.py
 git diff --check
 ```
 

@@ -59,6 +59,7 @@ def main() -> int:
     require(lite["monitoring"] == "NONE", "LITE task created monitoring")
     require(not lite["requires_task_board"], "LITE task required a task board")
     require(not lite["requires_lease"], "LITE task required a concurrency lease")
+    require(lite["load_references"] == [], "LITE task loaded core reference files")
 
     standard = route(role_count=2, asynchronous=True, user_visible_threads=True)
     require(standard["selected_mode"] == "STANDARD", "two async roles were not STANDARD")
@@ -66,6 +67,22 @@ def main() -> int:
     require(standard["requires_event_protocol"], "async STANDARD omitted event protocol")
     require(standard["requires_task_board"], "STANDARD omitted task board")
     require(standard["requires_lease"], "recurring STANDARD heartbeat omitted fenced lease")
+    require(
+        standard["load_references"] == ["COORDINATION_RUNBOOK.md"],
+        "STANDARD did not load exactly one coordination pack",
+    )
+    require(
+        standard["load_templates"]
+        == [
+            "task_dispatch.template.md",
+            "role_reply.template.md",
+            "coordinator_callback.template.md",
+            "status_request.template.md",
+            "TASK_BOARD.template.md",
+            "monitoring_heartbeat.template.md",
+        ],
+        "async STANDARD did not select only its required templates",
+    )
 
     durable = route(
         role_count=2,
@@ -78,6 +95,12 @@ def main() -> int:
     require(durable["requires_goal_contract"], "DURABLE omitted goal contract")
     require(durable["requires_durable_memory"], "DURABLE omitted automation memory")
     require(durable["requires_lease"], "DURABLE omitted fenced lease")
+    require(
+        durable["load_references"] == ["COORDINATION_RUNBOOK.md", "PROJECT_AUTOPILOT.md"],
+        "DURABLE did not load exactly two canonical packs",
+    )
+    require("project_goal_contract.template.md" in durable["load_templates"], "DURABLE omitted goal template")
+    require("automation_memory.template.md" in durable["load_templates"], "DURABLE omitted memory template")
 
     external = route(external_model=True)
     require(external["selected_mode"] == "LITE", "one-shot external review was over-orchestrated")
@@ -98,6 +121,11 @@ def main() -> int:
     explicit_upgrade = route(requested_mode="DURABLE")
     require(explicit_upgrade["selected_mode"] == "DURABLE", "explicit DURABLE upgrade was ignored")
     require(explicit_upgrade["requested_mode_honored"], "explicit safe upgrade was not honored")
+    require(not explicit_upgrade["requires_task_board"], "single-role DURABLE required a task board")
+    require(
+        "task_dispatch.template.md" not in explicit_upgrade["load_templates"],
+        "single-role DURABLE loaded role-dispatch templates",
+    )
 
     print("Orchestration routing behavior test passed.")
     return 0

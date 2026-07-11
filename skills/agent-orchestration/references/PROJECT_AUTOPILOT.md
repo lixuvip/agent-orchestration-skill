@@ -1,123 +1,130 @@
-# Project Autopilot
+# Project Autopilot Runbook
 
-Use this reference when the user wants Codex to keep a project moving across repeated automation runs until an explicit goal is reached.
+Canonical Durable capability pack. Load after `COORDINATION_RUNBOOK.md` only when work must recur or recover across ticks. Load only one language version.
 
-Project autopilot is not just heartbeat monitoring. A heartbeat checks child-thread status. Autopilot maintains a goal contract, reads persistent project guidance, chooses one safe next action per tick, records memory, and stops or escalates when authority is missing.
+## Activation Boundary
 
-## When To Use
+Use Durable Autopilot for repeated workspace/worktree progress toward explicit done criteria: issue/PR coordination, QA/release readiness, backlog/checklist progress, or later wakeups that may safely take action.
 
-Use autopilot when the user asks for:
+Do not use it for a one-shot edit, reminder-only request, finite role heartbeat, or a task whose next step always needs user judgment.
 
-- continuous project progress until a goal is met;
-- recurring checks that may perform safe follow-up work;
-- ongoing issue, PR, branch, QA, release, or backlog coordination;
-- a Codex thread or workspace that should wake up later and continue from memory;
-- Chinese equivalents such as `持续推进`, `一直做到目标效果`, `定时巡检并继续处理`, `自动收口`, or `保持项目继续工作`.
+## Durable Contract
 
-Do not use autopilot for a one-shot edit, a short answer, or an automation that only reminds the user.
+Before creating/updating automation, fill `templates/project_goal_contract.template.md` and `templates/automation_plan.template.md`:
 
-## Persistent Guidance Sources
+- goal ID, outcome, measurable done criteria, workspace/branch/issue/PR/release;
+- stable instruction sources and verification commands;
+- allowed autonomous actions and explicit confirmation gates;
+- cadence, maximum tick runtime/attempts, budget, and stop conditions;
+- automation/memory/state paths, idempotency key, lease TTL, lifecycle, and cleanup policy.
 
-Before creating or updating an autopilot automation, read `PROJECT_INSTRUCTIONS_DISCOVERY.md` and identify durable project guidance:
+“Fully autonomous” does not authorize merge, push, deploy, publish, destructive data/file actions, secret/billing operations, public API changes, spending, or product-scope expansion unless separately explicit.
 
-- `AGENTS.md`: Codex project instructions. Use repository-level and nested files as the first source for build, test, review, and safety conventions.
-- `AGENTS.override.md`: stronger local override when present.
-- fallback instruction files configured by `project_doc_fallback_filenames` in Codex config, if known.
-- `.codex/config.toml`: Codex configuration such as project-scoped settings or agent profiles. Do not store task state, secrets, or project memory here.
-- existing project docs such as `README.md`, `CONTRIBUTING.md`, `docs/`, issue templates, and PR templates.
+## Project Instructions
 
-Put stable repository rules in `AGENTS.md`. Put temporary goal state in automation memory. Do not edit `AGENTS.md` unless the user asks, or unless recurring feedback clearly needs to be codified and the user has allowed documentation updates.
+Read the narrowest relevant sources:
 
-## Automation Types
+1. root and applicable nested `AGENTS.md`;
+2. `AGENTS.override.md` as the stronger local rule;
+3. configured fallback instruction files;
+4. `.codex/config.toml` for configuration only;
+5. relevant README/contributing/test/release/issue/PR docs.
 
-Choose the narrowest automation surface:
+Keep stable build/test, branch, review, safety, communication, and escalation rules in `AGENTS.md`. Keep live goal state, blockers, counters, messages, and next action in automation memory. Never store secrets in either. Do not edit project instructions without authorization.
 
-| Type | Use for | Notes |
-| --- | --- | --- |
-| Heartbeat | Current-thread follow-up, role-thread polling, short delayed checks, callback collection. | Prefer for sub-hour follow-up tied to the coordinator thread. |
-| cron | Workspace or worktree work that should recur independently, such as issue/PR polling, tests, backlog triage, or release readiness. | Use for durable project autopilot. |
-| Suggested create/update | Worktree automations or local-environment setup that the user should review before saving. | Use when environment setup or workspace destination is material. |
+Suggest a stable rule update only when the same command, mistake, or feedback is repeatedly rediscovered; use `templates/agents_guidance_snippet.template.md`.
 
-When automation tools are available, use `AUTOMATION_TOOLING.md` and the app automation tool rather than writing raw automation directives. For existing automations, inspect the current automation before creating a duplicate, and prefer updating it while preserving fields that the user did not ask to change. Read `AUTOMATION_CONCURRENCY.md` and configure a lease state directory for any schedule that can overlap, retry, or wake on multiple workers.
+## Automation Surface
 
-## Goal Contract
+| Need | Surface |
+| --- | --- |
+| Finite current-thread role polling | Standard heartbeat; return to `COORDINATION_RUNBOOK.md` |
+| Recurring workspace/worktree progress | Cron |
+| Worktree/environment setup needing review | Suggested cron create/update |
+| Existing automation with the same goal/cwd/target | Update it; do not duplicate |
 
-Before enabling autopilot, create or infer `templates/project_goal_contract.template.md`:
+Use the app automation tool when available; let it serialize schedules and describe cadence to users in natural language. Before creation, inspect existing name, prompt, cwd, target, repository, issue/PR, branch, and goal. Preserve fields the user did not ask to change.
 
-- goal and done criteria;
-- allowed autonomous actions;
-- actions requiring confirmation;
-- verification commands and evidence;
-- target workspace, branch, issue, PR, or release;
-- cadence, runtime budget, and stop conditions;
-- memory path and idempotency key.
+## Tick Transaction
 
-If the user says "fully autonomous" or "keep working until done", still keep destructive or external actions gated: merge, push, deploy, delete data, rotate secrets, spend money, change public API contracts, or broaden product scope.
+Each tick uses `templates/automation_tick.template.md` and performs at most one safe next action:
 
-## Tick Loop
+1. Generate a unique tick ID and acquire a fenced lease with `scripts/automation_lease.py` before reading mutable memory.
+2. On `LEASE_ALREADY_HELD` or `LEASE_BUSY`, exit quietly. On expired/replaced ownership, discard results and produce no side effect.
+3. Read project instructions, goal contract, and memory. Stop if memory has a greater fencing token.
+4. Inspect live git/issue/PR/thread/test/build/log/release state relevant to the goal.
+5. Compute the latest effective update; timestamp-only or metadata-only change is not progress.
+6. Compare processed event IDs, posted-message keys, action keys, and last state to prevent duplicates.
+7. Choose exactly one smallest action inside autonomous authority.
+8. Verify the lease immediately before any message, external write, callback, cleanup, or memory commit.
+9. Execute the action and smallest relevant verification.
+10. Atomically write memory with fencing token, observed state, action/evidence, risks, blocker history, next step, and idempotency keys.
+11. If done, post one final summary and request pause/delete; record `CLOSED` only after tool confirmation.
+12. If authority/scope/budget is missing or failure repeats to the contract limit, post one deduplicated `templates/escalation_report.template.md` and pause/wait as contracted.
+13. Release the lease in a finally-equivalent path.
 
-Each automation tick should:
+An unchanged tick should update internal observation memory but remain user-facing quiet unless the contract requires a progress message.
 
-1. Generate a unique tick ID and acquire a fenced lease with `scripts/automation_lease.py` before reading mutable memory. Exit quietly on `LEASE_ALREADY_HELD` or `LEASE_BUSY`.
-2. Read the goal contract, project guidance, and automation memory. Stop if memory has a greater fencing token.
-3. Inspect live state: git status, branch, issue/PR activity, role callbacks, test results, build state, logs, and known blockers.
-4. Compare the latest effective update and processed event IDs against memory to avoid duplicate comments or repeated work.
-5. Choose one smallest safe next action.
-6. Execute it only if it is inside allowed autonomous actions. Verify the lease immediately before any message or write.
-7. Run or record the relevant verification.
-8. Atomically update automation memory with timestamp, observed state, action, evidence, next step, lease fencing token, and idempotency keys.
-9. If done, post one final summary and pause or delete the automation. Do not record cleanup complete until the tool confirms it.
-10. If blocked or authority is missing, post `templates/escalation_report.template.md` and pause or wait according to the goal contract.
-11. Release the lease in a finally-equivalent cleanup path; a stale tick must discard its result.
+## Lease And Fencing
 
-Do not use raw freshness alone as a trigger. A timestamp changed by metadata is not necessarily a new effective update.
+Default state directory:
 
-## Memory Rules
+```text
+${CODEX_HOME:-$HOME/.codex}/automations/<automation-id>/state
+```
 
-Use `templates/automation_memory.template.md` for durable memory. Store it in the automation's own state directory when available, for example:
+The helper uses an exclusive file lock, atomic replacement, expiry, random lease token, and monotonically increasing fencing token.
+
+```bash
+python3 scripts/automation_lease.py acquire \
+  --state-dir "$STATE_DIR" \
+  --automation-id "$AUTOMATION_ID" \
+  --owner-id "$TICK_ID" \
+  --ttl-seconds 900
+```
+
+- Only `LEASE_ACQUIRED` returns the token; keep it in the tick context, not reusable memory.
+- Renew before expiry for legitimate long work; TTL must exceed expected runtime plus cleanup margin.
+- Verify before side effects and memory writes.
+- Never overwrite memory with a lower fencing token.
+- Repeated release by the same owner/token is a no-op; stale owners cannot release or close replacements.
+- Use a local filesystem with known advisory-lock and atomic-rename semantics.
+
+## Durable Memory
+
+Default memory path:
 
 ```text
 ${CODEX_HOME:-$HOME/.codex}/automations/<automation-id>/memory.md
 ```
 
-If `CODEX_HOME` is unset in the automation shell, resolve the path through `$HOME/.codex` rather than expanding to `/automations`.
+Resolve through `$HOME/.codex` when `CODEX_HOME` is unset; never allow `/automations`. Use `templates/automation_memory.template.md` and retain:
 
-Memory should record:
+- goal/automation ID, workspace, done criteria;
+- latest effective update and whether already covered;
+- last tick/action/verification/risk and next safe action;
+- blocker history and run/attempt counters;
+- posted messages, processed events, status-request/action/escalation keys;
+- lifecycle, final-summary/cleanup state, and latest fencing token.
 
-- goal ID and automation ID;
-- latest effective update;
-- last action taken;
-- verification evidence;
-- blocker history;
-- next safe action;
-- what user-facing comments or callbacks have already been posted.
-- lease owner, expiry, and latest fencing token;
-- processed orchestration event IDs and action idempotency keys;
-- automation lifecycle, final-summary key, cleanup request ID, and cleanup confirmation.
+## Lifecycle And Completion
 
-## AGENTS.md Feedback Loop
+Automation lifecycle is monotonic:
 
-Use `templates/agents_guidance_snippet.template.md` when a project lacks persistent guidance for repeated automation work.
+```text
+ACTIVE -> DRAINING -> CLOSED
+```
 
-Suggest an `AGENTS.md` update when:
+- `ACTIVE`: inspect and take one authorized safe action.
+- `DRAINING`: stop new work, post final summary once, request pause/delete once, retry only cleanup if needed.
+- `CLOSED`: confirmed cleanup; every late tick/update is a permanent no-op.
 
-- the same mistake or assumption recurs;
-- automation repeatedly has to rediscover the same build/test command;
-- review feedback repeats across runs;
-- the project needs clearer branch, merge, or deployment rules.
+Use `scripts/heartbeat_lifecycle.py` when the automation is monitoring role terminal states. Persist final-summary key, cleanup request ID, and confirmation so a crash cannot cause duplicate summaries.
 
-Keep `AGENTS.md` small. It should contain stable rules, not a live task board.
+Declare the goal reached only when all done criteria and required current verification pass. Partial results remain `DONE_WITH_CONCERNS`. Losing a lease is not a user blocker; another tick owns progress.
 
-## Completion And Escalation
+## Safety And Escalation
 
-Autopilot may declare the goal reached only when the goal contract's done criteria and verification pass. If the result is partial, use `DONE_WITH_CONCERNS` and preserve the risk.
+Stop/pause and escalate before unauthorized merge/push/deploy/publish/release, destructive change, secret/credential/billing action, public API change, product-scope expansion, material environment setup, or repeated verification failure.
 
-Pause or escalate when:
-
-- required confirmation is missing;
-- verification fails repeatedly;
-- the same blocker appears across the configured limit;
-- the next action would exceed scope, budget, permissions, or safety limits;
-- a merge, push, deploy, external notification, or public release is needed without explicit permission.
-
-If a tick loses its lease, stop without posting an escalation: another tick owns progress. If a heartbeat reaches all terminal role states, use `ACTIVE -> DRAINING -> CLOSED` from `AUTOMATION_CONCURRENCY.md`; terminal role work still requires coordinator review.
+Final summary includes achieved criteria, actual verification, remaining risk/waivers, automation cleanup result, and any user decision still required.

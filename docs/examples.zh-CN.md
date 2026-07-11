@@ -181,7 +181,7 @@ Use $agent-orchestration，并在每个阶段选择最低安全模式。
 阶段 2：如果需要修复，异步协调一个隔离工程角色和一个只读 QA 角色。升级到 Standard，使用版本化回调、task board、commit 固定门禁和带租约 heartbeat。
 阶段 3：只有我要求每两小时继续检查 issue/PR 时，升级 Durable，加入目标契约、cron、automation memory、fenced lease 和 lifecycle 规则。
 
-说明所选模式和原因，不要把后续重流程提前带进前一阶段。
+说明所选模式和原因，并明确上下文预算：Lite 不加载核心包，Standard 只加载一个语言版本的 COORDINATION_RUNBOOK.md，Durable 只再增加同语言 PROJECT_AUTOPILOT.md。不要同时加载中英文，也不要把后续重流程提前带进前一阶段。
 ```
 
 ## 示例 13：拒绝过期回调

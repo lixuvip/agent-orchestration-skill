@@ -5,56 +5,28 @@ Execution status: DONE_WITH_CONCERNS
 Gate verdict: PENDING
 
 Summary:
-- Added `--retry-once` handling to the CSV export command.
-- Covered normal success, retry success, and retry failure paths.
+- Added `--retry-once` handling and regression coverage for normal success, retry success, and retry failure.
 
 Changed files / Files inspected:
-- src/exporter/cli.py: added the flag and passed retry intent to the exporter.
-- src/exporter/client.py: wrapped transient export errors in one bounded retry.
-- tests/exporter/test_retry.py: added regression coverage for the retry paths.
+- src/exporter/cli.py: added the flag and passed retry intent.
+- src/exporter/client.py: added one bounded retry for transient failures.
+- tests/exporter/test_retry.py: covered the three retry paths.
 
-Verification run:
-- pytest tests/exporter: PASS
-  Result / reason: 18 tests passed.
-- python -m example_export --help: PASS
-  Result / reason: help output includes `--retry-once`.
+Verification:
+- pytest tests/exporter: PASS — 18 tests passed.
+- python -m example_export --help: PASS — help includes `--retry-once`.
+
+Artifact / branch / worktree:
+- 1111111111111111111111111111111111111111; codex/export-retry / /worktrees/export-retry
 
 Risks / concerns:
-- Manual verification against the production export service was NOT RUN because it requires external credentials.
+- Production-service verification was not run because it requires external credentials.
 
-Branch / worktree:
-- codex/export-retry / /worktrees/export-retry
+Callback:
+- SENT_TO_COORDINATOR
 
-Commit / observed head SHA:
-- 1111111111111111111111111111111111111111
-
-Coordinator callback:
-- Sent: YES
-- Destination / reason: thread-coordinator-123
-
-Recommended next role:
-- QA Tester
-
-ORCHESTRATION_EVENT_V1:
-{
-  "protocol_version": "ORCHESTRATION_EVENT_V1",
-  "goal_id": "GOAL-2026-001",
-  "task_id": "TASK-2026-001",
-  "attempt": 1,
-  "dispatch_nonce": "dispatch-task-2026-001-a1-7f42",
-  "coordinator_epoch": "coordinator-2026-07-10-01",
-  "event_id": "event-task-2026-001-a1-engineering-done",
-  "event_timestamp": "2026-07-10T11:30:00+08:00",
-  "role": "Technical Engineer",
-  "coordinator_thread_id": "thread-coordinator-123",
-  "role_thread_id": "thread-engineer-456",
-  "base_sha": "0123456789abcdef0123456789abcdef01234567",
-  "expected_head_sha": "UNKNOWN",
-  "observed_head_sha": "1111111111111111111111111111111111111111",
-  "execution_status": "DONE_WITH_CONCERNS",
-  "gate_verdict": "PENDING",
-  "coordinator_state": "IN_REVIEW"
-}
+Recommended next action:
+- QA
 ```
 
-This callback is current and ready for coordinator inspection, but it is not accepted delivery. The coordinator records the candidate SHA and dispatches downstream gates against that exact commit.
+For async work, send a separate `coordinator_callback.template.md` event with the same dispatch identity and observed SHA. The human reply does not duplicate that JSON.

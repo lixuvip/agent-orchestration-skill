@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Consolidated 14 overlapping routing, protocol, state, controller, monitoring, concurrency, tooling, instruction-discovery, and workflow references into one bilingual Standard coordination pack plus one bilingual Durable Autopilot pack.
+- Reduced `SKILL.md` from 98 to 42 lines and made progressive disclosure explicit: Lite loads no core pack, Standard loads one language runbook, Durable adds one language Autopilot pack, and agy review/research remains an independent modifier.
+- Simplified role replies to a human result and moved the complete machine identity into the canonical callback envelope, removing duplicated callback fields without changing `ORCHESTRATION_EVENT_V1` semantics.
+- Added `scripts/scale_test.py` to CI, installation, publishing checks, and repository guidance so entrypoint and capability-pack budgets cannot silently regress.
 - Added Lite, Standard, and Durable orchestration routing plus `scripts/route_orchestration.py`, preventing simple one-shot work from inheriting unnecessary threads or automation while preserving a non-bypassable safety floor for async and recurring work.
 - Added `ORCHESTRATION_EVENT_V1` and `scripts/orchestration_event.py` with attempt, dispatch nonce, coordinator epoch, event ID, and artifact identity validation for stale-callback rejection and duplicate no-op handling.
 - Split role execution status, QA/review gate verdict, and coordinator state; role `DONE` now enters `IN_REVIEW`, while delivery requires coordinator `ACCEPTED` and current artifact-pinned evidence.

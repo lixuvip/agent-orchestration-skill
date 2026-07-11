@@ -24,23 +24,13 @@ REQUIRED_FILES = [
     SKILL_DIR / "scripts" / "automation_lease.py",
     SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
     SKILL_DIR / "scripts" / "route_orchestration.py",
-    SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
-    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
-    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.zh-CN.md",
-    SKILL_DIR / "references" / "AUTOMATION_TOOLING.md",
     SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
     SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
-    SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
-    SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.zh-CN.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
-    SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md",
-    SKILL_DIR / "references" / "STATE_MACHINE.md",
-    SKILL_DIR / "references" / "WORKFLOWS.md",
+    SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
+    SKILL_DIR / "references" / "README.md",
     SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md",
     SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.template.md",
@@ -119,6 +109,7 @@ REQUIRED_FILES = [
     ROOT / "scripts" / "protocol_test.py",
     ROOT / "scripts" / "automation_test.py",
     ROOT / "scripts" / "routing_test.py",
+    ROOT / "scripts" / "scale_test.py",
 ]
 
 
@@ -166,22 +157,26 @@ TEMPLATE_REQUIREMENTS = {
         "仅在",
     ],
     SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md": [
-        "Task ID:",
-        "Branch / worktree:",
-        "Execution status:",
-        "Gate verdict:",
         "ORCHESTRATION_EVENT_V1",
+        '"task_id"',
+        '"dispatch_nonce"',
+        '"expected_head_sha"',
+        '"observed_head_sha"',
+        '"execution_status"',
+        '"gate_verdict"',
         "Verification:",
         "Suggested coordinator action:",
     ],
     SKILL_DIR / "references" / "templates" / "coordinator_callback.zh-CN.template.md": [
-        "Task ID:",
-        "分支 / 工作区",
-        "Execution status:",
-        "Gate verdict:",
         "ORCHESTRATION_EVENT_V1",
-        "验证结果",
-        "建议协调者下一步",
+        '"task_id"',
+        '"dispatch_nonce"',
+        '"expected_head_sha"',
+        '"observed_head_sha"',
+        '"execution_status"',
+        '"gate_verdict"',
+        "验证：",
+        "建议协调者动作",
     ],
     SKILL_DIR / "references" / "templates" / "status_request.template.md": [
         "Status request",
@@ -214,22 +209,20 @@ TEMPLATE_REQUIREMENTS = {
     SKILL_DIR / "references" / "templates" / "role_reply.template.md": [
         "Execution status:",
         "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-        '"dispatch_nonce"',
-        '"observed_head_sha"',
-        "Verification run:",
+        "Verification:",
+        "Artifact / branch / worktree:",
         "Risks / concerns:",
-        "Recommended next role:",
+        "Callback:",
+        "Recommended next action:",
     ],
     SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md": [
         "Execution status:",
         "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-        '"dispatch_nonce"',
-        '"observed_head_sha"',
-        "已运行验证",
+        "验证：",
+        "产物 / 分支 / 工作区：",
         "风险 / 顾虑",
-        "建议下一角色",
+        "回调：",
+        "建议下一步：",
     ],
     SKILL_DIR / "references" / "templates" / "qa_report.template.md": [
         "Expected head SHA:",
@@ -608,20 +601,16 @@ TEMPLATE_REQUIREMENTS = {
 }
 
 DISCOVERABLE_REFERENCES = [
-    "ORCHESTRATION_ROUTING.md",
-    "ORCHESTRATION_ROUTING.zh-CN.md",
-    "AUTOMATION_CONCURRENCY.md",
-    "AUTOMATION_CONCURRENCY.zh-CN.md",
-    "ORCHESTRATION_PROTOCOL.md",
-    "ORCHESTRATION_PROTOCOL.zh-CN.md",
-    "STATE_MACHINE.md",
-    "ORCHESTRATION_INTAKE.md",
-    "CONTROLLER_LOOP.md",
+    "COORDINATION_RUNBOOK.md",
+    "COORDINATION_RUNBOOK.zh-CN.md",
     "AGY_GEMINI_REVIEW.md",
     "AGY_GEMINI_RESEARCH.md",
     "PROJECT_AUTOPILOT.md",
-    "AUTOMATION_TOOLING.md",
-    "PROJECT_INSTRUCTIONS_DISCOVERY.md",
+    "PROJECT_AUTOPILOT.zh-CN.md",
+    "PROJECT_CONTEXT.template.md",
+    "ROLE_REGISTRY.template.md",
+    "TASK_BOARD.template.md",
+    "REQUIREMENT_WRITING_GUIDE.md",
     "task_dispatch.zh-CN.template.md",
     "orchestration_intake.zh-CN.template.md",
     "coordinator_callback.zh-CN.template.md",
@@ -661,12 +650,6 @@ DISCOVERABLE_REFERENCES = [
     "qa_report.zh-CN.template.md",
     "review_findings.zh-CN.template.md",
     "monitoring_heartbeat.zh-CN.template.md",
-    "filled_task_dispatch.md",
-    "filled_role_reply.md",
-    "filled_project_goal_contract.md",
-    "filled_automation_memory.md",
-    "filled_noop_tick.md",
-    "filled_escalation_report.md",
 ]
 
 
@@ -740,7 +723,18 @@ def validate_template_requirements() -> None:
 def validate_reference_discovery() -> None:
     skill_text = SKILL_MD.read_text(encoding="utf-8")
     reference_readme = (SKILL_DIR / "references" / "README.md").read_text(encoding="utf-8")
-    combined = f"{skill_text}\n{reference_readme}"
+    direct_packs = [
+        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
+        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
+        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
+        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
+        SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
+        SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
+    ]
+    combined = "\n".join(
+        [skill_text, reference_readme]
+        + [path.read_text(encoding="utf-8") for path in direct_packs]
+    )
     for token in DISCOVERABLE_REFERENCES:
         if token not in combined:
             fail(f"Reference resource {token!r} is not discoverable from SKILL.md or references/README.md")

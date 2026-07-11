@@ -107,16 +107,54 @@ def route(request: Mapping[str, object]) -> dict[str, object]:
     if features["parallel_shared_edit_scope"] and role_count >= 2:
         warnings.append("ISOLATE_OR_SERIALIZE_SHARED_EDITS")
 
+    requires_event_protocol = bool(
+        features["asynchronous"] or features["user_visible_threads"] or role_count >= 2
+    )
+    requires_task_board = bool(role_count >= 2 or features["cross_repository"])
+
+    if selected_mode == "LITE":
+        load_references: list[str] = []
+    elif selected_mode == "STANDARD":
+        load_references = ["COORDINATION_RUNBOOK.md"]
+    else:
+        load_references = ["COORDINATION_RUNBOOK.md", "PROJECT_AUTOPILOT.md"]
+
+    load_templates: list[str] = []
+    if role_count >= 2 or features["cross_repository"] or features["user_visible_threads"]:
+        load_templates.extend(["task_dispatch.template.md", "role_reply.template.md"])
+    if requires_event_protocol:
+        load_templates.extend(["coordinator_callback.template.md", "status_request.template.md"])
+    if requires_task_board:
+        load_templates.append("TASK_BOARD.template.md")
+    if features["merge_or_release_gate"]:
+        load_templates.extend(
+            [
+                "qa_report.template.md",
+                "review_findings.template.md",
+                "merge_readiness.template.md",
+            ]
+        )
+    if monitoring == "HEARTBEAT":
+        load_templates.append("monitoring_heartbeat.template.md")
+    if selected_mode == "DURABLE":
+        load_templates.extend(
+            [
+                "project_goal_contract.template.md",
+                "automation_plan.template.md",
+                "automation_tick.template.md",
+                "automation_memory.template.md",
+                "escalation_report.template.md",
+            ]
+        )
+
     return {
         "minimum_mode": minimum_mode,
         "selected_mode": selected_mode,
         "requested_mode": requested_mode,
         "requested_mode_honored": requested_mode_honored,
         "monitoring": monitoring,
-        "requires_event_protocol": bool(
-            features["asynchronous"] or features["user_visible_threads"] or role_count >= 2
-        ),
-        "requires_task_board": selected_mode in {"STANDARD", "DURABLE"},
+        "requires_event_protocol": requires_event_protocol,
+        "requires_task_board": requires_task_board,
         "requires_goal_contract": selected_mode == "DURABLE",
         "requires_durable_memory": selected_mode == "DURABLE",
         "requires_lease": monitoring in {"HEARTBEAT", "CRON"},
@@ -125,6 +163,8 @@ def route(request: Mapping[str, object]) -> dict[str, object]:
         "modifiers": modifiers,
         "warnings": warnings,
         "reasons": reasons,
+        "load_references": load_references,
+        "load_templates": load_templates,
     }
 
 

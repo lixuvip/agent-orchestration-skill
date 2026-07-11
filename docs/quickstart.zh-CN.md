@@ -22,11 +22,8 @@ Constraints:
 
 协调者会读取：
 
-- `references/ORCHESTRATION_ROUTING.md`
-- `references/ORCHESTRATION_PROTOCOL.md`
-- `references/COMMUNICATION_PROTOCOL.md`
-- `references/WORKFLOWS.md`
-- `references/templates/task_dispatch.template.md`
+- Standard 工作读取 `references/COORDINATION_RUNBOOK.zh-CN.md`；
+- 只加载实际用到的派发、回调和 QA 模板，从 `task_dispatch.zh-CN.template.md` 开始。
 
 工程加异步 QA 通常使用 Standard。当前线程的一次性检查保持 Lite；需要周期性推进时使用 Durable。
 
@@ -39,7 +36,7 @@ Constraints:
 - 可编辑范围和只读范围；
 - 停止条件；
 - 验证要求；
-- 回调要求。
+- 回调要求；
 - 异步交接所需的 goal/task ID、attempt、dispatch nonce、coordinator epoch 和预期产物 SHA。
 
 ## 4. 跟踪完成状态
@@ -48,7 +45,7 @@ Constraints:
 
 对于多个角色线程或长时间运行的任务，协调者应该使用：
 
-- `references/AUTOMATION_MONITORING.md`
+- `references/COORDINATION_RUNBOOK.zh-CN.md`
 - `references/templates/monitoring_heartbeat.template.md`
 
 心跳每 5 分钟检查角色、校验版本化回调，并通过 fenced lease 防止重叠 tick 同时执行。所有角色终态后按 `ACTIVE -> DRAINING -> CLOSED` 收尾，最终汇总只发一次并等待清理确认。
@@ -64,12 +61,10 @@ Goal:
 Keep this repository moving until the release-readiness checklist is complete.
 
 Use:
-- AGENTS.md and AGENTS.override.md for durable project rules;
-- PROJECT_AUTOPILOT.md for the recurring control loop;
+- PROJECT_AUTOPILOT.zh-CN.md 提供统一的项目指令、automation、memory、lease、fencing 和 lifecycle 契约；
 - project_goal_contract.template.md for done criteria and permissions;
 - automation_tick.template.md for each recurring run;
 - automation_memory.template.md so repeated runs do not duplicate work.
-- AUTOMATION_CONCURRENCY.md so every tick acquires a lease, records a fencing token, and discards stale-owner results.
 
 Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
 ```
@@ -84,6 +79,6 @@ Escalate before merge, push, deploy, destructive changes, public API contract ch
 - 哪些角色参与；
 - 精确的验证证据；
 - 未解决的风险；
-- 相关 commit 或分支名。
-- 哪些自动化已经暂停、删除或仍保持运行。
+- 相关 commit 或分支名；
+- 哪些自动化已经暂停、删除或仍保持运行；
 - 最终验收的精确产物 SHA，以及 coordinator state 是否达到 `ACCEPTED`。

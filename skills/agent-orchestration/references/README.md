@@ -1,172 +1,102 @@
-# Agent Orchestration Kit
+# Agent Orchestration Capability Map
 
-这是一个可复制到任意项目的多对话角色编排文档包。
+Use progressive disclosure. Select a route first, load one language, then open only the capability pack and templates required by the task.
 
-它的目标是把多个 Codex 对话 ID 组织成一个小型项目团队：当前对话作为协调者，其他对话分别承担产品、工程、QA、代码审查、发布文档等角色。协调者负责下发任务、读取回复、检查交付、流转下一角色，并最终向用户交付结果。
+## Runtime Packs
 
-## 适用场景
+| Route / modifier | Load |
+| --- | --- |
+| Lite | No core pack. Use the current conversation and normal verification. |
+| Standard | `COORDINATION_RUNBOOK.md` or `COORDINATION_RUNBOOK.zh-CN.md` |
+| Durable | Standard pack plus `PROJECT_AUTOPILOT.md` or `PROJECT_AUTOPILOT.zh-CN.md` |
+| Agy review | `AGY_GEMINI_REVIEW.md` only; add Standard/Durable packs only if the surrounding task needs them |
+| Agy research | `AGY_GEMINI_RESEARCH.md` only; add Standard/Durable packs only if the surrounding task needs them |
 
-- 一个需求需要产品、工程、测试、审查多个环节。
-- 你希望不同对话 ID 承担固定角色，而不是每次都重新说明身份。
-- 你希望角色之间按统一格式交付，减少“已完成但无法验收”的情况。
-- 你希望把项目管理规则沉淀成可复用模板。
+Never load both English and Chinese versions. The English filenames emitted by `route_orchestration.py` are logical defaults; substitute `.zh-CN.md` for Chinese execution.
 
-不适合使用本套流程的情况：
+## Optional Project Context
 
-- 只是一个很小的单文件改动。
-- bug 需要一个连续调试上下文，不适合拆给多个角色。
-- 没有分支或 worktree 隔离，但多个角色都要改同一批文件。
-- 你只是想要快速诊断，而不是启动完整协作流程。
+- `PROJECT_CONTEXT.template.md`: use only when repository, branch, commands, contracts, or prohibited areas are missing.
+- `ROLE_REGISTRY.template.md`: use only when persistent role-to-thread mapping is needed.
+- `TASK_BOARD.template.md`: use for two or more active tasks or recoverable manual polling.
+- `REQUIREMENT_WRITING_GUIDE.md`: use when acceptance criteria or task boundaries need formalization.
 
-## 文件结构
+## Deterministic Helpers
 
-```text
-agent_orchestration_kit/
-├── README.md
-├── scripts/
-│   ├── run_agy_print.py
-│   ├── build_agy_context_bundle.py
-│   ├── ensure_agy_review_agents_guidance.py
-│   ├── append_agy_review_quality_log.py
-│   ├── orchestration_event.py
-│   ├── automation_lease.py
-│   ├── heartbeat_lifecycle.py
-│   └── route_orchestration.py
-├── PROJECT_CONTEXT.template.md
-├── ROLE_REGISTRY.template.md
-├── COMMUNICATION_PROTOCOL.md
-├── AUTOMATION_MONITORING.md
-├── AUTOMATION_TOOLING.md
-├── AUTOMATION_CONCURRENCY.md
-├── AUTOMATION_CONCURRENCY.zh-CN.md
-├── ORCHESTRATION_INTAKE.md
-├── ORCHESTRATION_ROUTING.md
-├── ORCHESTRATION_ROUTING.zh-CN.md
-├── ORCHESTRATION_PROTOCOL.md
-├── ORCHESTRATION_PROTOCOL.zh-CN.md
-├── CONTROLLER_LOOP.md
-├── AGY_GEMINI_REVIEW.md
-├── AGY_GEMINI_RESEARCH.md
-├── PROJECT_AUTOPILOT.md
-├── PROJECT_INSTRUCTIONS_DISCOVERY.md
-├── REQUIREMENT_WRITING_GUIDE.md
-├── STATE_MACHINE.md
-├── TASK_BOARD.template.md
-├── WORKFLOWS.md
-├── examples/
-│   ├── filled_role_reply.md
-│   ├── filled_task_dispatch.md
-│   ├── filled_project_goal_contract.md
-│   ├── filled_automation_memory.md
-│   ├── filled_noop_tick.md
-│   └── filled_escalation_report.md
-├── roles/
-│   ├── coordinator_pm.md
-│   ├── product_designer.md
-│   ├── technical_engineer.md
-│   ├── qa_tester.md
-│   ├── code_reviewer.md
-│   └── release_docs.md
-└── templates/
-    ├── task_dispatch.template.md
-    ├── task_dispatch.zh-CN.template.md
-    ├── orchestration_intake.template.md
-    ├── orchestration_intake.zh-CN.template.md
-    ├── project_goal_contract.template.md
-    ├── project_goal_contract.zh-CN.template.md
-    ├── automation_plan.template.md
-    ├── automation_plan.zh-CN.template.md
-    ├── automation_tick.template.md
-    ├── automation_tick.zh-CN.template.md
-    ├── automation_memory.template.md
-    ├── automation_memory.zh-CN.template.md
-    ├── escalation_report.template.md
-    ├── escalation_report.zh-CN.template.md
-    ├── agents_guidance_snippet.template.md
-    ├── agents_guidance_snippet.zh-CN.template.md
-    ├── agy_gemini_review_prompt.template.md
-    ├── agy_gemini_review_prompt.zh-CN.template.md
-    ├── agy_gemini_review_quality.template.md
-    ├── agy_gemini_review_quality.zh-CN.template.md
-    ├── agy_gemini_review_quality_log.template.md
-    ├── agy_gemini_review_quality_log.zh-CN.template.md
-    ├── agy_gemini_review_report.template.md
-    ├── agy_gemini_review_report.zh-CN.template.md
-    ├── agy_gemini_research_prompt.template.md
-    ├── agy_gemini_research_prompt.zh-CN.template.md
-    ├── agy_gemini_research_quality.template.md
-    ├── agy_gemini_research_quality.zh-CN.template.md
-    ├── agy_gemini_research_quality_log.template.md
-    ├── agy_gemini_research_quality_log.zh-CN.template.md
-    ├── agy_gemini_research_report.template.md
-    ├── agy_gemini_research_report.zh-CN.template.md
-    ├── coordinator_callback.template.md
-    ├── coordinator_callback.zh-CN.template.md
-    ├── status_request.template.md
-    ├── status_request.zh-CN.template.md
-    ├── merge_readiness.template.md
-    ├── merge_readiness.zh-CN.template.md
-    ├── monitoring_heartbeat.template.md
-    ├── monitoring_heartbeat.zh-CN.template.md
-    ├── role_reply.template.md
-    ├── role_reply.zh-CN.template.md
-    ├── qa_report.template.md
-    ├── qa_report.zh-CN.template.md
-    ├── review_findings.template.md
-    ├── review_findings.zh-CN.template.md
-    └── handoff_note.template.md
-```
+| Helper | Purpose |
+| --- | --- |
+| `scripts/route_orchestration.py` | Compute minimum/selected route and exact load pack. |
+| `scripts/orchestration_event.py` | Validate, deduplicate, classify stale events, and check accepted delivery. |
+| `scripts/automation_lease.py` | File-locked lease, expiry, takeover, verify, renew, and release. |
+| `scripts/heartbeat_lifecycle.py` | Compute `ACTIVE -> DRAINING -> CLOSED` actions. |
+| `scripts/run_agy_print.py` | Fixed sandboxed `agy --print` execution with timeout/output guards. |
+| `scripts/build_agy_context_bundle.py` | Create bounded allowlisted external-model context. |
+| `scripts/ensure_agy_review_agents_guidance.py` | Check stable AGY project guidance; write only with explicit authorization. |
+| `scripts/append_agy_review_quality_log.py` | Append deduplicated review/research quality records outside the project by default. |
 
-## 启用步骤
+## Template Selection
 
-1. 将整个 `agent_orchestration_kit/` 文件夹复制到目标项目的 `docs/` 或项目根目录下。
-2. 复制 `PROJECT_CONTEXT.template.md` 为 `PROJECT_CONTEXT.md`，填写项目名称、路径、技术栈、分支策略、验证命令和禁止事项。
-3. 复制 `ROLE_REGISTRY.template.md` 为 `ROLE_REGISTRY.md`，填写每个角色对应的真实对话 ID。
-4. 复制 `TASK_BOARD.template.md` 为 `TASK_BOARD.md`，用于追踪任务状态。
-5. 给每个角色对话发送对应的 `roles/*.md` 作为角色初始化说明。
-6. 如果分支、线程、回调、自动化、合并或推送策略不明确，先按 `ORCHESTRATION_INTAKE.md` 和 `templates/orchestration_intake.template.md` 做短确认。
-7. 按 `ORCHESTRATION_ROUTING.md` 选择最低安全的 Lite/Standard/Durable；中文团队可读 `ORCHESTRATION_ROUTING.zh-CN.md`，需要确定性判断时用 `scripts/route_orchestration.py`。一次性外部模型第二意见只是 modifier，不自动升级成持久编排。
-8. 后续每次分配任务时，先参考 `REQUIREMENT_WRITING_GUIDE.md` 写清楚需求，再使用 `templates/task_dispatch.template.md`。
-9. 要求每个角色按 `templates/role_reply.template.md` 回复；需要回主线程时，使用 `templates/coordinator_callback.template.md`。
-10. 中文团队可直接使用 `templates/*.zh-CN.template.md`。
-11. 涉及多个长任务对话时，按 `AUTOMATION_MONITORING.md` 创建回调和 5 分钟巡检闭环。
-12. 创建、更新、查看或删除 heartbeat / cron 自动化前，按 `AUTOMATION_TOOLING.md` 检查工具边界和重复自动化。
-13. 任何可能重叠或重试的 recurring automation 都按 `AUTOMATION_CONCURRENCY.md` 获取 fenced lease；中文团队可读 `AUTOMATION_CONCURRENCY.zh-CN.md`。使用 `scripts/automation_lease.py` 防并发 tick，使用 `scripts/heartbeat_lifecycle.py` 做 `ACTIVE -> DRAINING -> CLOSED` 收尾。
-14. 用户要求项目持续推进、定时自动继续或一直做到目标效果时，按 `PROJECT_AUTOPILOT.md` 建立目标契约、自动化计划、tick 提示词、memory 和升级规则。
-15. 周期性工作依赖项目常驻规则时，按 `PROJECT_INSTRUCTIONS_DISCOVERY.md` 读取 `AGENTS.md`、`AGENTS.override.md`、fallback 指令和项目文档。
-16. 异步派发、回调、去重、过期消息判断和 commit 固定门禁按 `ORCHESTRATION_PROTOCOL.md` 执行；中文团队可读 `ORCHESTRATION_PROTOCOL.zh-CN.md`，机器校验使用 `scripts/orchestration_event.py`。
-17. 有多个任务状态时，按 `STATE_MACHINE.md` 分别记录角色执行状态、门禁结论和协调者状态。
-18. 涉及主线程、子线程、分支、状态请求或合并就绪时，按 `CONTROLLER_LOOP.md` 执行。
-19. 用户要求 `agy`、Gemini、Antigravity 或外部模型审查时，先进入 `AGY_GEMINI_REVIEW.md`，并保持 Gemini 只通过本机 `agy` 调用。`scripts/run_agy_print.py` 固定使用 sandbox、宿主超时和输出上限；diff-only 审查不挂仓库，需要源码时先用 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。`ensure_agy_review_agents_guidance.py` 默认只检查，只有用户单独授权写入稳定项目规则时才加 `--write`。质量日志默认写入 `$CODEX_HOME/external-review-ledger/`，项目内日志也需要单独授权。
-20. 用户要求并行 Codex + Gemini 调研时，按 `AGY_GEMINI_RESEARCH.md` 保持两个研究流独立，并由协调者复核共同观点、Gemini-only、Codex-only 和被驳回观点。外部流同样使用有界 prompt 或 allowlist bundle，不静默扩大为整仓披露，不因一次性调研修改目标项目，并把 `task_type=research` 的质量记录写入默认 Codex 台账。
-21. 协调者按 `COMMUNICATION_PROTOCOL.md` 和 `WORKFLOWS.md` 做流转与验收。
+Do not load the whole template directory.
 
-## 最小运行方式
+| Need | English / Chinese template |
+| --- | --- |
+| Short route confirmation | `orchestration_intake.template.md` / `orchestration_intake.zh-CN.template.md` |
+| Dispatch and human reply | `task_dispatch.template.md`, `role_reply.template.md` / `.zh-CN` variants |
+| Async callback or status | `coordinator_callback.template.md`, `status_request.template.md` / `.zh-CN` variants |
+| QA/review/merge gate | `qa_report.template.md`, `review_findings.template.md`, `merge_readiness.template.md` / `.zh-CN` variants |
+| Finite heartbeat | `monitoring_heartbeat.template.md` / `monitoring_heartbeat.zh-CN.template.md` |
+| Durable Autopilot | `project_goal_contract`, `automation_plan`, `automation_tick`, `automation_memory`, `escalation_report` template families |
+| Stable project guidance | `agents_guidance_snippet.template.md` / `agents_guidance_snippet.zh-CN.template.md` |
+| Agy review/research | Open only the prompt, quality, quality-log, and report family for the selected mode/language |
 
-如果不想一次启用全部角色，建议先从三个角色开始：
+Role profiles under `roles/` are optional initialization material, not mandatory runtime context. Filled files under `examples/` are examples, not protocol sources.
 
-- 协调者 / PM：当前对话。
-- 技术工程师：独立 worktree 或功能分支。
-- QA 测试：只读 checkout 或 QA worktree。
-
-最小闭环：
+Exact bilingual template index (select one language; do not preload):
 
 ```text
-用户需求 -> 协调者拆解 -> 工程实现 -> 协调者检查 -> QA 验证 -> 协调者交付
+task_dispatch.template.md | task_dispatch.zh-CN.template.md
+orchestration_intake.template.md | orchestration_intake.zh-CN.template.md
+coordinator_callback.template.md | coordinator_callback.zh-CN.template.md
+status_request.template.md | status_request.zh-CN.template.md
+merge_readiness.template.md | merge_readiness.zh-CN.template.md
+role_reply.template.md | role_reply.zh-CN.template.md
+qa_report.template.md | qa_report.zh-CN.template.md
+review_findings.template.md | review_findings.zh-CN.template.md
+monitoring_heartbeat.template.md | monitoring_heartbeat.zh-CN.template.md
+project_goal_contract.template.md | project_goal_contract.zh-CN.template.md
+automation_plan.template.md | automation_plan.zh-CN.template.md
+automation_tick.template.md | automation_tick.zh-CN.template.md
+automation_memory.template.md | automation_memory.zh-CN.template.md
+escalation_report.template.md | escalation_report.zh-CN.template.md
+agents_guidance_snippet.template.md | agents_guidance_snippet.zh-CN.template.md
+agy_gemini_review_prompt.template.md | agy_gemini_review_prompt.zh-CN.template.md
+agy_gemini_review_quality.template.md | agy_gemini_review_quality.zh-CN.template.md
+agy_gemini_review_quality_log.template.md | agy_gemini_review_quality_log.zh-CN.template.md
+agy_gemini_review_report.template.md | agy_gemini_review_report.zh-CN.template.md
+agy_gemini_research_prompt.template.md | agy_gemini_research_prompt.zh-CN.template.md
+agy_gemini_research_quality.template.md | agy_gemini_research_quality.zh-CN.template.md
+agy_gemini_research_quality_log.template.md | agy_gemini_research_quality_log.zh-CN.template.md
+agy_gemini_research_report.template.md | agy_gemini_research_report.zh-CN.template.md
 ```
 
-## 核心原则
+## Minimal Load Examples
 
-- 每个角色只做自己职责内的事。
-- 每次任务都必须写清楚可改范围和禁止范围。
-- 默认选择最低安全档位：一次性当前线程用 Lite，有限期多角色用 Standard，跨 tick 持续推进用 Durable。
-- 工程角色优先使用独立分支或 worktree。
-- QA 和 Reviewer 默认只读，除非明确分配修复任务。
-- 角色回复必须包含实际验证结果，不接受只回复“完成了”。
-- 多对话异步任务必须记录对话 ID，并启用回调或巡检，不能靠记忆判断完成。
-- 角色 `DONE` 只进入协调者 `IN_REVIEW`；只有当前派发身份、精确 SHA 和门禁都满足时，协调者才能写 `ACCEPTED`。
-- 重复 event ID 必须 no-op；旧 attempt、nonce、epoch 或 SHA 的回调不能覆盖当前状态。
-- 周期性自动化必须读取项目 `AGENTS.md` / `AGENTS.override.md` 等持久指令，并把临时状态写入 automation memory。
-- Recurring tick 必须先取得 fenced lease；过期或被替换的 tick 不能写 memory、发消息或关闭新 automation。
-- Heartbeat 只按 `ACTIVE -> DRAINING -> CLOSED` 单向关闭，最终汇总和 cleanup 都要幂等并等待工具确认。
-- 涉及密钥、付费服务、生产环境、破坏性 git 操作、大模型下载等事项时，必须停止并请求确认。
+```text
+One local review
+-> Lite
+-> no core reference
+
+Engineer + async QA
+-> Standard
+-> COORDINATION_RUNBOOK.zh-CN.md
+-> task_dispatch + coordinator_callback + qa_report templates
+
+Two-hour issue/PR progress
+-> Durable
+-> COORDINATION_RUNBOOK.zh-CN.md + PROJECT_AUTOPILOT.zh-CN.md
+-> goal/plan/tick/memory/escalation templates
+
+One read-only agy review
+-> Lite + AGY review modifier
+-> AGY_GEMINI_REVIEW.md only
+```

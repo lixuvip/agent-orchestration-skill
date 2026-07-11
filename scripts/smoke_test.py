@@ -37,23 +37,13 @@ CORE_FILES = [
     SKILL_DIR / "scripts" / "automation_lease.py",
     SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
     SKILL_DIR / "scripts" / "route_orchestration.py",
-    SKILL_DIR / "references" / "COMMUNICATION_PROTOCOL.md",
-    SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.zh-CN.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
-    SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.zh-CN.md",
-    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
-    SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.zh-CN.md",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
     SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
     SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
-    SKILL_DIR / "references" / "AUTOMATION_TOOLING.md",
-    SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md",
-    SKILL_DIR / "references" / "STATE_MACHINE.md",
-    SKILL_DIR / "references" / "WORKFLOWS.md",
-    SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
+    SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
+    SKILL_DIR / "references" / "README.md",
     SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md",
     SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.zh-CN.template.md",
     SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.template.md",
@@ -893,121 +883,62 @@ def main() -> int:
         ],
     )
     require_all(
-        SKILL_DIR / "references" / "STATE_MACHINE.md",
+        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
         [
-            "TODO -> IN_PROGRESS",
-            "IN_PROGRESS -> DONE",
-            "Silence: never completion",
-            "Role `DONE` moves the coordinator to `IN_REVIEW`",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "ORCHESTRATION_PROTOCOL.md",
-        [
+            "Standard Transaction",
             "ORCHESTRATION_EVENT_V1",
-            "dispatch_nonce",
-            "coordinator_epoch",
+            "dispatch nonce",
+            "coordinator epoch",
             "DUPLICATE",
             "STALE",
-            "Accepted Delivery Predicate",
-            "Any subsequent code commit invalidates earlier QA and review verdicts",
+            "Role `DONE`",
+            "coordinator `ACCEPTED`",
+            "Any later code commit invalidates those verdicts",
             "scripts/orchestration_event.py",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "AUTOMATION_MONITORING.md",
-        [
-            "CALLBACK_FAILED",
-            "每 5 分钟",
-            "DONE_WITH_CONCERNS",
-            "status request",
-            "PROJECT_AUTOPILOT.md",
-            "AUTOMATION_CONCURRENCY.md",
-            "ACTIVE -> DRAINING -> CLOSED",
-            "CANCELLED",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "AUTOMATION_CONCURRENCY.md",
-        [
             "scripts/automation_lease.py",
-            "fencing token",
-            "LEASE_BUSY",
-            "LEASE_NOT_OWNER",
-            "ACTIVE -> DRAINING -> CLOSED",
             "scripts/heartbeat_lifecycle.py",
-            "final-summary key",
-            "cleanup confirmation",
+            "ACTIVE -> DRAINING -> CLOSED",
+            "CALLBACK_FAILED",
+            "scripts/route_orchestration.py",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
+        [
+            "Standard 执行事务",
+            "ORCHESTRATION_EVENT_V1",
+            "重复或过期回调都是 no-op",
+            "协调者 `ACCEPTED`",
+            "ACTIVE -> DRAINING -> CLOSED",
+            "CALLBACK_FAILED",
         ],
     )
     require_all(
         SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
         [
             "AGENTS.md",
-            "PROJECT_INSTRUCTIONS_DISCOVERY.md",
-            "AUTOMATION_TOOLING.md",
-            "cron",
-            "Goal Contract",
-            "Tick Loop",
+            "AGENTS.override.md",
+            ".codex/config.toml",
+            "Cron",
+            "Durable Contract",
+            "Tick Transaction",
             "latest effective update",
-            "automation memory",
             "scripts/automation_lease.py",
             "fencing token",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "AUTOMATION_TOOLING.md",
-        [
-            "Heartbeat",
-            "Cron",
-            "Existing Automation Check",
-            "Do not show raw RRULE",
-            "Safety Gates",
-            "AUTOMATION_CONCURRENCY.md",
             "ACTIVE -> DRAINING -> CLOSED",
+            "Existing automation with the same goal/cwd/target",
         ],
     )
     require_all(
-        SKILL_DIR / "references" / "PROJECT_INSTRUCTIONS_DISCOVERY.md",
+        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
         [
             "AGENTS.md",
             "AGENTS.override.md",
             ".codex/config.toml",
-            "automation memory",
-            "Discovery Report",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "ORCHESTRATION_INTAKE.md",
-        [
-            "request_user_input",
-            "Ask only when",
-            "Do not ask when",
-            "Execution surface",
-            "project autopilot",
-            "ORCHESTRATION_ROUTING.md",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "ORCHESTRATION_ROUTING.md",
-        [
-            "`LITE`",
-            "`STANDARD`",
-            "`DURABLE`",
-            "Minimum Safe Route",
-            "External-model review or research is a modifier",
-            "scripts/route_orchestration.py",
-            "ISOLATE_OR_SERIALIZE_SHARED_EDITS",
-        ],
-    )
-    require_all(
-        SKILL_DIR / "references" / "CONTROLLER_LOOP.md",
-        [
-            "controller loop",
-            "send_message_to_thread",
-            "status request",
-            "merge readiness",
-            "Autopilot Readiness",
+            "Tick 事务",
+            "latest effective update",
+            "ACTIVE -> DRAINING -> CLOSED",
+            "LEASE_BUSY",
         ],
     )
     require_all(
@@ -1296,11 +1227,13 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md",
         [
-            "Task ID:",
-            "Branch / worktree:",
-            "Execution status:",
-            "Gate verdict:",
             "ORCHESTRATION_EVENT_V1",
+            '"task_id"',
+            '"dispatch_nonce"',
+            '"expected_head_sha"',
+            '"observed_head_sha"',
+            '"execution_status"',
+            '"gate_verdict"',
             "Verification:",
             "Suggested coordinator action:",
         ],

@@ -181,7 +181,7 @@ Stage 1: get one read-only agy second opinion on the current diff and synthesize
 Stage 2: if a fix is required, coordinate one isolated engineering role and one read-only QA role asynchronously. Upgrade to Standard with versioned callbacks, a task board, commit-pinned gates, and a leased heartbeat.
 Stage 3: only if I ask to keep checking the issue/PR every two hours, upgrade to Durable with a goal contract, cron, automation memory, fenced lease, and lifecycle rules.
 
-State the selected mode and why. Do not carry heavier machinery into an earlier stage.
+State the selected mode and why. Keep the context budget explicit: Lite loads no core pack, Standard loads one language version of COORDINATION_RUNBOOK.md, and Durable adds only the matching PROJECT_AUTOPILOT.md. Never load both languages or carry heavier machinery into an earlier stage.
 ```
 
 ## Example 13: Reject A Stale Callback

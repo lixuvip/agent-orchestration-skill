@@ -45,7 +45,7 @@ Do not push, merge, publish, or deploy without asking.
 
 Expected behavior:
 
-- Reads `PROJECT_AUTOPILOT.md`, `AUTOMATION_TOOLING.md`, and `PROJECT_INSTRUCTIONS_DISCOVERY.md`.
+- Loads exactly two capability packs: one language version of `COORDINATION_RUNBOOK.md` plus `PROJECT_AUTOPILOT.md`; does not load the removed legacy automation references.
 - Chooses cron for workspace progress.
 - Creates or proposes a goal contract before automation.
 - Includes automation memory and latest effective update comparison.
@@ -187,7 +187,7 @@ Decide what can be accepted and what must be rerun.
 
 Expected behavior:
 
-- Reads `ORCHESTRATION_PROTOCOL.md` and keeps role execution, gate verdict, and coordinator state separate.
+- Reads one language version of `COORDINATION_RUNBOOK.md` and keeps role execution, gate verdict, and coordinator state separate.
 - Classifies the attempt 1 callback as stale by attempt and dispatch nonce, without overwriting current state.
 - Treats the repeated QA event ID as a duplicate no-op.
 - Does not treat role `DONE` as coordinator `ACCEPTED`.
@@ -211,7 +211,7 @@ Choose the orchestration level at each stage without carrying unnecessary machin
 
 Expected behavior:
 
-- Reads `ORCHESTRATION_ROUTING.md` and chooses Lite for the one-shot external-model pass.
+- Uses `route_orchestration.py`, loads no core reference for Lite, and chooses Lite for the one-shot external-model pass.
 - Treats external review as a modifier, not a reason by itself to create task board, heartbeat, or cron.
 - Upgrades to Standard for asynchronous engineer plus QA coordination, using dispatch identity, callbacks, task board, and heartbeat.
 - Upgrades to Durable when recurring two-hour project progress begins, adding goal contract, cron, durable memory, fenced lease, and lifecycle rules.
@@ -251,3 +251,5 @@ Expected behavior:
 - Did it keep a one-shot external-model second opinion as a modifier instead of automatic recurring orchestration?
 - Did it upgrade when async roles or recurring progress appeared without discarding required protocol state?
 - Did it refuse to downgrade recurring work below Durable safety requirements?
+- Did Lite load no core pack, Standard load one coordination pack, and Durable add only one Autopilot pack?
+- Did it load only one language version and only the templates actually used?
