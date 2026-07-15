@@ -159,10 +159,11 @@ Report any missing trigger coverage before preparing release notes.
 Use $agent-orchestration to add an agy/Gemini external review pass for the current branch diff.
 
 Treat agy as a read-only second opinion.
+如果我只要求代码审计、没有点名 agy，先询问一次是否启用这个辅助 reviewer；拒绝或未确认就走 Codex-only，不探测 agy。
 在这个 workflow 里，Gemini 只能表示 Gemini via agy，不能直接使用 standalone `gemini` CLI。
 For broad or full-project review, run a dual Codex + Gemini review: keep a Codex reviewer role independent from the agy pass, then compare agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence.
 默认保持只读；只有目标项目的稳定规则写入被单独授权时才修改 AGENTS.md。
-这个 workflow 的探测命令只允许 `command -v agy` 和 `agy models`，不要去跑 `command -v gemini`、`gemini --version` 或 `gemini --help`。
+确认后，每个目标和主机只执行一次 `command -v agy`。若缺失，记录 `AGY_UNAVAILABLE`、只提示一次、不执行 `agy models`，并直接走 Codex-only；直到目标、主机或 PATH 变化，或我要求重检，才再次尝试。不要去跑 `command -v gemini`、`gemini --version` 或 `gemini --help`。
 使用审查 prompt 模板里的反向护栏：不要漂移到 CLI/auth 叙述，不要声称执行过命令，不要把范围扩到 diff 之外，也不要塞泛泛建议。
 通过 run_agy_print.py 走固定 sandboxed 模式；需要源码时挂载 allowlist bundle，不直接挂项目根目录。需要自动拦截 0 输出或 narration-only 输出时，加上 --expect-substring READY 或 Status:。
 如果某个进程误开 `gemini` CLI 并返回 403，按 `WRONG_EXECUTION_SURFACE` 处理并改回 `agy` 重跑。
@@ -208,4 +209,15 @@ LEASE_ALREADY_HELD 和 LEASE_BUSY 都安静 no-op。
 发消息、写 memory 或 cleanup 前验证当前 owner token。
 保存最新 fencing token，拒绝更低 token 写入。
 heartbeat 全员终态后按 ACTIVE -> DRAINING -> CLOSED 收尾，最终汇总只发一次，并等待 automation 工具确认清理。
+```
+
+## 示例 15：由协调者选择子对话思考级别
+
+```text
+Use $agent-orchestration 创建两个新的用户可见角色对话。
+
+角色 A 做有明确边界的机械盘点，并返回固定表格。
+角色 B 调查一个根因模糊的跨模块故障，同时审查架构方案和安全风险。
+
+由主协调者在 Lite/Standard/Durable 路由之外，独立选择每个子对话最低足够且工具支持的思考级别。在派发和任务板记录期望级别、实际级别和选择理由。除非我明确指定模型，否则不要传 model。创建工具无法设置 thinking 时，记录 INHERITED 或 UNSUPPORTED，不能声称已经应用。
 ```

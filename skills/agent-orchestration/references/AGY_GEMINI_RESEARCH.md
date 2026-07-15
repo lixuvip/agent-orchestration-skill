@@ -30,6 +30,19 @@ If any of these feels like the next step, stop and return to the documented pref
 - Do not invoke the standalone `gemini` CLI for this workflow. If a process does that and receives a `403`, classify it as `WRONG_EXECUTION_SURFACE` and rerun through `agy`.
 - Do not modify target `AGENTS.md` or create a project-local quality log unless the user explicitly authorized that separate repository write.
 
+## Availability And Consent Gate
+
+Apply this gate before model discovery, health checks, context bundling, or any `agy` invocation:
+
+1. Check the current goal's capability state for this host and environment. Use `UNKNOWN`, `AVAILABLE`, `AGY_UNAVAILABLE`, or `AGY_UNHEALTHY`; record the check time, host/PATH context, consent, and whether the user was notified. Keep this state in coordinator context for Lite, `TASK_BOARD.md` for Standard, or automation memory for Durable.
+2. If the user explicitly requested `agy`, Gemini, Antigravity, or an external model, treat that as consent for a bounded read-only pass. It is not consent for whole-repository disclosure or repository writes.
+3. If the user requested research but did not request an external model, ask once whether to use `agy` as an auxiliary research stream. Continue Codex research while waiting. If the user declines or does not confirm, record Codex-only for this goal and do not probe or invoke `agy`; do not ask again in the same goal.
+4. When consent is present and state is `UNKNOWN`, run `command -v agy` once per goal and host. If it is absent, cache `AGY_UNAVAILABLE`, give a user-facing notice once, continue Codex-only, and do not run `agy models`, the health check, or `run_agy_print.py`.
+5. If the binary exists, run `agy models` once and then the small health check below. If model discovery or health fails, cache `AGY_UNHEALTHY` with the specific failure detail, give a user-facing notice once, and continue Codex-only without retrying the external pass.
+6. Reuse `AVAILABLE`, `AGY_UNAVAILABLE`, and `AGY_UNHEALTHY` during the same goal on the same host. Recheck only for a new goal, a changed host or `PATH`, or an explicit user request to recheck after installation or repair.
+
+Suggested unavailable notice: `未检测到 agy，本轮改用 Codex-only，后续不再重试；安装后可要求重新检测。`
+
 ## Preflight
 
 1. Read target project instructions such as `AGENTS.md` and obey privacy, branch, and verification rules.
@@ -43,10 +56,9 @@ The helper is check-only unless `--write` is explicitly supplied. Missing guidan
 
 3. Inspect `git status --short`, the relevant repository paths, and any provided docs so the research scope is explicit.
 4. Redact unsafe content before sending it to an external model.
-5. Confirm the tool and models:
+5. After the availability and consent gate permits the pass, confirm the models:
 
 ```bash
-command -v agy
 agy models
 ```
 
@@ -64,7 +76,7 @@ python3 <SKILL_DIR>/scripts/run_agy_print.py \
   --prompt 'Reply exactly: READY'
 ```
 
-If the health check fails, returns empty stdout, or misses the expected token, report `AGY_UNAVAILABLE`, `HEALTH_CHECK_FAILED`, or `NO_STRUCTURED_OUTPUT` and continue with Codex-only research. If a role probes or opens standalone `gemini` CLI, or reports a `403` from that CLI, classify that as `WRONG_EXECUTION_SURFACE` and rerun the pass through `agy` instead of treating it as a research result.
+If the health check fails, returns empty stdout, or misses the expected token, cache `AGY_UNHEALTHY`, report the detailed state as `HEALTH_CHECK_FAILED` or `NO_STRUCTURED_OUTPUT`, and continue with Codex-only research without another external attempt in this goal. If a role probes or opens standalone `gemini` CLI, or reports a `403` from that CLI, classify that as `WRONG_EXECUTION_SURFACE` and rerun the pass through `agy` instead of treating it as a research result.
 
 7. Send the minimum necessary repository context. Prefer a bounded prompt. When source files are required, build an allowlisted bundle outside the project and attach that bundle:
 
@@ -198,6 +210,7 @@ Report one of these terminal states instead of treating a failed run as research
 | State | Meaning |
 | --- | --- |
 | `AGY_UNAVAILABLE` | `agy` is not installed or not on `PATH`. |
+| `AGY_UNHEALTHY` | `agy` exists, but model discovery or the one-time health check failed; do not retry automatically in the same goal. |
 | `HEALTH_CHECK_FAILED` | The tiny health check failed or did not return the expected token. |
 | `TIMED_OUT` | The research pass exceeded the selected timeout. |
 | `HOST_TIMEOUT` | The wrapper terminated a stalled process at its host-side deadline. |

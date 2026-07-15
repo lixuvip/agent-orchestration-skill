@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added coordinator-owned thinking-effort selection for every new user-visible role thread, independent from Lite/Standard/Durable routing and role names.
+- Added requested/applied/rationale fields, inherited/unsupported fallbacks, model-override guardrails, route metadata, bilingual examples, and forward-test coverage for per-thread thinking selection.
+- Added an opt-in gate for auxiliary `agy` audits and research: ask once when the user did not explicitly request an external model, and skip all probing after decline or no confirmation.
+- Added once-per-goal/host `agy` availability checks, cached unavailable/unhealthy states, one-time user notices, and immediate Codex-only fallback without repeated retries.
+
 ## 0.2.0 - 2026-07-11
 
 - Consolidated 14 overlapping routing, protocol, state, controller, monitoring, concurrency, tooling, instruction-discovery, and workflow references into one bilingual Standard coordination pack plus one bilingual Durable Autopilot pack.

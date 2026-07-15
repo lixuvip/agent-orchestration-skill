@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Orchestration"
-  short_description: "Coordinate Codex threads, review gates, and automations"
-  default_prompt: "Use $agent-orchestration immediately when the user asks for agy/Gemini external review or research, or when coordinating this task across Codex role threads, callbacks, QA/review gates, quality logging, and project automation. Keep Gemini on agy and do not inspect or launch the standalone gemini CLI."
+  short_description: "Coordinate threads, thinking levels, gates, and automations"
+  default_prompt: "Use $agent-orchestration to coordinate role threads, select the lowest adequate supported thinking effort for each new thread, enforce QA/review gates and callbacks, or, with one-time user opt-in, run agy/Gemini external review or research after a once-per-goal availability check and fall back to Codex-only without repeated retries."

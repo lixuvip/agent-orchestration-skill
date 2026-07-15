@@ -44,6 +44,16 @@ Never overwrite this file from a lower fencing token.
 - Value: <UPDATE_SUMMARY_OR_HASH>
 - Covered by Codex action: <YES_OR_NO>
 
+## External Capability Cache
+
+- Agy consent: <UNKNOWN | GRANTED | DECLINED | NOT_CONFIRMED>
+- Agy state: <UNKNOWN | AVAILABLE | AGY_UNAVAILABLE | AGY_UNHEALTHY>
+- Checked at: <ISO_TIMESTAMP_OR_NONE>
+- Host / environment: <HOST_AND_PATH_FINGERPRINT_OR_NONE>
+- User notified: <YES_OR_NO>
+- Recheck only when: <NEW_GOAL | HOST_CHANGED | PATH_CHANGED | USER_REQUESTED | NONE>
+- Fallback: <CODEX_ONLY_OR_NONE>
+
 ## Last Tick
 
 - Observed state: <SUMMARY>

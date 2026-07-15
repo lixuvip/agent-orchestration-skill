@@ -10,6 +10,10 @@ Repository: <REPO_PATH>
 Thread role boundary: <ROLE_BOUNDARY>
 Branch / worktree: <BRANCH_OR_WORKTREE_OR_NONE>
 Merge policy: <SUMMARIZE_ONLY | COMMIT_ALLOWED | PUSH_BRANCH_ALLOWED | MERGE_REQUIRES_CONFIRMATION | PR_ALLOWED>
+Thinking requested: <INHERIT | minimal | low | medium | high | xhigh | max | ultra | USER_SPECIFIED>
+Thinking applied: <EXACT_VALUE | INHERITED | UNSUPPORTED>
+Thinking rationale: <WHY_THIS_IS_THE_LOWEST_ADEQUATE_EFFORT_OR_FALLBACK>
+Model override: <NONE | USER_REQUESTED_MODEL>
 
 Active dispatch identity:
 - Protocol version: ORCHESTRATION_EVENT_V1

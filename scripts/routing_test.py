@@ -60,6 +60,7 @@ def main() -> int:
     require(not lite["requires_task_board"], "LITE task required a task board")
     require(not lite["requires_lease"], "LITE task required a concurrency lease")
     require(lite["load_references"] == [], "LITE task loaded core reference files")
+    require(not lite["requires_thread_thinking_selection"], "current-thread LITE selected child thinking")
 
     standard = route(role_count=2, asynchronous=True, user_visible_threads=True)
     require(standard["selected_mode"] == "STANDARD", "two async roles were not STANDARD")
@@ -67,6 +68,14 @@ def main() -> int:
     require(standard["requires_event_protocol"], "async STANDARD omitted event protocol")
     require(standard["requires_task_board"], "STANDARD omitted task board")
     require(standard["requires_lease"], "recurring STANDARD heartbeat omitted fenced lease")
+    require(
+        standard["requires_thread_thinking_selection"],
+        "user-visible threads did not require coordinator thinking selection",
+    )
+    require(
+        standard["thread_thinking_policy"] == "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED",
+        "user-visible thread thinking policy is missing or unexpected",
+    )
     require(
         standard["load_references"] == ["COORDINATION_RUNBOOK.md"],
         "STANDARD did not load exactly one coordination pack",
@@ -112,6 +121,12 @@ def main() -> int:
     require(
         "ISOLATE_OR_SERIALIZE_SHARED_EDITS" in shared_scope["warnings"],
         "shared edit scope lacked isolation warning",
+    )
+
+    internal_roles = route(role_count=2, asynchronous=True, user_visible_threads=False)
+    require(
+        not internal_roles["requires_thread_thinking_selection"],
+        "internal roles claimed a thread thinking override without a supported creation surface",
     )
 
     refused_downgrade = route(recurring=True, requested_mode="LITE")

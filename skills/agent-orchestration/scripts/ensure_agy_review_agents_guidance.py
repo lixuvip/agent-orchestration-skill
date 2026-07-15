@@ -18,7 +18,9 @@ SNIPPET = f"""\
 - When a Codex thread in this repo is asked to use `agy`, `Gemini`, `Antigravity`, or an external model for review or research, immediately use the installed `$agent-orchestration` skill before running shell commands.
 - Use `python3 ~/.codex/skills/agent-orchestration/scripts/run_agy_print.py` for every `agy --print` external review or research call so the prompt is passed immediately after `--print`.
 - In this workflow, `Gemini` always means a Gemini model invoked through local `agy`. Do not invoke the standalone `gemini` CLI as a substitute execution surface.
-- Capability discovery for this workflow is `command -v agy` and `agy models` only. Do not use `command -v gemini`, `gemini --version`, or `gemini --help`.
+- If the user did not explicitly request an external pass, ask once before probing or invoking `agy`; a decline or no confirmation means Codex-only for the current goal.
+- After opt-in, run `command -v agy` once per goal and host. If it is absent, cache `AGY_UNAVAILABLE`, notify once, and do not run `agy models` or another agy command. If model discovery or health fails, cache `AGY_UNHEALTHY` and do not retry until the goal, host, or PATH changes or the user requests a recheck.
+- Do not use `command -v gemini`, `gemini --version`, or `gemini --help` for capability discovery.
 - Wrong first moves to avoid: do not probe standalone `gemini` CLI, do not open `gemini` auth/login flows, do not modify repository guidance merely to prepare a read-only pass, and do not expand context silently.
 - For diff-only work, attach no repository. When source context is required, build an allowlisted directory with `build_agy_context_bundle.py` and pass that directory through `--add-dir`. Whole-repository disclosure requires explicit approval.
 - If `agy` exits 0 but prints no stdout, treat that run as failed. Zero-byte stdout is not a successful review or research pass.

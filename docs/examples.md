@@ -159,10 +159,11 @@ Report any missing trigger coverage before preparing release notes.
 Use $agent-orchestration to add an agy/Gemini external review pass for the current branch diff.
 
 Treat agy as a read-only second opinion.
+If I had requested only a code audit without naming agy, ask once whether I want this auxiliary reviewer. A decline or no confirmation means Codex-only with no agy probe.
 In this workflow, Gemini means Gemini via agy only. Do not use the standalone gemini CLI.
 For broad or full-project review, run a dual Codex + Gemini review: keep a Codex reviewer role independent from the agy pass, then compare agreed findings, Gemini-only findings, Codex-only findings, rejected findings, and verification evidence.
 Keep the pass read-only by default. Only write stable AGENTS.md guidance when that repository change was separately authorized.
-Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
+After opt-in, check command -v agy once per goal and host. If it is absent, record AGY_UNAVAILABLE, notify once, do not run agy models, and continue Codex-only without retrying until the goal, host, or PATH changes or I request a recheck. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the negative guardrails from the review prompt template: do not drift into CLI/auth narration, do not claim commands ran, do not inflate scope beyond the diff, and do not pad with generic advice.
 Use run_agy_print.py in fixed sandboxed mode. For source-backed review, attach an allowlisted context bundle rather than the project root. Add --expect-substring READY or Status: when the wrapper should reject narration-only output automatically.
 If a process opens gemini CLI and returns 403, treat that as WRONG_EXECUTION_SURFACE and rerun through agy.
@@ -208,4 +209,15 @@ Treat LEASE_ALREADY_HELD and LEASE_BUSY as quiet no-ops.
 Verify the current owner token before posting, writing memory, or cleanup.
 Persist the latest fencing token and reject lower-token writes.
 If a heartbeat reaches all terminal role states, move ACTIVE -> DRAINING -> CLOSED, post one final summary, and wait for automation-tool cleanup confirmation.
+```
+
+## Example 15: Let The Coordinator Select Thread Thinking
+
+```text
+Use $agent-orchestration to create two new user-visible role threads.
+
+Role A performs a bounded, mechanical inventory and returns a fixed table.
+Role B investigates an ambiguous cross-module failure and reviews the proposed architecture and security risks.
+
+Have the coordinator choose the lowest adequate supported thinking effort for each thread independently from Lite/Standard/Durable routing. Record requested thinking, applied thinking, and rationale in the dispatch and task board. Do not set a model unless I explicitly name one. If the creation tool cannot set thinking, record INHERITED or UNSUPPORTED instead of claiming it was applied.
 ```

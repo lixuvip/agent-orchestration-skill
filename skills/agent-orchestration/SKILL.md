@@ -21,6 +21,7 @@ Coordinate only when the task benefits from independent ownership, async recover
 - Respect user/project scope and authority. Ask only when a missing choice materially changes execution, writes, visible threads, automation, merge, or push.
 - Give each delegated task one owner and explicit editable/read-only/out-of-scope boundaries. Isolate or serialize overlapping edits.
 - User-visible threads require explicit user intent. Use subagents only when the user explicitly asks for delegation/parallel agent work and ownership does not overlap.
+- Before creating a user-visible thread, choose the lowest adequate supported thinking effort independently from orchestration mode; honor explicit user overrides, never set `model` unless the user requested one, and record inherited/unsupported fallbacks per the coordination runbook.
 - Never infer completion from silence. Require actual verification and inspect role output before acceptance.
 - For Standard/Durable async work, use versioned callbacks, stale/duplicate rejection, exact artifact gates, and coordinator-owned acceptance from the selected coordination runbook.
 - Role `DONE` is ready for coordinator review, not delivery. Do not merge, push, deploy, publish, or claim readiness without current evidence and authority.
@@ -29,7 +30,7 @@ Coordinate only when the task benefits from independent ownership, async recover
 
 ## Agy / Gemini Boundary
 
-`Gemini` means Gemini through local `agy`, never the standalone `gemini` CLI. Do not probe `command -v gemini`, `gemini --version`, or `gemini --help`. Use the sandboxed helpers and bounded/allowlisted context described by the selected AGY pack. Target-repository guidance writes and project-local quality logs require separate authorization.
+`Gemini` means Gemini through local `agy`, never the standalone `gemini` CLI. If the user did not request an external pass, ask once before probing or invoking `agy`; without confirmation, continue Codex-only. After opt-in, check `agy` once per goal and host, cache unavailable/unhealthy results, notify once, and do not retry until the goal or environment changes or the user explicitly requests a recheck. Use the selected AGY pack's sandboxed helpers and bounded context; target-repository guidance writes and project-local quality logs require separate authorization.
 
 ## Capability Fallbacks
 

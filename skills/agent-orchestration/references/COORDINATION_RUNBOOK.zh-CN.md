@@ -24,18 +24,39 @@
 
 路由不明显时使用 `scripts/route_orchestration.py`。用户要求的轻模式不能绕过安全下限，可以明确升级重模式。外部模型审查/调研只是 modifier，本身不升级路由。
 
+## 子对话思考级别
+
+每次创建新的用户可见子对话前，协调者都要单独评估认知难度；编排模式与思考级别相互独立。综合歧义程度、推理深度、影响范围、验证难度和延迟/成本，选择最低足够且工具支持的级别。
+
+| 级别 | 典型任务 |
+| --- | --- |
+| `minimal` | 机械提取、格式整理或已知命令检查。 |
+| `low` | 有边界的盘点、文档修改或确定性 QA。 |
+| `medium` | 常规实现、调研、调试或审查。 |
+| `high` | 模糊根因、多模块改动、非平凡设计或探索性审查。 |
+| `xhigh` | 安全分析、跨仓库契约、困难综合或高风险发布判断。 |
+| `max` / `ultra` | 仅限宿主支持且预期质量收益足以覆盖额外延迟/成本的例外任务。 |
+
+- 用户明确指定且工具支持时优先遵从；否则由协调者选择。只有会实质违反用户延迟/成本约束时才询问。
+- 不能按角色名称固定级别：机械 QA 可以是 `low`，探索性 QA 可以是 `high`。
+- 只有创建工具暴露 `thinking` 时才传值。不需要覆盖时省略并记录 `INHERITED`；工具无法设置时记录 `UNSUPPORTED` 和继承回退，不能谎称已应用。
+- 精确级别不可用时，选择仍足够完成任务的最低可用级别，并记录期望值、实际值和回退原因。
+- 未经用户明确指定，不传 `model`，也不能为了获得某个思考级别自行换模型。
+- 在派发和任务板记录期望思考级别、实际思考级别与选择理由。没有 effort 控制的 fork 或内部 subagent 继承运行时默认值。
+
 ## Standard 执行事务
 
 1. 记录用户目标、验收标准、权限、相关项目指令和执行位置。
 2. 只拆独立工作；每个任务指定一个 owner 和隔离边界。
-3. 每次异步派发生成 goal/task ID、attempt、dispatch nonce、coordinator epoch、base artifact 和 expected artifact。
-4. 使用 `templates/task_dispatch.zh-CN.template.md`；存在多个任务时，把线程、分支/worktree、回调和 merge policy 记到 `TASK_BOARD.template.md`。
-5. 只有异步/长任务可能在协调者不活跃时完成，才创建 heartbeat。
-6. 更新状态前校验回调；缺明确状态或验证时只请求一次状态。
-7. 角色终态进入协调者 `IN_REVIEW`；检查范围、diff、验证、风险、分支和精确产物。
-8. 针对同一个精确产物派发 QA/Review。代码修复使用新 attempt/nonce，并使旧门禁失效。
-9. 退回、升级、取消或验收。声明 merge/push ready 前使用 `templates/merge_readiness.zh-CN.template.md`。
-10. 只交付协调者已验收结果、真实验证和遗留风险。
+3. 创建每个用户可见子对话前，在工具支持时选择并应用思考级别；记录继承或不支持回退。
+4. 每次异步派发生成 goal/task ID、attempt、dispatch nonce、coordinator epoch、base artifact 和 expected artifact。
+5. 使用 `templates/task_dispatch.zh-CN.template.md`；存在多个任务时，把线程、思考级别、分支/worktree、回调和 merge policy 记到 `TASK_BOARD.template.md`。
+6. 只有异步/长任务可能在协调者不活跃时完成，才创建 heartbeat。
+7. 更新状态前校验回调；缺明确状态或验证时只请求一次状态。
+8. 角色终态进入协调者 `IN_REVIEW`；检查范围、diff、验证、风险、分支和精确产物。
+9. 针对同一个精确产物派发 QA/Review。代码修复使用新 attempt/nonce，并使旧门禁失效。
+10. 退回、升级、取消或验收。声明 merge/push ready 前使用 `templates/merge_readiness.zh-CN.template.md`。
+11. 只交付协调者已验收结果、真实验证和遗留风险。
 
 ## 状态和门禁
 

@@ -358,6 +358,10 @@ def verify_agents_guidance_helper() -> None:
             fail("ensure_agy_review_agents_guidance.py did not mention explicit workspace attachment")
         if "command -v agy" not in agents_text or "agy models" not in agents_text:
             fail("ensure_agy_review_agents_guidance.py did not constrain discovery to agy")
+        if "ask once" not in agents_text or "AGY_UNAVAILABLE" not in agents_text:
+            fail("ensure_agy_review_agents_guidance.py did not add the agy consent and negative-cache gate")
+        if "AGY_UNHEALTHY" not in agents_text or "do not retry" not in agents_text:
+            fail("ensure_agy_review_agents_guidance.py did not prevent repeated unhealthy agy attempts")
         if "command -v gemini" not in agents_text or "gemini --help" not in agents_text:
             fail("ensure_agy_review_agents_guidance.py did not forbid gemini CLI probing")
         if "Wrong first moves to avoid" not in agents_text or "gemini` auth/login flows" not in agents_text:
@@ -877,9 +881,11 @@ def main() -> int:
     require_all(
         SKILL_DIR / "agents" / "openai.yaml",
         [
-            "Use $agent-orchestration immediately",
+            "Use $agent-orchestration to coordinate role threads",
+            "lowest adequate supported thinking effort",
             "agy/Gemini external review or research",
-            "do not inspect or launch the standalone gemini CLI",
+            "once-per-goal availability check",
+            "without repeated retries",
         ],
     )
     require_all(
@@ -900,6 +906,11 @@ def main() -> int:
             "ACTIVE -> DRAINING -> CLOSED",
             "CALLBACK_FAILED",
             "scripts/route_orchestration.py",
+            "Child-Thread Thinking Selection",
+            "orchestration mode and thinking effort are independent",
+            "lowest adequate supported effort",
+            "Do not set `model`",
+            "`INHERITED`",
         ],
     )
     require_all(
@@ -911,6 +922,11 @@ def main() -> int:
             "协调者 `ACCEPTED`",
             "ACTIVE -> DRAINING -> CLOSED",
             "CALLBACK_FAILED",
+            "子对话思考级别",
+            "编排模式与思考级别相互独立",
+            "最低足够",
+            "未经用户明确指定，不传 `model`",
+            "`INHERITED`",
         ],
     )
     require_all(
@@ -944,8 +960,16 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
         [
+            "Availability And Consent Gate",
+            "once per goal and host",
             "Gemini 3.5 Flash (High)",
             "AGY_UNAVAILABLE",
+            "AGY_UNHEALTHY",
+            "do not run `agy models`",
+            "user-facing notice once",
+            "coordinator context for Lite",
+            "`TASK_BOARD.md` for Standard",
+            "automation memory for Durable",
             "TIMED_OUT",
             "SCOPE_DRIFT",
             "WRONG_EXECUTION_SURFACE",
@@ -980,9 +1004,17 @@ def main() -> int:
     require_all(
         SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
         [
+            "Availability And Consent Gate",
+            "once per goal and host",
             "parallel Codex + Gemini research",
             "Gemini 3.5 Flash (High)",
             "AGY_RESEARCH_V1",
+            "AGY_UNHEALTHY",
+            "do not run `agy models`",
+            "user-facing notice once",
+            "coordinator context for Lite",
+            "`TASK_BOARD.md` for Standard",
+            "automation memory for Durable",
             "WRONG_EXECUTION_SURFACE",
             "standalone `gemini` CLI",
             "--expect-substring",
@@ -1069,6 +1101,10 @@ def main() -> int:
             "--add-dir <allowlisted_context>",
             "--print <prompt> --sandbox",
             "Quality log:",
+            "Consent:",
+            "Availability cache:",
+            "User notice:",
+            "Fallback:",
             "Agy Findings",
             "Dual Review Comparison",
             "Gemini-only findings",
@@ -1149,6 +1185,10 @@ def main() -> int:
         [
             "Agy External Research Report",
             "--add-dir <allowlisted_context>",
+            "Consent:",
+            "Availability cache:",
+            "User notice:",
+            "Fallback:",
             "Parallel Research Comparison",
             "Gemini-only points",
             "Codex-only points",
@@ -1199,6 +1239,10 @@ def main() -> int:
             "Verification",
             "Branch / worktree",
             "Merge policy",
+            "Thinking requested",
+            "Thinking applied",
+            "Thinking rationale",
+            "Model override",
         ],
     )
     require_all(
@@ -1213,6 +1257,10 @@ def main() -> int:
             "验证要求",
             "分支 / 工作区",
             "合并策略",
+            "期望思考级别",
+            "实际思考级别",
+            "选择理由",
+            "模型覆盖",
         ],
     )
     require_all(
@@ -1221,7 +1269,29 @@ def main() -> int:
             "Execution surface:",
             "Callback behavior:",
             "Merge/push permission:",
+            "Thread thinking:",
+            "Thinking authority:",
             "Ask only if",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "examples" / "filled_task_dispatch.md",
+        [
+            "Thinking requested: medium",
+            "Thinking applied: medium",
+            "Thinking rationale:",
+            "Model override: NONE",
+        ],
+    )
+    require_all(
+        SKILL_DIR / "references" / "TASK_BOARD.template.md",
+        [
+            "Thinking requested",
+            "Thinking applied",
+            "Thinking rationale",
+            "External Capability Cache",
+            "AGY_UNAVAILABLE",
+            "User notified",
         ],
     )
     require_all(

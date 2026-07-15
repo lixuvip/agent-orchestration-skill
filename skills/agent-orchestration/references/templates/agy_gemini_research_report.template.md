@@ -16,6 +16,10 @@ Research inputs:
 - {{INPUT_2_OR_NONE}}
 
 Preflight:
+- Consent: {{EXPLICIT_REQUEST_OR_ONCE_ONLY_OPT_IN_OR_CODEX_ONLY}}
+- Availability cache: {{UNKNOWN_OR_AVAILABLE_OR_AGY_UNAVAILABLE_OR_AGY_UNHEALTHY}}
+- User notice: {{NOTICE_SENT_ONCE_OR_NOT_NEEDED}}
+- Fallback: {{CODEX_ONLY_OR_NONE}}
 - `agy models`: {{MODELS_CHECK_RESULT}}
 - Health check: {{HEALTH_CHECK_RESULT}}
 - Scope attachment: {{SCOPE_ATTACHMENT_RESULT}}

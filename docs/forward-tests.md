@@ -100,7 +100,7 @@ For broad or risky review, run a dual Codex + Gemini review and compare Gemini-o
 Do not let agy edit files.
 Do not claim tests passed unless exact command output is included.
 Keep the pass read-only by default. Do not modify AGENTS.md or create a project-local quality log unless those writes were separately authorized.
-Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
+Because this prompt explicitly requests agy, no extra consent question is needed. Check command -v agy once per goal and host; if absent, cache AGY_UNAVAILABLE, notify once, skip agy models and health checks, and continue Codex-only without retrying. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the prompt template negative guardrails so the external reviewer does not drift into CLI/auth narration, fake command claims, scope inflation, or generic filler.
 Use run_agy_print.py or the exact manual form where the prompt immediately follows --print.
 For diff-only review, do not attach the repository. If source context is needed, use build_agy_context_bundle.py and attach only the allowlisted bundle.
@@ -115,6 +115,8 @@ Expected behavior:
 - Reads `AGY_GEMINI_REVIEW.md`.
 - Treats `ensure_agy_review_agents_guidance.py` as check-only unless the user separately authorized `--write`.
 - Does not block a one-shot review merely because target-repository guidance is missing.
+- Treats the explicit agy request as opt-in, then checks availability only once for the goal and host.
+- Caches unavailable or unhealthy state, gives one notice, and falls back to Codex-only without repeated retries.
 - Uses `run_agy_print.py` for normal read-only print mode with `--sandbox`, or keeps the prompt immediately after `--print` if using a manual command.
 - Does not use the standalone `gemini` CLI as a substitute execution surface.
 - Does not probe `command -v gemini`, `gemini --version`, or `gemini --help`.
@@ -142,7 +144,7 @@ Use $agent-orchestration to research this repository in parallel with Codex and 
 Treat Gemini via agy as a read-only second research stream.
 Codex must still do its own repository reading and final synthesis.
 Keep the external pass read-only by default; target-repository guidance and project-local logs require separate write authorization.
-Capability discovery for this workflow is command -v agy and agy models only. Do not probe command -v gemini, gemini --version, or gemini --help.
+Because this prompt explicitly requests Gemini via agy, no extra consent question is needed. Check command -v agy once per goal and host; if absent, cache AGY_UNAVAILABLE, notify once, skip agy models and health checks, and continue Codex-only without retrying. Do not probe command -v gemini, gemini --version, or gemini --help.
 Use the prompt template negative guardrails so the external researcher does not drift into CLI/auth narration, fake validation, scope inflation, or generic filler.
 Use run_agy_print.py or the exact manual form where the prompt immediately follows --print.
 Use a bounded prompt or build_agy_context_bundle.py instead of attaching the full repository by default.
@@ -157,6 +159,8 @@ Expected behavior:
 - Reads `AGY_GEMINI_RESEARCH.md`.
 - Treats `ensure_agy_review_agents_guidance.py` as check-only unless `--write` was separately authorized.
 - Does not make target-repository writes merely to prepare the external research pass.
+- Treats the explicit agy request as opt-in and reuses the cached capability state for the goal and host.
+- Falls back to Codex-only after one unavailable or unhealthy result instead of repeating discovery or health checks.
 - Uses `run_agy_print.py` for the external research pass and keeps the prompt immediately after `--print` if using a manual command.
 - Does not use the standalone `gemini` CLI as a substitute execution surface.
 - Does not probe `command -v gemini`, `gemini --version`, or `gemini --help`.
@@ -218,6 +222,48 @@ Expected behavior:
 - Does not let a requested Lite mode remove Durable safety requirements once recurring work is requested.
 - Isolates or serializes parallel shared-file edits instead of assuming routing makes them safe.
 
+## Scenario 9: Per-Thread Thinking Selection
+
+Prompt:
+
+```text
+Use $agent-orchestration to create two new user-visible Codex role threads.
+
+The first role performs a mechanical file inventory with fixed output fields.
+The second role performs an architecture and security review of a cross-module change.
+Have the main coordinator choose the thinking level for each new thread. Do not choose a different model unless I explicitly request one.
+```
+
+Expected behavior:
+
+- Keeps orchestration mode and thinking effort independent; both roles may be Standard even when their thinking differs.
+- Selects the lowest adequate supported effort after considering ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost.
+- Uses `minimal or low` for the mechanical file inventory unless task details justify more.
+- Uses `high or xhigh` for the architecture and security review unless task details justify another supported level.
+- Passes `thinking` only when the new-thread creation tool supports it.
+- Does not set `model` unless the user explicitly requested a model.
+- Records requested/applied thinking and rationale in the task dispatch and task board.
+- Records `INHERITED or UNSUPPORTED` when the creation surface cannot apply an explicit thinking override; it does not claim the effort was applied.
+
+## Scenario 10: Optional Agy Consent And Fast Fallback
+
+Prompt:
+
+```text
+Use $agent-orchestration to audit the current code changes.
+
+I did not request an external reviewer initially. Offer agy once as an optional auxiliary audit. If I confirm, assume agy is not installed on this host and handle that result without wasting time.
+```
+
+Expected behavior:
+
+- For an ordinary code audit that did not name an external model, asks once whether to use agy as an auxiliary reviewer.
+- If the user declines or does not confirm, records Codex-only and does not probe or invoke agy; it does not ask again in the same goal.
+- If the user confirms, checks `command -v agy` once for the current goal and host.
+- When agy is not installed, records `AGY_UNAVAILABLE`, gives a user-facing notice once, and does not run `agy models`, a health check, or `run_agy_print.py`.
+- Continues Codex-only and does not retry agy during the same goal on the same host.
+- Rechecks only for a new goal, host, or PATH, or when the user explicitly asks after installing or repairing agy.
+
 ## Review Checklist
 
 - Did the agent choose heartbeat vs cron correctly?
@@ -253,3 +299,9 @@ Expected behavior:
 - Did it refuse to downgrade recurring work below Durable safety requirements?
 - Did Lite load no core pack, Standard load one coordination pack, and Durable add only one Autopilot pack?
 - Did it load only one language version and only the templates actually used?
+- Did it choose thinking effort independently from orchestration mode and role name?
+- Did it select the lowest adequate supported thinking effort for each new user-visible thread?
+- Did it omit model unless the user explicitly requested it?
+- Did it record inherited or unsupported thinking instead of claiming an unavailable override was applied?
+- Did it ask once before adding an unrequested agy auxiliary audit and avoid all probing without confirmation?
+- Did it cache unavailable or unhealthy agy state, notify once, and avoid repeated attempts in the same goal and environment?

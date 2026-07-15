@@ -40,6 +40,10 @@
 
 路由不明显时，`scripts/route_orchestration.py` 会确定最低安全模式和精确模板集合。用户要求的轻模式不能绕过安全下限；外部审查/调研是独立 modifier，本身不会自动升级编排模式。
 
+## 子对话思考级别选择
+
+每次创建新的用户可见子对话时，主协调者都会在 Lite/Standard/Durable 路由之外单独评估认知难度，并选择最低足够且工具支持的 `thinking`。机械任务可以用 `minimal` 或 `low`，常规实现通常用 `medium`，模糊架构、安全或高风险审查才升级到 `high` 或 `xhigh`。协调者会记录期望级别、实际级别和理由；除非用户明确指定，否则不更换 `model`；创建工具无法应用覆盖时如实记录 `INHERITED` 或 `UNSUPPORTED`。
+
 ## v0.2.0：渐进式编排
 
 `v0.2.0` 把 `v0.1.4` 之后增加的能力统一成一套更轻、更稳的运行模型。
@@ -111,11 +115,15 @@ Autopilot 会结合：
 
 当本机已经安装 `agy`，协调者可以在 Codex 实现后或接受分支交付前，运行一次有边界的外部模型审查。一次性第二意见默认保持 Lite，只有整体任务确实需要时才升级 Standard 或 Durable。该流程使用 `references/AGY_GEMINI_REVIEW.md` 和 `references/templates/` 下的审查 prompt、质量评估模板和专属报告模板。
 
+`agy` 是可选且必须主动确认的辅助能力。用户只说代码审计、没有点名外部模型时，协调者先询问一次是否加入 `agy`；拒绝或未确认就直接走 Codex-only，连探测都不执行。确认后，每个目标和主机只检测一次；缺失或不健康状态会缓存并只提示一次，直到目标或环境变化，或用户明确要求重检，才会再次尝试。
+
 标准外部第二意见使用 `Gemini 3.5 Flash (High)`。范围较大或用户要求对比时，Codex reviewer 与 Gemini 独立审查，再由协调者对比共同命中、模型单独命中、被驳回 findings 和实际验证证据。`scripts/run_agy_print.py` 固定走 sandboxed print，拒绝编辑模式和关闭 sandbox，增加宿主超时与输出上限。diff-only 审查不挂仓库；需要源码时由 `scripts/build_agy_context_bundle.py` 生成 allowlist bundle。整仓披露、写入目标 `AGENTS.md`、项目内质量日志都需要单独授权。
 
 ## 可选 Agy / Gemini 外部调研
 
 如果你想把 Gemini 也接入调研，而不是只做 review，协调者现在可以跑一条并行 Codex + Gemini 调研流程。这个流程使用 `references/AGY_GEMINI_RESEARCH.md` 和 `references/templates/` 里的调研 prompt、质量评估、质量日志和专属报告模板。
+
+调研同样遵循主动确认和可用性缓存：未确认时不探测 `agy`；工具不可用时立即降级为 Codex-only，不在本轮反复重试。
 
 标准调研模型同样使用 `Gemini 3.5 Flash (High)`。Codex 仍负责读取仓库并用一手来源核验时效性事实；外部流只接收有界 prompt 或 allowlist bundle，不自动扩大为整仓披露。最终报告对比共同观点、Gemini-only、Codex-only 和驳回/推测性观点，质量记录以 `task_type=research` 写入默认 Codex 外部任务台账。
 

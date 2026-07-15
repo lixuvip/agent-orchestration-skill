@@ -27,6 +27,8 @@ The coordinator reads:
 
 With engineering plus asynchronous QA, this is normally Standard mode. A one-shot current-thread inspection would stay Lite; recurring progress would use Durable.
 
+Before creating each new user-visible role thread, the coordinator separately selects the lowest adequate supported thinking effort. Thinking is not inferred from Lite/Standard/Durable or from the role name, and the coordinator does not set a model unless the user explicitly requested one.
+
 ## 3. Dispatch Role Tasks
 
 The coordinator sends each role a scoped prompt with:
@@ -37,6 +39,7 @@ The coordinator sends each role a scoped prompt with:
 - stop conditions;
 - verification requirements;
 - callback requirements;
+- thinking requested, thinking applied, and the coordinator's selection rationale;
 - goal/task ID, attempt, dispatch nonce, coordinator epoch, and expected artifact SHA for asynchronous handoffs.
 
 ## 4. Track Completion
@@ -71,7 +74,11 @@ Escalate before merge, push, deploy, destructive changes, public API contract ch
 
 Use heartbeat automation for current-thread callback checks. Use cron automation for workspace or worktree progress that should run independently.
 
-## 6. Final Coordinator Delivery
+## 6. Add An Optional External Audit
+
+For a normal code audit, the coordinator can ask once whether the user wants `agy` as an auxiliary reviewer. Without confirmation it continues Codex-only and does not probe the tool. After opt-in, it checks `command -v agy` once per goal and host; an unavailable or unhealthy result is cached, shown once, and not retried until the goal or environment changes or the user requests a recheck.
+
+## 7. Final Coordinator Delivery
 
 The final response should include:
 

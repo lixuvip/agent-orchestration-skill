@@ -14,6 +14,8 @@ Use progressive disclosure. Select a route first, load one language, then open o
 
 Never load both English and Chinese versions. The English filenames emitted by `route_orchestration.py` are logical defaults; substitute `.zh-CN.md` for Chinese execution.
 
+Per-thread `thinking` is orthogonal to Lite/Standard/Durable. Before creating a user-visible thread, use the selected coordination runbook to choose the lowest adequate supported effort and record requested/applied/rationale fields; no separate capability pack is required.
+
 ## Optional Project Context
 
 - `PROJECT_CONTEXT.template.md`: use only when repository, branch, commands, contracts, or prohibited areas are missing.

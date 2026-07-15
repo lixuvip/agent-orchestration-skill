@@ -40,6 +40,10 @@ The skill deliberately does not turn every request into a multi-agent workflow. 
 
 `scripts/route_orchestration.py` makes this decision deterministic when the route is not obvious. A requested lighter mode cannot bypass the minimum safety requirements. External review/research is an independent modifier, not an automatic upgrade.
 
+## Per-Thread Thinking Selection
+
+For every new user-visible thread, the coordinator now evaluates cognitive difficulty separately from Lite/Standard/Durable routing and selects the lowest adequate supported `thinking` effort. Mechanical work may use `minimal` or `low`; normal implementation usually uses `medium`; ambiguous architecture, security, or high-risk review may justify `high` or `xhigh`. The coordinator records requested/applied effort and rationale, never changes `model` unless the user explicitly requested one, and reports `INHERITED` or `UNSUPPORTED` when the creation surface cannot apply an override.
+
 ## v0.2.0: Progressive Orchestration
 
 `v0.2.0` unifies the features added since `v0.1.4` into one smaller, safer operating model.
@@ -111,11 +115,15 @@ Autopilot combines:
 
 When `agy` is installed locally, the coordinator can run a bounded external review after Codex implementation or before accepting a branch handoff. A one-shot second opinion remains Lite unless the wider task actually needs Standard or Durable coordination. This workflow uses `references/AGY_GEMINI_REVIEW.md` plus prompt, quality, and dedicated report templates under `references/templates/`.
 
+`agy` is opt-in and optional. If the user asks for an audit without naming an external model, the coordinator asks once whether to add `agy`; a decline or no confirmation continues Codex-only without probing. After opt-in, availability is checked once per goal and host. Missing or unhealthy installations are cached, reported once, and not retried until the goal or environment changes or the user requests a recheck.
+
 The standard review model is `Gemini 3.5 Flash (High)`. For broad audits or user-requested comparisons, the workflow runs independent Codex and Gemini reviews, then compares agreed, model-only, rejected, and verified findings. Gemini always means Gemini through local `agy`, never the standalone `gemini` CLI. `scripts/run_agy_print.py` fixes the pass to sandboxed print mode, rejects unsafe edit-mode flags, enforces a host timeout and output limit, and treats empty or structurally invalid output as failure. Diff-only review needs no repository attachment; source-backed review uses an allowlisted bundle created by `scripts/build_agy_context_bundle.py`. Whole-repository disclosure, persistent `AGENTS.md` guidance, and project-local quality logging each require explicit authorization.
 
 ## Optional Agy / Gemini Research
 
 When you want Gemini involved in research instead of only in review, the coordinator can run a parallel Codex + Gemini research pass. This workflow uses `references/AGY_GEMINI_RESEARCH.md` plus prompt, quality, log, and dedicated report templates under `references/templates/`.
+
+The same opt-in and availability cache applies to research: without confirmation there is no `agy` probe, and an unavailable tool falls back immediately to Codex-only work.
 
 The standard research model is also `Gemini 3.5 Flash (High)` for repo surveys and option framing. Codex still reads the repository and verifies current external facts from primary sources. The external stream receives a bounded prompt or allowlisted context bundle, never an automatically expanded whole-repository attachment. Results are shown as agreed points, Gemini-only points, Codex-only points, rejected or speculative points, and concrete next actions. Research-quality records use `task_type=research` in the same Codex-owned external-review ledger.
 

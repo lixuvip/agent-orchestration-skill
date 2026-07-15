@@ -111,6 +111,7 @@ def route(request: Mapping[str, object]) -> dict[str, object]:
         features["asynchronous"] or features["user_visible_threads"] or role_count >= 2
     )
     requires_task_board = bool(role_count >= 2 or features["cross_repository"])
+    requires_thread_thinking_selection = features["user_visible_threads"]
 
     if selected_mode == "LITE":
         load_references: list[str] = []
@@ -155,6 +156,12 @@ def route(request: Mapping[str, object]) -> dict[str, object]:
         "monitoring": monitoring,
         "requires_event_protocol": requires_event_protocol,
         "requires_task_board": requires_task_board,
+        "requires_thread_thinking_selection": requires_thread_thinking_selection,
+        "thread_thinking_policy": (
+            "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED"
+            if requires_thread_thinking_selection
+            else "NOT_APPLICABLE"
+        ),
         "requires_goal_contract": selected_mode == "DURABLE",
         "requires_durable_memory": selected_mode == "DURABLE",
         "requires_lease": monitoring in {"HEARTBEAT", "CRON"},

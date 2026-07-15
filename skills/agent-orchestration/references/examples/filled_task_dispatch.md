@@ -8,6 +8,10 @@ Repository: /path/to/example-analytics
 Thread role boundary: Implement only the scoped export retry fix.
 Branch / worktree: codex/export-retry / /worktrees/export-retry
 Merge policy: COMMIT_ALLOWED
+Thinking requested: medium
+Thinking applied: medium
+Thinking rationale: Normal bounded implementation with behavior and test changes; low is insufficient, while high would add cost without a material expected quality gain.
+Model override: NONE
 
 Active dispatch identity:
 - Protocol version: ORCHESTRATION_EVENT_V1

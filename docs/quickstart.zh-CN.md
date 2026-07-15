@@ -27,6 +27,8 @@ Constraints:
 
 工程加异步 QA 通常使用 Standard。当前线程的一次性检查保持 Lite；需要周期性推进时使用 Durable。
 
+创建每个新的用户可见角色对话前，主协调者会单独选择最低足够且工具支持的思考级别。思考级别不能从 Lite/Standard/Durable 或角色名称直接推导；除非用户明确指定，否则协调者不传 model。
+
 ## 3. 分发角色任务
 
 协调者会给每个角色发送范围明确的任务提示，其中包括：
@@ -37,6 +39,7 @@ Constraints:
 - 停止条件；
 - 验证要求；
 - 回调要求；
+- 期望思考级别、实际思考级别和协调者的选择理由；
 - 异步交接所需的 goal/task ID、attempt、dispatch nonce、coordinator epoch 和预期产物 SHA。
 
 ## 4. 跟踪完成状态
@@ -71,7 +74,11 @@ Escalate before merge, push, deploy, destructive changes, public API contract ch
 
 当前线程回访和回调巡检用 heartbeat automation。需要独立推进 workspace 或 worktree 的长期任务，用 cron automation。
 
-## 6. 协调者最终交付
+## 6. 可选的外部辅助审计
+
+普通代码审计中，协调者可以先询问一次用户是否希望加入 `agy` 辅助 reviewer。未确认时继续 Codex-only，不探测工具。确认后，每个目标和主机只执行一次 `command -v agy`；不可用或不健康状态会缓存、只提示一次，并且在目标或环境变化、或用户要求重检前不再尝试。
+
+## 7. 协调者最终交付
 
 最终回复应包含：
 

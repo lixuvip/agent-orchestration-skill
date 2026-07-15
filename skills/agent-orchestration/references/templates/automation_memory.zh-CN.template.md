@@ -44,6 +44,16 @@
 - 值: <UPDATE_SUMMARY_OR_HASH>
 - 是否已被 Codex 动作覆盖: <YES_OR_NO>
 
+## 外部能力缓存
+
+- Agy 使用授权: <UNKNOWN | GRANTED | DECLINED | NOT_CONFIRMED>
+- Agy 状态: <UNKNOWN | AVAILABLE | AGY_UNAVAILABLE | AGY_UNHEALTHY>
+- 检测时间: <ISO_TIMESTAMP_OR_NONE>
+- 主机 / 环境: <HOST_AND_PATH_FINGERPRINT_OR_NONE>
+- 已提示用户: <YES_OR_NO>
+- 仅在以下情况重检: <NEW_GOAL | HOST_CHANGED | PATH_CHANGED | USER_REQUESTED | NONE>
+- 降级路径: <CODEX_ONLY_OR_NONE>
+
 ## 上一次 Tick
 
 - 观察状态: <SUMMARY>

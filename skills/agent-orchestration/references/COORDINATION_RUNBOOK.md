@@ -24,18 +24,39 @@ Ask only when the answer materially changes execution surface, write authority, 
 
 Use `scripts/route_orchestration.py` when the route is not obvious. A requested lighter mode cannot bypass the minimum; an explicit heavier mode is allowed. External-model review/research is a modifier, not a route upgrade by itself.
 
+## Child-Thread Thinking Selection
+
+Before each new user-visible thread, the coordinator assesses cognitive difficulty separately from coordination durability: orchestration mode and thinking effort are independent. Consider ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost, then select the lowest adequate supported effort.
+
+| Effort | Typical task shape |
+| --- | --- |
+| `minimal` | Mechanical extraction, formatting, or a known-command check. |
+| `low` | Bounded inventory, documentation edits, or deterministic QA. |
+| `medium` | Normal implementation, research, debugging, or review. |
+| `high` | Ambiguous root cause, multi-module change, non-trivial design, or exploratory review. |
+| `xhigh` | Security analysis, cross-repository contracts, difficult synthesis, or high-stakes release judgment. |
+| `max` / `ultra` | Exceptional cases only when the host supports them and the expected quality gain justifies added latency/cost. |
+
+- An explicit user effort wins when supported. Otherwise the coordinator chooses; do not ask unless the choice materially conflicts with a user latency/cost constraint.
+- Do not derive effort from role name: mechanical QA may be `low`, while exploratory QA may be `high`.
+- Pass `thinking` only when the creation tool exposes it. If no override is needed, omit it and record `INHERITED`; if the surface cannot set it, record `UNSUPPORTED` and the inherited fallback. Never claim an effort was applied without tool evidence.
+- If the exact effort is unavailable, use the lowest supported effort that remains adequate; record the requested and applied values plus the fallback reason.
+- Do not set `model` or change models to unlock an effort unless the user explicitly requested that model.
+- Record thinking requested, thinking applied, and rationale in the dispatch and task board. A fork or internal subagent surface without an effort control inherits its runtime default.
+
 ## Standard Transaction
 
 1. Record user goal, acceptance criteria, authority, relevant project instructions, and execution surface.
 2. Split only independent work. Assign one owner and isolation boundary per task.
-3. For every async dispatch, mint goal/task ID, attempt, dispatch nonce, coordinator epoch, base artifact, and expected artifact.
-4. Send `templates/task_dispatch.template.md`; record thread, branch/worktree, callback, and merge policy on `TASK_BOARD.template.md` when more than one task is active.
-5. Use a heartbeat only for async/long work that may finish while the coordinator is inactive.
-6. Validate incoming callbacks before changing state. Request status once when explicit state or verification is missing.
-7. Move terminal role work to coordinator `IN_REVIEW`; inspect scope, diff, verification, risks, branch, and exact artifact.
-8. Dispatch QA/review against that exact artifact. A code-changing retry creates a new attempt/nonce and invalidates old gate evidence.
-9. Return, escalate, cancel, or accept. Run `templates/merge_readiness.template.md` before any claimed merge/push readiness.
-10. Deliver only the coordinator-accepted result with real verification and unresolved risks.
+3. Before each new user-visible thread, select and apply its thinking effort when the tool supports it; record any inherited or unsupported fallback.
+4. For every async dispatch, mint goal/task ID, attempt, dispatch nonce, coordinator epoch, base artifact, and expected artifact.
+5. Send `templates/task_dispatch.template.md`; record thread, thinking selection, branch/worktree, callback, and merge policy on `TASK_BOARD.template.md` when more than one task is active.
+6. Use a heartbeat only for async/long work that may finish while the coordinator is inactive.
+7. Validate incoming callbacks before changing state. Request status once when explicit state or verification is missing.
+8. Move terminal role work to coordinator `IN_REVIEW`; inspect scope, diff, verification, risks, branch, and exact artifact.
+9. Dispatch QA/review against that exact artifact. A code-changing retry creates a new attempt/nonce and invalidates old gate evidence.
+10. Return, escalate, cancel, or accept. Run `templates/merge_readiness.template.md` before any claimed merge/push readiness.
+11. Deliver only the coordinator-accepted result with real verification and unresolved risks.
 
 ## State And Gate Model
 

@@ -10,11 +10,19 @@ Copy this file to `TASK_BOARD.md` when a coordinator needs durable multi-role st
 | Gate verdict | `PENDING`, `PASS`, `FAIL`, `BLOCKED`, `WAIVED`, `NOT_APPLICABLE` |
 | Coordinator | `TODO`, `DISPATCHED`, `IN_PROGRESS`, `IN_REVIEW`, `RETURNED`, `ACCEPTED`, `ESCALATED`, `CANCELLED` |
 
+## External Capability Cache
+
+Keep one row per optional external capability for the active goal. A declined or unconfirmed offer is Codex-only and must not trigger probing.
+
+| Capability | Consent | State | Checked at | Host / environment | User notified | Recheck condition |
+| --- | --- | --- | --- | --- | --- | --- |
+| `agy` | `UNKNOWN | GRANTED | DECLINED | NOT_CONFIRMED` | `UNKNOWN | AVAILABLE | AGY_UNAVAILABLE | AGY_UNHEALTHY` | `<ISO_8601_OR_NONE>` | `<HOST_AND_PATH_FINGERPRINT_OR_NONE>` | `YES | NO` | `<NEW_GOAL_HOST_PATH_OR_EXPLICIT_REQUEST>` |
+
 ## Active Dispatches
 
-| Mode | Goal ID | Task ID | Role | Thread ID | Attempt | Dispatch nonce | Coordinator epoch | Expected SHA | Role state | Gate | Coordinator state | Next action |
-| --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
-| `<STANDARD_OR_DURABLE>` | `<GOAL-001>` | `<TASK-001>` | `<ROLE>` | `<THREAD_ID>` | `<1>` | `<NONCE>` | `<EPOCH>` | `<SHA_OR_NONE>` | `TODO` | `PENDING` | `TODO` | `<NEXT_ACTION>` |
+| Mode | Goal ID | Task ID | Role | Thread ID | Thinking applied | Attempt | Dispatch nonce | Coordinator epoch | Expected SHA | Role state | Gate | Coordinator state | Next action |
+| --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
+| `<STANDARD_OR_DURABLE>` | `<GOAL-001>` | `<TASK-001>` | `<ROLE>` | `<THREAD_ID>` | `<EFFORT_OR_INHERITED>` | `<1>` | `<NONCE>` | `<EPOCH>` | `<SHA_OR_NONE>` | `TODO` | `PENDING` | `TODO` | `<NEXT_ACTION>` |
 
 ## Current Task Detail
 
@@ -29,6 +37,9 @@ Copy this file to `TASK_BOARD.md` when a coordinator needs durable multi-role st
 | Out of scope | `<OUT_OF_SCOPE>` |
 | Acceptance criteria | `<ACCEPTANCE_CRITERIA>` |
 | Verification | `<VERIFICATION>` |
+| Thinking requested | `<EFFORT_OR_INHERIT>` |
+| Thinking applied | `<EFFORT_OR_INHERITED_OR_UNSUPPORTED>` |
+| Thinking rationale | `<LOWEST_ADEQUATE_REASON_OR_FALLBACK>` |
 | Base SHA | `<SHA_OR_NONE>` |
 | Expected head SHA | `<SHA_OR_NONE>` |
 | Last observed head SHA | `<SHA_OR_NONE>` |

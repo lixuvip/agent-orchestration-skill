@@ -150,6 +150,32 @@ SCENARIO_REQUIREMENTS = {
         "requested Lite mode remove Durable safety requirements",
         "Isolates or serializes parallel shared-file edits",
     ],
+    "Scenario 9: Per-Thread Thinking Selection": [
+        "Use $agent-orchestration",
+        "mechanical file inventory",
+        "architecture and security review",
+        "thinking level for each new thread",
+        "Keeps orchestration mode and thinking effort independent",
+        "lowest adequate supported effort",
+        "minimal or low",
+        "high or xhigh",
+        "Does not set `model`",
+        "INHERITED or UNSUPPORTED",
+        "task dispatch and task board",
+    ],
+    "Scenario 10: Optional Agy Consent And Fast Fallback": [
+        "Use $agent-orchestration",
+        "agy is not installed",
+        "asks once whether to use agy",
+        "does not probe or invoke agy",
+        "checks `command -v agy` once",
+        "does not run `agy models`",
+        "AGY_UNAVAILABLE",
+        "user-facing notice once",
+        "Codex-only",
+        "does not retry agy",
+        "new goal, host, or PATH",
+    ],
 }
 
 CORE_COVERAGE = {
@@ -164,12 +190,19 @@ CORE_COVERAGE = {
         "scripts/automation_lease.py",
         "ACTIVE -> DRAINING -> CLOSED",
         "CALLBACK_FAILED",
+        "Child-Thread Thinking Selection",
+        "lowest adequate supported effort",
+        "Do not set `model`",
+        "`INHERITED`",
     ],
     SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md": [
         "Standard 执行事务",
         "ORCHESTRATION_EVENT_V1",
         "协调者 `ACCEPTED`",
         "ACTIVE -> DRAINING -> CLOSED",
+        "子对话思考级别",
+        "最低足够",
+        "未经用户明确指定，不传 `model`",
     ],
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md": [
         "Durable Contract",
@@ -216,6 +249,8 @@ CORE_COVERAGE = {
         "load_references",
         "COORDINATION_RUNBOOK.md",
         "PROJECT_AUTOPILOT.md",
+        "requires_thread_thinking_selection",
+        "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED",
     ],
     SKILL_DIR / "scripts" / "orchestration_event.py": [
         "ORCHESTRATION_EVENT_V1",
@@ -225,8 +260,11 @@ CORE_COVERAGE = {
         "EVENT_STALE",
     ],
     SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md": [
+        "Availability And Consent Gate",
+        "once per goal and host",
         "Gemini 3.5 Flash (High)",
         "AGY_UNAVAILABLE",
+        "AGY_UNHEALTHY",
         "NO_STRUCTURED_OUTPUT",
         "WRONG_EXECUTION_SURFACE",
         "command -v gemini",
@@ -256,9 +294,12 @@ CORE_COVERAGE = {
         "template_tuning_suggestions",
     ],
     SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md": [
+        "Availability And Consent Gate",
+        "once per goal and host",
         "Gemini 3.5 Flash (High)",
         "parallel Codex + Gemini research",
         "AGY_RESEARCH_V1",
+        "AGY_UNHEALTHY",
         "NO_STRUCTURED_OUTPUT",
         "WRONG_EXECUTION_SURFACE",
         "command -v gemini",
@@ -275,8 +316,11 @@ CORE_COVERAGE = {
         "external-review-ledger",
     ],
     SKILL_DIR / "agents" / "openai.yaml": [
-        "Use $agent-orchestration immediately",
-        "do not inspect or launch the standalone gemini CLI",
+        "Use $agent-orchestration to coordinate role threads",
+        "lowest adequate supported thinking effort",
+        "one-time user opt-in",
+        "once-per-goal availability check",
+        "without repeated retries",
     ],
     SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.template.md": [
         "AGY_REVIEW_V2",
@@ -500,6 +544,10 @@ def main() -> int:
         "external-model second opinion as a modifier",
         "upgrade when async roles or recurring progress appeared",
         "refuse to downgrade recurring work below Durable safety requirements",
+        "thinking effort independently from orchestration mode",
+        "lowest adequate supported thinking effort",
+        "omit model unless the user explicitly requested it",
+        "record inherited or unsupported thinking",
     ]
     review_section = extract_section(forward_text, "Review Checklist")
     for token in checklist_tokens:

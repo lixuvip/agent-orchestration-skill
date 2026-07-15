@@ -10,6 +10,10 @@
 角色边界：<ROLE_BOUNDARY>
 分支 / 工作区：<BRANCH_OR_WORKTREE_OR_NONE>
 合并策略：<SUMMARIZE_ONLY | COMMIT_ALLOWED | PUSH_BRANCH_ALLOWED | MERGE_REQUIRES_CONFIRMATION | PR_ALLOWED>
+期望思考级别：<INHERIT | minimal | low | medium | high | xhigh | max | ultra | 用户指定>
+实际思考级别：<精确值 | INHERITED | UNSUPPORTED>
+选择理由：<为什么这是最低足够级别或为何需要回退>
+模型覆盖：<NONE | 用户明确指定的模型>
 
 当前有效派发身份：
 - Protocol version: ORCHESTRATION_EVENT_V1
