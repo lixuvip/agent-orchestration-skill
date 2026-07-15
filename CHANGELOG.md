@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1 - 2026-07-15
+
 - Added coordinator-owned thinking-effort selection for every new user-visible role thread, independent from Lite/Standard/Durable routing and role names.
 - Refined thread effort selection from a lowest-adequate bias to best-fit selection: expected quality, risk coverage, and verification reliability now come first; lower effort is only an equal-fit tie-breaker, and high-risk fallbacks round up.
 - Added requested/applied/rationale fields, inherited/unsupported fallbacks, model-override guardrails, route metadata, bilingual examples, and forward-test coverage for per-thread best-fit thinking selection.

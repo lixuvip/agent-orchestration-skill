@@ -106,6 +106,7 @@ REQUIRED_FILES = [
     ROOT / "docs" / "images" / "project-autopilot-loop.zh-CN.svg",
     ROOT / "docs" / "releases" / "v0.1.4.md",
     ROOT / "docs" / "releases" / "v0.2.0.md",
+    ROOT / "docs" / "releases" / "v0.2.1.md",
     ROOT / "scripts" / "forward_test.py",
     ROOT / "scripts" / "protocol_test.py",
     ROOT / "scripts" / "automation_test.py",

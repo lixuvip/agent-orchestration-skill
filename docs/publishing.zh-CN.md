@@ -12,6 +12,7 @@ python3 scripts/protocol_test.py
 python3 scripts/automation_test.py
 python3 scripts/routing_test.py
 python3 scripts/scale_test.py
+python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agent-orchestration
 git diff --check
 git status --short
 ```
@@ -49,7 +50,7 @@ git push -u origin main
 Description:
 
 ```text
-Codex skill for role-thread coordination, project autopilot, callbacks, heartbeat/cron automation, QA/review gates, and branch readiness.
+Progressive Codex orchestration with adaptive per-thread thinking, callbacks, QA/review gates, fenced automations, project autopilot, and optional agy/Gemini review.
 ```
 
 Topics:
@@ -67,17 +68,48 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/automation_test.py` 通过。
 - [ ] `python3 scripts/routing_test.py` 通过。
 - [ ] `python3 scripts/scale_test.py` 通过。
+- [ ] 内置 skill 校验通过。
 - [ ] `git diff --check` 通过。
-- [ ] 安装脚本能在干净 checkout 上运行。
+- [ ] `./scripts/install.sh` 能从干净发布 commit 运行，并报告 `source_dirty=false`。
+- [ ] 已验证本机安装副本与仓库一致。
 - [ ] README 安装命令指向真实 GitHub URL。
 - [ ] 没有私有仓库路径、token、客户数据或组织专属凭据。
 - [ ] 中英文文档都能正常链接。
 - [ ] License 已包含。
-- [ ] 首个版本已打标签，例如 `v0.1.0`。
+- [ ] 发布分支和 `main` 指向预期发布 commit。
+- [ ] 分支与 `main` 的 CI 在打 tag 前均通过。
+- [ ] Release tag 和 GitHub Release 指向同一个 commit。
 
-## 标记版本
+## 发布版本
+
+使用语义化版本号和同名发布说明文件。例如：
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+VERSION=v0.2.1
+RELEASE_BRANCH=codex/orchestration-reliability
+
+git push origin "$RELEASE_BRANCH"
+git switch main
+git merge --ff-only "$RELEASE_BRANCH"
+git push origin main
 ```
+
+等待发布分支和 `main` 的验证工作流通过，再给 `main` 的精确 commit 打 tag 并发布对应说明：
+
+```bash
+git tag -a "$VERSION" -m "$VERSION"
+git push origin "$VERSION"
+gh release create "$VERSION" --title "$VERSION — Adaptive Role Threads" --notes-file "docs/releases/$VERSION.md" --verify-tag
+```
+
+最后显式核验远端和本机状态：
+
+```bash
+gh release view "$VERSION"
+gh run list --limit 10
+git ls-remote --heads --tags origin
+./scripts/install.sh
+git status --short
+```
+
+发布 commit 不干净、安装一致性未通过，或者分支/main CI 未通过时，不要创建 tag。

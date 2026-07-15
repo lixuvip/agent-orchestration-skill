@@ -12,6 +12,7 @@ python3 scripts/protocol_test.py
 python3 scripts/automation_test.py
 python3 scripts/routing_test.py
 python3 scripts/scale_test.py
+python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agent-orchestration
 git diff --check
 git status --short
 ```
@@ -44,7 +45,7 @@ git push -u origin main
 Description:
 
 ```text
-Codex skill for role-thread coordination, project autopilot, callbacks, heartbeat/cron automation, QA/review gates, and branch readiness.
+Progressive Codex orchestration with adaptive per-thread thinking, callbacks, QA/review gates, fenced automations, project autopilot, and optional agy/Gemini review.
 ```
 
 Topics:
@@ -62,17 +63,48 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/automation_test.py` passes.
 - [ ] `python3 scripts/routing_test.py` passes.
 - [ ] `python3 scripts/scale_test.py` passes.
+- [ ] Built-in skill validation passes.
 - [ ] `git diff --check` passes.
-- [ ] Installation script works on a clean checkout.
+- [ ] `./scripts/install.sh` works from the clean release commit and reports `source_dirty=false`.
+- [ ] Installed skill parity is verified.
 - [ ] README installation command points to the real GitHub URL.
 - [ ] No private repository paths, tokens, or customer data are present.
 - [ ] English and Chinese documentation links are valid.
 - [ ] License is included.
-- [ ] First release is tagged, for example `v0.1.0`.
+- [ ] Release branch and `main` point to the intended release commit.
+- [ ] Branch and `main` CI runs pass before tagging.
+- [ ] The release tag and GitHub Release point to the same commit.
 
-## Tag A Release
+## Publish A Release
+
+Use a semantic version and a matching release-note file. Example:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+VERSION=v0.2.1
+RELEASE_BRANCH=codex/orchestration-reliability
+
+git push origin "$RELEASE_BRANCH"
+git switch main
+git merge --ff-only "$RELEASE_BRANCH"
+git push origin main
 ```
+
+Wait for the branch and `main` validation runs to pass. Then tag the exact `main` commit and publish the matching notes:
+
+```bash
+git tag -a "$VERSION" -m "$VERSION"
+git push origin "$VERSION"
+gh release create "$VERSION" --title "$VERSION — Adaptive Role Threads" --notes-file "docs/releases/$VERSION.md" --verify-tag
+```
+
+Finish with explicit remote and local verification:
+
+```bash
+gh release view "$VERSION"
+gh run list --limit 10
+git ls-remote --heads --tags origin
+./scripts/install.sh
+git status --short
+```
+
+Do not publish the tag until the release commit is clean, installed parity passes, and branch/main CI is green.

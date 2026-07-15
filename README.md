@@ -5,13 +5,13 @@
 </p>
 
 <p align="center">
-  <strong>Turn Codex into a coordinator for role threads, branch handoffs, callbacks, automations, QA/review gates, and project autopilot loops.</strong>
+  <strong>Turn Codex into an adaptive coordinator for role threads, branch handoffs, callbacks, automations, QA/review gates, and project autopilot loops.</strong>
 </p>
 
 <p align="center">
   <a href="README.zh-CN.md">中文说明</a> ·
   <a href="#quick-start">Quick Start</a> ·
-  <a href="#v020-progressive-orchestration">v0.2.0</a> ·
+  <a href="#v021-adaptive-role-threads">v0.2.1</a> ·
   <a href="#demo-workflow">Demo Workflow</a> ·
   <a href="docs/examples.md">Examples</a> ·
   <a href="docs/installation.md">Installation</a>
@@ -30,6 +30,8 @@
 
 The skill deliberately does not turn every request into a multi-agent workflow. It selects the minimum safe route, loads only the matching capability pack and templates, and keeps the coordinator responsible for scope, evidence, authority, and final acceptance.
 
+Each new role thread can receive a best-fit supported thinking effort chosen by the coordinator, while optional `agy` review stays explicitly opt-in and falls back quickly when the local capability is unavailable.
+
 ## Choose The Right Weight
 
 | Mode | Use it when | Runtime context |
@@ -39,6 +41,19 @@ The skill deliberately does not turn every request into a multi-agent workflow. 
 | Durable | Work must recur or recover across ticks until explicit done criteria are met. | Standard pack plus the matching `PROJECT_AUTOPILOT.md`; goal contract, memory, lease, lifecycle, and escalation templates. |
 
 `scripts/route_orchestration.py` makes this decision deterministic when the route is not obvious. A requested lighter mode cannot bypass the minimum safety requirements. External review/research is an independent modifier, not an automatic upgrade.
+
+## v0.2.1: Adaptive Role Threads
+
+`v0.2.1` makes role-thread creation more adaptive without making the skill heavier. It adds task-fit thinking selection and a fail-fast consent/capability gate for optional `agy` review and research.
+
+| Upgrade | Runtime behavior | Practical value |
+| --- | --- | --- |
+| Best-fit thread thinking | The coordinator selects the supported effort that best fits expected quality, ambiguity, risk, and verification difficulty. Cost is only an equal-fit tie-breaker. | Mechanical work stays fast, while architecture, security, and high-risk review receive enough reasoning depth. |
+| Honest thinking fallback | Dispatches record requested, applied, and rationale fields; unsupported surfaces report `INHERITED` or `UNSUPPORTED`. High-risk fallbacks round up. | Operators can see what actually ran instead of trusting an implied effort level. |
+| Optional `agy` consent | An unrequested auxiliary audit is offered once. Decline or no confirmation means Codex-only with no probe. | External review never starts silently or delays an ordinary audit. |
+| Availability negative cache | After opt-in, `agy` is checked once per goal/host. `AGY_UNAVAILABLE` and `AGY_UNHEALTHY` are reported once and reused until the goal or environment changes. | Missing installations do not trigger repeated model discovery, health checks, or timeouts. |
+
+Full release notes, compatibility guidance, and validation details: [v0.2.1](docs/releases/v0.2.1.md).
 
 ## Per-Thread Thinking Selection
 
@@ -86,7 +101,8 @@ Keep single-file edits, explanations, and one-shot debugging in the current conv
 
 - [Install the skill](docs/installation.md)
 - [Start in 3 minutes](docs/quickstart.md)
-- [Read the v0.2.0 release and migration notes](docs/releases/v0.2.0.md)
+- [Read the v0.2.1 release notes](docs/releases/v0.2.1.md)
+- [Review the v0.2.0 progressive-orchestration migration](docs/releases/v0.2.0.md)
 - [Coordinate a multi-project release](docs/tutorial.md)
 - [Copy ready-to-use prompts](docs/examples.md)
 - [Review forward-test scenarios](docs/forward-tests.md)
