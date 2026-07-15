@@ -21,7 +21,7 @@ Coordinate only when the task benefits from independent ownership, async recover
 - Respect user/project scope and authority. Ask only when a missing choice materially changes execution, writes, visible threads, automation, merge, or push.
 - Give each delegated task one owner and explicit editable/read-only/out-of-scope boundaries. Isolate or serialize overlapping edits.
 - User-visible threads require explicit user intent. Use subagents only when the user explicitly asks for delegation/parallel agent work and ownership does not overlap.
-- Before creating a user-visible thread, choose the lowest adequate supported thinking effort independently from orchestration mode; honor explicit user overrides, never set `model` unless the user requested one, and record inherited/unsupported fallbacks per the coordination runbook.
+- Before creating a user-visible thread, choose the best-fit supported thinking effort independently from orchestration mode; prioritize expected quality and risk coverage, use lower latency/cost only as a tie-breaker, honor explicit user overrides, never set `model` unless requested, and record fallbacks per the coordination runbook.
 - Never infer completion from silence. Require actual verification and inspect role output before acceptance.
 - For Standard/Durable async work, use versioned callbacks, stale/duplicate rejection, exact artifact gates, and coordinator-owned acceptance from the selected coordination runbook.
 - Role `DONE` is ready for coordinator review, not delivery. Do not merge, push, deploy, publish, or claim readiness without current evidence and authority.

@@ -237,9 +237,11 @@ Have the main coordinator choose the thinking level for each new thread. Do not 
 Expected behavior:
 
 - Keeps orchestration mode and thinking effort independent; both roles may be Standard even when their thinking differs.
-- Selects the lowest adequate supported effort after considering ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost.
+- Selects the best-fit supported effort after considering expected quality, ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost; it puts quality and risk coverage before efficiency.
 - Uses `minimal or low` for the mechanical file inventory unless task details justify more.
 - Uses `high or xhigh` for the architecture and security review unless task details justify another supported level.
+- Chooses the lower effort only when adjacent supported levels are equally suitable.
+- If the exact effort is unavailable, preserves risk coverage and rounds up rather than down for high-risk or high-ambiguity work.
 - Passes `thinking` only when the new-thread creation tool supports it.
 - Does not set `model` unless the user explicitly requested a model.
 - Records requested/applied thinking and rationale in the task dispatch and task board.
@@ -300,7 +302,7 @@ Expected behavior:
 - Did Lite load no core pack, Standard load one coordination pack, and Durable add only one Autopilot pack?
 - Did it load only one language version and only the templates actually used?
 - Did it choose thinking effort independently from orchestration mode and role name?
-- Did it select the lowest adequate supported thinking effort for each new user-visible thread?
+- Did it select the best-fit supported thinking effort for each new user-visible thread?
 - Did it omit model unless the user explicitly requested it?
 - Did it record inherited or unsupported thinking instead of claiming an unavailable override was applied?
 - Did it ask once before adding an unrequested agy auxiliary audit and avoid all probing without confirmation?

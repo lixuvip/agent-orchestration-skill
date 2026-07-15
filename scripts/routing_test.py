@@ -73,7 +73,7 @@ def main() -> int:
         "user-visible threads did not require coordinator thinking selection",
     )
     require(
-        standard["thread_thinking_policy"] == "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED",
+        standard["thread_thinking_policy"] == "COORDINATOR_SELECT_BEST_FIT_IF_SUPPORTED",
         "user-visible thread thinking policy is missing or unexpected",
     )
     require(

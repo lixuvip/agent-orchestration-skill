@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Orchestration"
   short_description: "Coordinate threads, thinking levels, gates, and automations"
-  default_prompt: "Use $agent-orchestration to coordinate role threads, select the lowest adequate supported thinking effort for each new thread, enforce QA/review gates and callbacks, or, with one-time user opt-in, run agy/Gemini external review or research after a once-per-goal availability check and fall back to Codex-only without repeated retries."
+  default_prompt: "Use $agent-orchestration to coordinate role threads, select the best-fit supported thinking effort for each new thread, enforce QA/review gates and callbacks, or, with one-time user opt-in, run agy/Gemini external review or research after a once-per-goal availability check and fall back to Codex-only without repeated retries."

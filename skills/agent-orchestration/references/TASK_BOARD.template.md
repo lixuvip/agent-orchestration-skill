@@ -39,7 +39,7 @@ Keep one row per optional external capability for the active goal. A declined or
 | Verification | `<VERIFICATION>` |
 | Thinking requested | `<EFFORT_OR_INHERIT>` |
 | Thinking applied | `<EFFORT_OR_INHERITED_OR_UNSUPPORTED>` |
-| Thinking rationale | `<LOWEST_ADEQUATE_REASON_OR_FALLBACK>` |
+| Thinking rationale | `<BEST_FIT_REASON_TIE_BREAKER_OR_FALLBACK>` |
 | Base SHA | `<SHA_OR_NONE>` |
 | Expected head SHA | `<SHA_OR_NONE>` |
 | Last observed head SHA | `<SHA_OR_NONE>` |

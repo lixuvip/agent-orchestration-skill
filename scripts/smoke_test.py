@@ -882,7 +882,7 @@ def main() -> int:
         SKILL_DIR / "agents" / "openai.yaml",
         [
             "Use $agent-orchestration to coordinate role threads",
-            "lowest adequate supported thinking effort",
+            "best-fit supported thinking effort",
             "agy/Gemini external review or research",
             "once-per-goal availability check",
             "without repeated retries",
@@ -908,7 +908,9 @@ def main() -> int:
             "scripts/route_orchestration.py",
             "Child-Thread Thinking Selection",
             "orchestration mode and thinking effort are independent",
-            "lowest adequate supported effort",
+            "best-fit supported effort",
+            "equally suitable",
+            "round up rather than down",
             "Do not set `model`",
             "`INHERITED`",
         ],
@@ -924,7 +926,9 @@ def main() -> int:
             "CALLBACK_FAILED",
             "子对话思考级别",
             "编排模式与思考级别相互独立",
-            "最低足够",
+            "最适合且工具支持",
+            "同样适合",
+            "向上取档而不是向下取档",
             "未经用户明确指定，不传 `model`",
             "`INHERITED`",
         ],
@@ -1242,6 +1246,7 @@ def main() -> int:
             "Thinking requested",
             "Thinking applied",
             "Thinking rationale",
+            "BEST_FIT_EFFORT_TIE_BREAKER_OR_FALLBACK",
             "Model override",
         ],
     )
@@ -1260,6 +1265,7 @@ def main() -> int:
             "期望思考级别",
             "实际思考级别",
             "选择理由",
+            "最适合级别",
             "模型覆盖",
         ],
     )
@@ -1271,6 +1277,7 @@ def main() -> int:
             "Merge/push permission:",
             "Thread thinking:",
             "Thinking authority:",
+            "best-fit supported effort",
             "Ask only if",
         ],
     )
@@ -1279,7 +1286,7 @@ def main() -> int:
         [
             "Thinking requested: medium",
             "Thinking applied: medium",
-            "Thinking rationale:",
+            "Thinking rationale: Medium best fits",
             "Model override: NONE",
         ],
     )
@@ -1289,6 +1296,7 @@ def main() -> int:
             "Thinking requested",
             "Thinking applied",
             "Thinking rationale",
+            "BEST_FIT_REASON_TIE_BREAKER_OR_FALLBACK",
             "External Capability Cache",
             "AGY_UNAVAILABLE",
             "User notified",

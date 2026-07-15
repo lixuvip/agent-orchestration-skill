@@ -15,7 +15,7 @@ Execution surface:
 - <current thread only | internal subagent | user-visible Codex thread | existing thread | branch/worktree>
 
 Thread thinking:
-- <coordinator selects lowest adequate supported effort | inherit runtime default | user-specified effort>
+- <coordinator selects best-fit supported effort | inherit runtime default | user-specified effort>
 
 Thinking authority:
 - <coordinator may set thinking when the creation tool supports it; omit model unless the user explicitly requested one>

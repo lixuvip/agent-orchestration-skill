@@ -219,5 +219,5 @@ Use $agent-orchestration to create two new user-visible role threads.
 Role A performs a bounded, mechanical inventory and returns a fixed table.
 Role B investigates an ambiguous cross-module failure and reviews the proposed architecture and security risks.
 
-Have the coordinator choose the lowest adequate supported thinking effort for each thread independently from Lite/Standard/Durable routing. Record requested thinking, applied thinking, and rationale in the dispatch and task board. Do not set a model unless I explicitly name one. If the creation tool cannot set thinking, record INHERITED or UNSUPPORTED instead of claiming it was applied.
+Have the coordinator choose the best-fit supported thinking effort for each thread independently from Lite/Standard/Durable routing. Prioritize expected quality, risk coverage, and verification reliability; choose the lower level only when adjacent levels are equally suitable, and round up rather than down for high-risk fallbacks. Record requested thinking, applied thinking, and rationale in the dispatch and task board. Do not set a model unless I explicitly name one. If the creation tool cannot set thinking, record INHERITED or UNSUPPORTED instead of claiming it was applied.
 ```

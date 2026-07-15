@@ -9,6 +9,28 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / "skills" / "agent-orchestration"
 FORWARD_TESTS = ROOT / "docs" / "forward-tests.md"
 
+THINKING_POLICY_SURFACES = [
+    SKILL_DIR / "SKILL.md",
+    SKILL_DIR / "agents" / "openai.yaml",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
+    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
+    SKILL_DIR / "references" / "README.md",
+    SKILL_DIR / "references" / "TASK_BOARD.template.md",
+    SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
+    SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
+    SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md",
+    SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md",
+    ROOT / "README.md",
+    ROOT / "README.zh-CN.md",
+    ROOT / "docs" / "quickstart.md",
+    ROOT / "docs" / "quickstart.zh-CN.md",
+    ROOT / "docs" / "examples.md",
+    ROOT / "docs" / "examples.zh-CN.md",
+    FORWARD_TESTS,
+]
+
+OBSOLETE_THINKING_POLICY_TOKENS = ["lowest adequate", "LOWEST_ADEQUATE", "最低足够"]
+
 
 SCENARIO_REQUIREMENTS = {
     "Scenario 1: Heartbeat Callback": [
@@ -156,7 +178,10 @@ SCENARIO_REQUIREMENTS = {
         "architecture and security review",
         "thinking level for each new thread",
         "Keeps orchestration mode and thinking effort independent",
-        "lowest adequate supported effort",
+        "best-fit supported effort",
+        "quality and risk coverage before efficiency",
+        "equally suitable",
+        "rounds up rather than down",
         "minimal or low",
         "high or xhigh",
         "Does not set `model`",
@@ -191,7 +216,9 @@ CORE_COVERAGE = {
         "ACTIVE -> DRAINING -> CLOSED",
         "CALLBACK_FAILED",
         "Child-Thread Thinking Selection",
-        "lowest adequate supported effort",
+        "best-fit supported effort",
+        "equally suitable",
+        "round up rather than down",
         "Do not set `model`",
         "`INHERITED`",
     ],
@@ -201,7 +228,9 @@ CORE_COVERAGE = {
         "协调者 `ACCEPTED`",
         "ACTIVE -> DRAINING -> CLOSED",
         "子对话思考级别",
-        "最低足够",
+        "最适合且工具支持",
+        "同样适合",
+        "向上取档而不是向下取档",
         "未经用户明确指定，不传 `model`",
     ],
     SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md": [
@@ -250,7 +279,7 @@ CORE_COVERAGE = {
         "COORDINATION_RUNBOOK.md",
         "PROJECT_AUTOPILOT.md",
         "requires_thread_thinking_selection",
-        "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED",
+        "COORDINATOR_SELECT_BEST_FIT_IF_SUPPORTED",
     ],
     SKILL_DIR / "scripts" / "orchestration_event.py": [
         "ORCHESTRATION_EVENT_V1",
@@ -317,7 +346,7 @@ CORE_COVERAGE = {
     ],
     SKILL_DIR / "agents" / "openai.yaml": [
         "Use $agent-orchestration to coordinate role threads",
-        "lowest adequate supported thinking effort",
+        "best-fit supported thinking effort",
         "one-time user opt-in",
         "once-per-goal availability check",
         "without repeated retries",
@@ -545,7 +574,7 @@ def main() -> int:
         "upgrade when async roles or recurring progress appeared",
         "refuse to downgrade recurring work below Durable safety requirements",
         "thinking effort independently from orchestration mode",
-        "lowest adequate supported thinking effort",
+        "best-fit supported thinking effort",
         "omit model unless the user explicitly requested it",
         "record inherited or unsupported thinking",
     ]
@@ -559,6 +588,12 @@ def main() -> int:
 
     for path, tokens in RELEASE_SURFACES.items():
         require_tokens(path, tokens)
+
+    for path in THINKING_POLICY_SURFACES:
+        content = path.read_text(encoding="utf-8")
+        for token in OBSOLETE_THINKING_POLICY_TOKENS:
+            if token in content:
+                fail(f"{path.relative_to(ROOT)} still contains obsolete thinking policy {token!r}")
 
     print("Forward-test validation passed.")
     return 0

@@ -130,6 +130,7 @@ TEMPLATE_REQUIREMENTS = {
         "Thinking requested:",
         "Thinking applied:",
         "Thinking rationale:",
+        "BEST_FIT_EFFORT_TIE_BREAKER_OR_FALLBACK",
         "Model override:",
     ],
     SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md": [
@@ -145,6 +146,7 @@ TEMPLATE_REQUIREMENTS = {
         "期望思考级别",
         "实际思考级别",
         "选择理由",
+        "最适合级别",
         "模型覆盖",
     ],
     SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md": [
@@ -156,6 +158,7 @@ TEMPLATE_REQUIREMENTS = {
         "Merge/push permission:",
         "Thread thinking:",
         "Thinking authority:",
+        "best-fit supported effort",
         "Ask only if",
     ],
     SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md": [
@@ -167,6 +170,7 @@ TEMPLATE_REQUIREMENTS = {
         "合并/推送权限",
         "子对话思考级别",
         "思考级别权限",
+        "最适合且工具支持",
         "仅在",
     ],
     SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md": [

@@ -27,7 +27,7 @@ The coordinator reads:
 
 With engineering plus asynchronous QA, this is normally Standard mode. A one-shot current-thread inspection would stay Lite; recurring progress would use Durable.
 
-Before creating each new user-visible role thread, the coordinator separately selects the lowest adequate supported thinking effort. Thinking is not inferred from Lite/Standard/Durable or from the role name, and the coordinator does not set a model unless the user explicitly requested one.
+Before creating each new user-visible role thread, the coordinator separately selects the best-fit supported thinking effort. Expected quality, risk coverage, and verification reliability come before efficiency; lower latency/cost is a tie-breaker only when adjacent levels are equally suitable. Thinking is not inferred from Lite/Standard/Durable or from the role name, and the coordinator does not set a model unless the user explicitly requested one.
 
 ## 3. Dispatch Role Tasks
 

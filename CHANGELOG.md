@@ -3,7 +3,8 @@
 ## Unreleased
 
 - Added coordinator-owned thinking-effort selection for every new user-visible role thread, independent from Lite/Standard/Durable routing and role names.
-- Added requested/applied/rationale fields, inherited/unsupported fallbacks, model-override guardrails, route metadata, bilingual examples, and forward-test coverage for per-thread thinking selection.
+- Refined thread effort selection from a lowest-adequate bias to best-fit selection: expected quality, risk coverage, and verification reliability now come first; lower effort is only an equal-fit tie-breaker, and high-risk fallbacks round up.
+- Added requested/applied/rationale fields, inherited/unsupported fallbacks, model-override guardrails, route metadata, bilingual examples, and forward-test coverage for per-thread best-fit thinking selection.
 - Added an opt-in gate for auxiliary `agy` audits and research: ask once when the user did not explicitly request an external model, and skip all probing after decline or no confirmation.
 - Added once-per-goal/host `agy` availability checks, cached unavailable/unhealthy states, one-time user notices, and immediate Codex-only fallback without repeated retries.
 

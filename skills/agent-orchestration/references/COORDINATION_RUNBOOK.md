@@ -26,7 +26,7 @@ Use `scripts/route_orchestration.py` when the route is not obvious. A requested 
 
 ## Child-Thread Thinking Selection
 
-Before each new user-visible thread, the coordinator assesses cognitive difficulty separately from coordination durability: orchestration mode and thinking effort are independent. Consider ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost, then select the lowest adequate supported effort.
+Before each new user-visible thread, the coordinator assesses cognitive difficulty separately from coordination durability: orchestration mode and thinking effort are independent. Consider expected quality, ambiguity, reasoning depth, blast radius, verification difficulty, and latency/cost, then select the best-fit supported effort. Put quality and risk coverage before efficiency; lower effort is not the default objective.
 
 | Effort | Typical task shape |
 | --- | --- |
@@ -39,8 +39,9 @@ Before each new user-visible thread, the coordinator assesses cognitive difficul
 
 - An explicit user effort wins when supported. Otherwise the coordinator chooses; do not ask unless the choice materially conflicts with a user latency/cost constraint.
 - Do not derive effort from role name: mechanical QA may be `low`, while exploratory QA may be `high`.
+- Choose the lower effort only when adjacent supported levels are equally suitable for expected quality, risk coverage, and verification reliability.
 - Pass `thinking` only when the creation tool exposes it. If no override is needed, omit it and record `INHERITED`; if the surface cannot set it, record `UNSUPPORTED` and the inherited fallback. Never claim an effort was applied without tool evidence.
-- If the exact effort is unavailable, use the lowest supported effort that remains adequate; record the requested and applied values plus the fallback reason.
+- If the exact effort is unavailable, choose the nearest supported level that preserves required risk coverage. For high-risk or high-ambiguity work, round up rather than down; record the requested and applied values plus the fallback reason.
 - Do not set `model` or change models to unlock an effort unless the user explicitly requested that model.
 - Record thinking requested, thinking applied, and rationale in the dispatch and task board. A fork or internal subagent surface without an effort control inherits its runtime default.
 

@@ -158,7 +158,7 @@ def route(request: Mapping[str, object]) -> dict[str, object]:
         "requires_task_board": requires_task_board,
         "requires_thread_thinking_selection": requires_thread_thinking_selection,
         "thread_thinking_policy": (
-            "COORDINATOR_SELECT_LOWEST_ADEQUATE_IF_SUPPORTED"
+            "COORDINATOR_SELECT_BEST_FIT_IF_SUPPORTED"
             if requires_thread_thinking_selection
             else "NOT_APPLICABLE"
         ),

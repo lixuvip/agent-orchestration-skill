@@ -42,7 +42,7 @@ The skill deliberately does not turn every request into a multi-agent workflow. 
 
 ## Per-Thread Thinking Selection
 
-For every new user-visible thread, the coordinator now evaluates cognitive difficulty separately from Lite/Standard/Durable routing and selects the lowest adequate supported `thinking` effort. Mechanical work may use `minimal` or `low`; normal implementation usually uses `medium`; ambiguous architecture, security, or high-risk review may justify `high` or `xhigh`. The coordinator records requested/applied effort and rationale, never changes `model` unless the user explicitly requested one, and reports `INHERITED` or `UNSUPPORTED` when the creation surface cannot apply an override.
+For every new user-visible thread, the coordinator evaluates cognitive difficulty separately from Lite/Standard/Durable routing and selects the best-fit supported `thinking` effort. Expected quality, risk coverage, and verification reliability come first; latency and cost choose the lower level only when adjacent efforts are equally suitable. Mechanical work may fit `minimal` or `low`, normal implementation often fits `medium`, and ambiguous architecture, security, or high-risk review may justify `high` or `xhigh`. If the exact level is unavailable, high-risk or high-ambiguity work rounds up rather than down. The coordinator records requested/applied effort and rationale, never changes `model` unless explicitly requested, and reports `INHERITED` or `UNSUPPORTED` when the creation surface cannot apply an override.
 
 ## v0.2.0: Progressive Orchestration
 

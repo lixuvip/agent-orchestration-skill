@@ -10,7 +10,7 @@ Branch / worktree: codex/export-retry / /worktrees/export-retry
 Merge policy: COMMIT_ALLOWED
 Thinking requested: medium
 Thinking applied: medium
-Thinking rationale: Normal bounded implementation with behavior and test changes; low is insufficient, while high would add cost without a material expected quality gain.
+Thinking rationale: Medium best fits this bounded implementation: low would weaken verification reliability, while high offers no material quality or risk-coverage gain.
 Model override: NONE
 
 Active dispatch identity:
