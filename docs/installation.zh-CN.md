@@ -13,8 +13,8 @@ Codex skill 是一个包含 `SKILL.md` 的目录，也可以附带 references、
 ## 方式一：从 Git 安装
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
-cd agent-orchestration-skill
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
+cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 
@@ -49,9 +49,9 @@ ${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
 手工复制会跳过验证、来源记录和回滚能力；除非明确不需要这些保障，否则优先使用安装器。
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-cp -R agent-orchestration-skill/skills/agent-orchestration "${CODEX_HOME:-$HOME/.codex}/skills/"
+cp -R codex-agent-orchestration-skill/skills/agent-orchestration "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
 如果你的 Codex 环境扫描 `$HOME/.agents/skills`，可以运行：

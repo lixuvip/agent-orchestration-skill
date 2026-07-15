@@ -1,4 +1,4 @@
-# Agent Orchestration Codex Skill
+# Codex Agent Orchestration Skill
 
 <p align="center">
   <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
@@ -18,15 +18,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/agent-orchestration-skill"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/agent-orchestration-skill"></a>
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/agent-orchestration-skill?style=social"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/codex-agent-orchestration-skill"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/codex-agent-orchestration-skill"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/codex-agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/codex-agent-orchestration-skill?style=social"></a>
 </p>
 
 ![Agent orchestration 中文流程图](docs/images/workflow-overview.zh-CN.svg)
 
-`agent-orchestration` 是一个面向复杂 Codex 工作流的协调 skill：当任务需要角色分工、用户可见线程、分支/worktree 交接、QA/Review 门禁、回调、有限期巡检、周期性项目推进，或者 `agy` / Gemini 外部第二意见时，由一个协调者统一管理范围、证据、权限和最终验收。
+`codex-agent-orchestration-skill` 仓库提供可安装的 `agent-orchestration` Codex skill：当任务需要角色分工、用户可见线程、分支/worktree 交接、QA/Review 门禁、回调、有限期巡检、周期性项目推进，或者 `agy` / Gemini 外部第二意见时，由一个协调者统一管理范围、证据、权限和最终验收。
 
 它不会把每个请求都变成多 Agent 流程，而是选择最低安全模式，只加载对应能力包和实际需要的模板。简单任务保持简单，复杂任务获得可恢复、可验证、可交接的执行契约。
 
@@ -148,8 +148,8 @@ Autopilot 会结合：
 安装：
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
-cd agent-orchestration-skill
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
+cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 
@@ -263,8 +263,8 @@ flowchart TD
 克隆仓库后运行安装脚本：
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
-cd agent-orchestration-skill
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
+cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 

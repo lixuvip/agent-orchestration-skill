@@ -1,4 +1,4 @@
-# Agent Orchestration Skill for Codex
+# Codex Agent Orchestration Skill
 
 <p align="center">
   <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
@@ -18,15 +18,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/agent-orchestration-skill"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/agent-orchestration-skill"></a>
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
-  <a href="https://github.com/lixuvip/agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/agent-orchestration-skill?style=social"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/codex-agent-orchestration-skill"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/codex-agent-orchestration-skill"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/codex-agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/codex-agent-orchestration-skill?style=social"></a>
 </p>
 
 ![Agent orchestration workflow overview](docs/images/workflow-overview.svg)
 
-`agent-orchestration` is a Codex skill for work that needs more than one uninterrupted agent loop: role delegation, user-visible thread coordination, branch/worktree handoffs, QA and review gates, callbacks, finite monitoring, recurring project automation, or an external `agy` / Gemini second opinion.
+`codex-agent-orchestration-skill` packages the installable `agent-orchestration` Codex skill for work that needs more than one uninterrupted agent loop: role delegation, user-visible thread coordination, branch/worktree handoffs, QA and review gates, callbacks, finite monitoring, recurring project automation, or an external `agy` / Gemini second opinion.
 
 The skill deliberately does not turn every request into a multi-agent workflow. It selects the minimum safe route, loads only the matching capability pack and templates, and keeps the coordinator responsible for scope, evidence, authority, and final acceptance.
 
@@ -173,8 +173,8 @@ Escalate before merge, push, deploy, publish, destructive changes, public API co
 Install:
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
-cd agent-orchestration-skill
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
+cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 
@@ -288,8 +288,8 @@ flowchart TD
 Clone the repository and run the installer:
 
 ```bash
-git clone https://github.com/lixuvip/agent-orchestration-skill.git
-cd agent-orchestration-skill
+git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
+cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 

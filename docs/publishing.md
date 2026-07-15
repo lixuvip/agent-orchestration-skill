@@ -36,7 +36,7 @@ git init
 git add .
 git commit -m "Initial release of agent orchestration skill"
 git branch -M main
-git remote add origin https://github.com/lixuvip/agent-orchestration-skill.git
+git remote add origin https://github.com/lixuvip/codex-agent-orchestration-skill.git
 git push -u origin main
 ```
 

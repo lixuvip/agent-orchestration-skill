@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Renamed the public repository to `codex-agent-orchestration-skill` for clearer Codex-specific discovery while preserving the installed skill name `agent-orchestration` for compatibility.
+- Updated README branding, badges, clone commands, installation paths, and publishing examples to use the canonical repository URL.
+
 ## 0.2.1 - 2026-07-15
 
 - Added coordinator-owned thinking-effort selection for every new user-visible role thread, independent from Lite/Standard/Durable routing and role names.
