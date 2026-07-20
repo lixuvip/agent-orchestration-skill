@@ -1,143 +1,29 @@
-# Tutorial: Coordinate A Multi-Project Release
+# Tutorial
 
-This tutorial models a realistic task where one coordinator asks three project threads to finalize work and report back.
+## 1. Start from ownership
 
-## Scenario
+Keep a single-owner deliverable in the current task. Delegation is useful only when an independent result can proceed without overlapping writes.
 
-You have three projects:
+## 2. Pick the native surface
 
-- `Service API`: shared backend service.
-- `Web Client`: browser client using the shared service.
-- `Mobile Client`: mobile client using the shared service.
+Use an internal subagent when the result should return to the coordinator. Use a user-owned task when the user wants sidebar visibility or direct follow-up. Fork carries completed history; worktree isolates writes; handoff moves the same task between Local and Worktree.
 
-You want each project to finish its changes, commit them, document the remote contract, and return a clean final status.
+## 3. Announce visibility
 
-## Step 1: Start With A Coordinator Prompt
+Before delegating, say whether a sidebar task will appear, where the result returns, and who owns follow-up.
 
-```text
-Use $agent-orchestration.
+## 4. Load detail only when needed
 
-Coordinate final delivery across Service API, Web Client, and Mobile Client.
+A bounded internal subagent needs only `SKILL.md`. Multiple owners, worktrees, cross-repo work, or formal gates load one coordination reference. Recurring work loads one automation reference.
 
-For each project:
-- inspect current git status;
-- ensure shared service API documentation is clear;
-- run relevant verification;
-- create focused commits if the work is ready;
-- return branch, commits, verification, and remaining risks.
+## 5. Verify once at the right level
 
-Create a 5-minute heartbeat monitor and close it when every project reaches a terminal status.
-```
+Use targeted checks while implementing. Bind review and QA to the exact candidate artifact, then run one final relevant suite. Do not duplicate verification unless a change invalidates it.
 
-## Step 2: Register Roles
+## 6. Close the request, not just the tests
 
-The coordinator records a role table:
+Map every original request, follow-up, and correction to an action, current evidence, and `done`, `waived`, or `blocked`. Audit active work before final. If the user changes direction mid-flight, update or interrupt affected owners and treat old-scope output as stale.
 
-| Role | Project | Thread ID | Scope |
-| --- | --- | --- | --- |
-| API Engineer | Service API | `<thread-id>` | backend service and docs |
-| Web Client Engineer | Web Client | `<thread-id>` | browser client and integration docs |
-| Mobile Client Engineer | Mobile Client | `<thread-id>` | mobile client, API bridge, and docs |
+## 7. Keep AGY separate
 
-Use `references/ROLE_REGISTRY.template.md` if this is a recurring setup.
-
-## Step 3: Dispatch Work
-
-Each role gets a prompt based on `references/templates/task_dispatch.template.md`.
-
-Critical fields:
-
-- `Task ID`
-- `Coordinator thread ID`
-- `This role thread ID`
-- `Editable scope`
-- `Read-only scope`
-- `Verification`
-- `Callback`
-- `Stop and report if`
-
-## Step 4: Create Heartbeat Monitoring
-
-The coordinator creates a recurring automation using `references/templates/monitoring_heartbeat.template.md`.
-
-Recommended interval:
-
-```text
-Every 5 minutes
-```
-
-The monitor reads every tracked thread and only accepts explicit terminal states:
-
-- `DONE`
-- `DONE_WITH_CONCERNS`
-- `BLOCKED`
-- `NEEDS_CONTEXT`
-
-## Step 5: Summarize Results
-
-When all roles finish, the coordinator produces a concise final summary:
-
-```text
-All three project threads reached terminal status.
-
-Service API:
-- Status: DONE_WITH_CONCERNS
-- Commits: ...
-- Verification: ...
-- Risk: untracked dist/ left untouched
-
-Web Client:
-- Status: DONE_WITH_CONCERNS
-- Commits: ...
-- Verification: ...
-- Risk: end-to-end browser tests were skipped because no test account was available
-
-Mobile Client:
-- Status: DONE
-- Commits: ...
-- Verification: ...
-- Risk: none reported
-```
-
-## Step 6: Close The Loop
-
-The coordinator disables or deletes the heartbeat automation after the all-complete summary is posted.
-
-Do not leave stale monitors running after the task has reached terminal state.
-
-## Step 7: Convert To Project Autopilot
-
-If the release is not a one-time handoff, use Project Autopilot instead of leaving a heartbeat monitor running forever.
-
-Autopilot starts with a goal contract:
-
-```text
-Goal:
-Keep Service API, Web Client, and Mobile Client moving until the release-readiness checklist is complete.
-
-Done when:
-- every project reports terminal status;
-- release docs cover the shared API contract;
-- relevant verification commands pass or are explicitly reported as blocked;
-- unresolved risks have owner and next step.
-
-Allowed autonomously:
-- inspect git, issues, PRs, docs, and tests;
-- request status from role threads;
-- run non-destructive verification;
-- post idempotent status comments when the latest effective update changed.
-
-Requires confirmation:
-- merge, push, deploy, publish, destructive changes, public API contract changes, or scope expansion.
-```
-
-Then create automation with:
-
-- `references/PROJECT_AUTOPILOT.md`
-- `references/templates/project_goal_contract.template.md`
-- `references/templates/automation_plan.template.md`
-- `references/templates/automation_tick.template.md`
-- `references/templates/automation_memory.template.md`
-- `references/templates/escalation_report.template.md`
-
-Use `AGENTS.md` and nested `AGENTS.override.md` for durable project rules. Use automation memory for live task state such as latest effective update, prior comments, blockers, and next safe action.
+An external second opinion is a different skill. Only an explicit request activates `$agy-second-opinion`; ordinary orchestration never probes or invokes it.

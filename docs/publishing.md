@@ -13,6 +13,7 @@ python3 scripts/automation_test.py
 python3 scripts/routing_test.py
 python3 scripts/scale_test.py
 python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agent-orchestration
+python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agy-second-opinion
 git diff --check
 git status --short
 ```
@@ -24,8 +25,11 @@ Review:
 - `docs/quickstart.md`
 - `docs/tutorial.md`
 - `docs/examples.md`
+- `docs/design-notes-v0.3.0.md`
 - `skills/agent-orchestration/SKILL.md`
 - `skills/agent-orchestration/references/`
+- `skills/agy-second-opinion/SKILL.md`
+- `skills/agy-second-opinion/references/`
 
 ## Create A GitHub Repository
 
@@ -45,13 +49,13 @@ git push -u origin main
 Description:
 
 ```text
-Progressive Codex orchestration with adaptive per-thread thinking, callbacks, QA/review gates, fenced automations, project autopilot, and optional agy/Gemini review.
+Lightweight native-first Codex orchestration plus an independent opt-in agy/Gemini second-opinion skill.
 ```
 
 Topics:
 
 ```text
-agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automations, codex-skill, codex-skills, code-review, git-worktrees, multi-agent, multi-agent-orchestration, project-autopilot, orchestrator, parallel-agents, parallel-coding, qa-workflow, release-management, subagents, task-orchestration
+agent-orchestration, agent-skills, ai-agents, codex, codex-automations, codex-skill, codex-skills, code-review, gemini, git-worktrees, multi-agent, orchestrator, parallel-agents, qa-workflow, subagents, task-orchestration
 ```
 
 ## Release Checklist
@@ -65,11 +69,12 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/scale_test.py` passes.
 - [ ] Built-in skill validation passes.
 - [ ] `git diff --check` passes.
-- [ ] `./scripts/install.sh` works from the clean release commit and reports `source_dirty=false`.
-- [ ] Installed skill parity is verified.
+- [ ] `./scripts/install.sh` and `./scripts/install.sh --skill agy-second-opinion` work from the clean release commit and report `source_dirty=false`.
+- [ ] Installed parity is verified for both independent skills.
 - [ ] README installation command points to the real GitHub URL.
 - [ ] No private repository paths, tokens, or customer data are present.
 - [ ] English and Chinese documentation links are valid.
+- [ ] Any externally inspired behavior has an exact source/commit link, a local-adaptation explanation, and an explicit statement of what was not copied or adopted.
 - [ ] License is included.
 - [ ] Release branch and `main` point to the intended release commit.
 - [ ] Branch and `main` CI runs pass before tagging.

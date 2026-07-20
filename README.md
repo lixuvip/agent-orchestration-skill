@@ -1,360 +1,97 @@
-# Codex Agent Orchestration Skill
+# Codex Agent Orchestration Skills
 
-<p align="center">
-  <img src="docs/images/logo.svg" alt="Agent Orchestration logo" width="120">
-</p>
+This repository now ships two independent Codex skills:
 
-<p align="center">
-  <strong>Turn Codex into an adaptive coordinator for role threads, branch handoffs, callbacks, automations, QA/review gates, and project autopilot loops.</strong>
-</p>
+- `agent-orchestration`: lightweight, native-first coordination for Codex tasks, internal subagents, user-owned tasks, worktrees, formal gates, and recurring automation.
+- `agy-second-opinion`: an explicit opt-in, read-only external review or research pass through local `agy`.
 
-<p align="center">
-  <a href="README.zh-CN.md">中文说明</a> ·
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#v021-adaptive-role-threads">v0.2.1</a> ·
-  <a href="#demo-workflow">Demo Workflow</a> ·
-  <a href="docs/examples.md">Examples</a> ·
-  <a href="docs/installation.md">Installation</a>
-</p>
+They do not load or depend on each other. Ordinary delegation never probes `agy`; an external pass never activates the orchestration workflow.
 
-<p align="center">
-  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/releases"><img alt="GitHub release" src="https://img.shields.io/github/v/release/lixuvip/codex-agent-orchestration-skill"></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/lixuvip/codex-agent-orchestration-skill"></a>
-  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/actions"><img alt="Validate" src="https://github.com/lixuvip/codex-agent-orchestration-skill/actions/workflows/validate.yml/badge.svg"></a>
-  <a href="https://github.com/lixuvip/codex-agent-orchestration-skill/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/lixuvip/codex-agent-orchestration-skill?style=social"></a>
-</p>
+[简体中文](README.zh-CN.md)
 
-![Agent orchestration workflow overview](docs/images/workflow-overview.svg)
+## Why the main skill is lightweight
 
-`codex-agent-orchestration-skill` packages the installable `agent-orchestration` Codex skill for work that needs more than one uninterrupted agent loop: role delegation, user-visible thread coordination, branch/worktree handoffs, QA and review gates, callbacks, finite monitoring, recurring project automation, or an external `agy` / Gemini second opinion.
+The installable `agent-orchestration` runtime contains only six files: one entrypoint, UI metadata, and concise English/Chinese coordination and automation references.
 
-The skill deliberately does not turn every request into a multi-agent workflow. It selects the minimum safe route, loads only the matching capability pack and templates, and keeps the coordinator responsible for scope, evidence, authority, and final acceptance.
+Its default route is:
 
-Each new role thread can receive a best-fit supported thinking effort chosen by the coordinator, while optional `agy` review stays explicitly opt-in and falls back quickly when the local capability is unavailable.
+1. Keep one-owner work in the current task.
+2. Use one internal subagent for a bounded result that returns to the coordinator.
+3. Create a user-owned task only when separate sidebar visibility or direct follow-up is useful.
+4. Load the coordination reference only for multiple owners, cross-repo/worktree work, or formal QA/review/release gates.
+5. Load the automation reference only for recurring work that must survive the current turn.
 
-## Choose The Right Weight
+It relies on native Codex lifecycle and status. There are no callback JSON envelopes, task boards, custom heartbeats, leases, role catalogs, or routing scripts.
 
-| Mode | Use it when | Runtime context |
-| --- | --- | --- |
-| Lite | One-shot work in the current conversation, including a read-only external-model pass. | No core pack, task board, callback envelope, heartbeat, cron, or memory. |
-| Standard | Multiple roles, async/user-visible threads, cross-repository handoffs, finite long work, or formal QA/review/release gates. | One language version of `COORDINATION_RUNBOOK.md` plus only the templates actually needed. |
-| Durable | Work must recur or recover across ticks until explicit done criteria are met. | Standard pack plus the matching `PROJECT_AUTOPILOT.md`; goal contract, memory, lease, lifecycle, and escalation templates. |
+## Reliability additions in v0.3.0
 
-`scripts/route_orchestration.py` makes this decision deterministic when the route is not obvious. A requested lighter mode cannot bypass the minimum safety requirements. External review/research is an independent modifier, not an automatic upgrade.
+- Preflight the real capabilities and authority required by each owner before dispatch.
+- Keep delegation flat by default and make mid-flight user steering invalidate superseded results.
+- Use typed evidence contracts, requirement-to-evidence closure, bounded retries, and a final active-work audit.
+- Resume corrections with the same owner, but give independent reviewers fresh context and raw artifacts.
+- Preserve a compact recovery capsule before a fork, handoff, long pause, or context-sensitive continuation.
+- Use Best-of-N only for explicit or genuinely high-ambiguity work, with isolated candidates and permission to reject them all.
 
-## v0.2.1: Adaptive Role Threads
+The [v0.3.0 design notes](docs/design-notes-v0.3.0.md) map each addition to the exact Grok Build material that inspired it and explain how the behavior was redesigned for Codex's native tasks, subagents, worktrees, and automations. The release does not vendor Grok Build code or prompts.
 
-`v0.2.1` makes role-thread creation more adaptive without making the skill heavier. It adds task-fit thinking selection and a fail-fast consent/capability gate for optional `agy` review and research.
+## Surface selection
 
-| Upgrade | Runtime behavior | Practical value |
-| --- | --- | --- |
-| Best-fit thread thinking | The coordinator selects the supported effort that best fits expected quality, ambiguity, risk, and verification difficulty. Cost is only an equal-fit tie-breaker. | Mechanical work stays fast, while architecture, security, and high-risk review receive enough reasoning depth. |
-| Honest thinking fallback | Dispatches record requested, applied, and rationale fields; unsupported surfaces report `INHERITED` or `UNSUPPORTED`. High-risk fallbacks round up. | Operators can see what actually ran instead of trusting an implied effort level. |
-| Optional `agy` consent | An unrequested auxiliary audit is offered once. Decline or no confirmation means Codex-only with no probe. | External review never starts silently or delays an ordinary audit. |
-| Availability negative cache | After opt-in, `agy` is checked once per goal/host. `AGY_UNAVAILABLE` and `AGY_UNHEALTHY` are reported once and reused until the goal or environment changes. | Missing installations do not trigger repeated model discovery, health checks, or timeouts. |
-
-Full release notes, compatibility guidance, and validation details: [v0.2.1](docs/releases/v0.2.1.md).
-
-## Per-Thread Thinking Selection
-
-For every new user-visible thread, the coordinator evaluates cognitive difficulty separately from Lite/Standard/Durable routing and selects the best-fit supported `thinking` effort. Expected quality, risk coverage, and verification reliability come first; latency and cost choose the lower level only when adjacent efforts are equally suitable. Mechanical work may fit `minimal` or `low`, normal implementation often fits `medium`, and ambiguous architecture, security, or high-risk review may justify `high` or `xhigh`. If the exact level is unavailable, high-risk or high-ambiguity work rounds up rather than down. The coordinator records requested/applied effort and rationale, never changes `model` unless explicitly requested, and reports `INHERITED` or `UNSUPPORTED` when the creation surface cannot apply an override.
-
-## v0.2.0: Progressive Orchestration
-
-`v0.2.0` unifies the features added since `v0.1.4` into one smaller, safer operating model.
-
-| Capability | What it provides | Why it matters |
-| --- | --- | --- |
-| Progressive loading | `SKILL.md` is 42 lines; 14 overlapping core references are consolidated into four bilingual capability-pack files. | Simple work stays light; complex work still has a complete contract. |
-| Versioned callbacks | `ORCHESTRATION_EVENT_V1` carries attempt, nonce, coordinator epoch, unique event ID, and exact artifact identity. | Duplicate and stale callbacks are no-ops instead of state corruption. |
-| Commit-pinned gates | Role status, gate verdict, and coordinator state remain separate; QA/review verdicts name the inspected SHA. | Role `DONE` cannot impersonate acceptance, and a later code commit invalidates old evidence. |
-| Recoverable automation | File-locked leases, monotonic fencing tokens, idempotency keys, and `ACTIVE -> DRAINING -> CLOSED`. | Overlapping or resumed ticks cannot duplicate messages, overwrite memory, or close a newer run. |
-| Durable project progress | Goal contract, project instructions, one safe action per tick, durable memory, no-op polling, and escalation gates. | Autopilot keeps moving toward done criteria without silently gaining merge, push, deploy, or scope authority. |
-| Bounded external review/research | Sandboxed `agy` helpers, allowlisted context bundles, structured output checks, and a Codex-owned quality ledger. | Gemini remains a read-only second opinion until Codex verifies and accepts its output. |
-| Auditable installation | Clean-source enforcement, staged replacement, provenance manifest, parity check, retained previous copy, dry-run, and restore. | The installed skill can be traced, verified, and rolled back. |
-| Regression guards | Static, smoke, forward, protocol, automation, routing, scale-budget, built-in skill, and diff checks. | Safety semantics and context budgets are executable release requirements. |
-
-Full release notes and migration guidance: [v0.2.0](docs/releases/v0.2.0.md).
-
-## Core Guarantees
-
-- Every delegated task has one owner and explicit editable, read-only, and out-of-scope boundaries.
-- Shared-file edits are isolated or serialized; routing never makes overlapping writes safe.
-- Silence is never completion. Verification claims must name commands that actually ran and their results.
-- Role `DONE` moves work into coordinator review; only coordinator `ACCEPTED` is delivery.
-- QA/review evidence is valid only for the exact artifact inspected.
-- Recurring ticks verify lease ownership before external writes, messages, cleanup, or memory commits.
-- Merge, push, deploy, publish, destructive actions, spending, secrets, and scope expansion remain behind user/project authority.
-
-## Best Fit
-
-- An engineer branch needs a read-only QA pass and callback to the main coordinator.
-- Multiple repositories or worktrees must be finalized against one contract.
-- A release needs implementation, QA, review, docs, and exact merge-readiness evidence.
-- A long-running role needs finite heartbeat monitoring and reliable cleanup.
-- An issue, PR, checklist, or workspace should progress every few hours until measurable done criteria pass.
-- A risky diff or design choice benefits from independent Codex and `agy` / Gemini review or research.
-
-Keep single-file edits, explanations, and one-shot debugging in the current conversation when independent ownership, async recovery, formal gates, or recurrence would not help.
-
-## Quick Links
-
-- [Install the skill](docs/installation.md)
-- [Start in 3 minutes](docs/quickstart.md)
-- [Read the v0.2.1 release notes](docs/releases/v0.2.1.md)
-- [Review the v0.2.0 progressive-orchestration migration](docs/releases/v0.2.0.md)
-- [Coordinate a multi-project release](docs/tutorial.md)
-- [Copy ready-to-use prompts](docs/examples.md)
-- [Review forward-test scenarios](docs/forward-tests.md)
-- [Read the Chinese documentation](README.zh-CN.md)
-- [Publish or fork your own version](docs/publishing.md)
-
-## Project Autopilot
-
-Project Autopilot is a pattern for recurring Codex automation. It is for prompts like "keep working on this project until the checklist is complete" or "check every hour and take the next safe step."
-
-![Project Autopilot loop](docs/images/project-autopilot-loop.svg)
-
-Autopilot combines:
-
-- `AGENTS.md` / `AGENTS.override.md` as persistent project guidance.
-- A goal contract with done criteria, permissions, verification, cadence, and stop conditions.
-- Heartbeat automation for current-thread follow-up and callback polling.
-- Cron automation for durable workspace or worktree progress.
-- Automation memory so each run compares the latest effective update, processed event IDs, and action keys before posting comments or repeating work.
-- A file-locked lease and fencing token so overlapping ticks cannot both act or overwrite newer memory.
-- `ACTIVE -> DRAINING -> CLOSED` heartbeat shutdown with one final summary and tool-confirmed cleanup.
-- Escalation reports when merge, push, deploy, scope expansion, or repeated verification failure needs user input.
-- Forward-test scenarios and filled examples for no-op ticks, escalation, goal contracts, and automation memory.
-
-## Optional Agy / Gemini Review
-
-When `agy` is installed locally, the coordinator can run a bounded external review after Codex implementation or before accepting a branch handoff. A one-shot second opinion remains Lite unless the wider task actually needs Standard or Durable coordination. This workflow uses `references/AGY_GEMINI_REVIEW.md` plus prompt, quality, and dedicated report templates under `references/templates/`.
-
-`agy` is opt-in and optional. If the user asks for an audit without naming an external model, the coordinator asks once whether to add `agy`; a decline or no confirmation continues Codex-only without probing. After opt-in, availability is checked once per goal and host. Missing or unhealthy installations are cached, reported once, and not retried until the goal or environment changes or the user requests a recheck.
-
-The standard review model is `Gemini 3.5 Flash (High)`. For broad audits or user-requested comparisons, the workflow runs independent Codex and Gemini reviews, then compares agreed, model-only, rejected, and verified findings. Gemini always means Gemini through local `agy`, never the standalone `gemini` CLI. `scripts/run_agy_print.py` fixes the pass to sandboxed print mode, rejects unsafe edit-mode flags, enforces a host timeout and output limit, and treats empty or structurally invalid output as failure. Diff-only review needs no repository attachment; source-backed review uses an allowlisted bundle created by `scripts/build_agy_context_bundle.py`. Whole-repository disclosure, persistent `AGENTS.md` guidance, and project-local quality logging each require explicit authorization.
-
-## Optional Agy / Gemini Research
-
-When you want Gemini involved in research instead of only in review, the coordinator can run a parallel Codex + Gemini research pass. This workflow uses `references/AGY_GEMINI_RESEARCH.md` plus prompt, quality, log, and dedicated report templates under `references/templates/`.
-
-The same opt-in and availability cache applies to research: without confirmation there is no `agy` probe, and an unavailable tool falls back immediately to Codex-only work.
-
-The standard research model is also `Gemini 3.5 Flash (High)` for repo surveys and option framing. Codex still reads the repository and verifies current external facts from primary sources. The external stream receives a bounded prompt or allowlisted context bundle, never an automatically expanded whole-repository attachment. Results are shown as agreed points, Gemini-only points, Codex-only points, rejected or speculative points, and concrete next actions. Research-quality records use `task_type=research` in the same Codex-owned external-review ledger.
-
-## Example: Branch Callback
-
-```text
-Use $agent-orchestration to coordinate branch work with direct callback to the main coordinator thread.
-
-Create or continue a dedicated engineering branch/worktree.
-Keep QA read-only.
-Require every role to callback to the coordinator thread.
-Create heartbeat monitoring if the work is long-running.
-Run merge readiness before merging, pushing, or telling the user the branch is ready.
-```
-
-## Example: Project Autopilot
-
-```text
-Use $agent-orchestration to create a project autopilot loop.
-
-Read AGENTS.md and project docs first.
-Create a goal contract with done criteria, allowed autonomous actions, verification commands, cadence, and stop conditions.
-Use cron automation for workspace progress and heartbeat only for coordinator-thread callbacks.
-Maintain automation memory and compare the latest effective update before repeating work or posting comments.
-Acquire a fenced lease for every tick, verify it before side effects and memory writes, and discard stale-owner results.
-Escalate before merge, push, deploy, publish, destructive changes, public API contract changes, or scope expansion.
-```
-
-## Quick Start
-
-Install:
-
-```bash
-git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
-cd codex-agent-orchestration-skill
-./scripts/install.sh
-```
-
-Use in Codex:
-
-```text
-Use $agent-orchestration to coordinate this bug fix with one engineering thread and one QA thread.
-
-Goal:
-Fix the failing export option in the report generation flow.
-
-Constraints:
-- Engineer may edit application and test code.
-- QA is read-only and must run the regression tests.
-- Both roles must report exact commands and results.
-```
-
-## Demo Workflow
-
-```mermaid
-flowchart TD
-    A[User Request] --> B[Agent Orchestrator]
-    B --> C[Planner Agent]
-    B --> D[Research Agent]
-    B --> E[Coder Agent]
-    B --> F[Reviewer Agent]
-    B --> G[Monitor Agent]
-    C --> H[Task State]
-    D --> H
-    E --> H
-    F --> H
-    G --> I[Heartbeat Monitor]
-    C --> J[Callback]
-    D --> J
-    E --> J
-    F --> J
-    H --> K[Final Output]
-    I --> K
-    J --> K
-```
-
-## Core Roles
-
-| Role | Purpose |
+| Need | Surface |
 | --- | --- |
-| Coordinator | Breaks down the goal, dispatches role tasks, tracks status, and reviews final evidence. |
-| Planner | Clarifies scope, acceptance criteria, and task order. |
-| Researcher | Gathers context without changing files. |
-| Coder | Implements scoped changes and reports exact files changed. |
-| Reviewer | Checks quality, regressions, and risk areas. |
-| QA Tester | Runs verification and reports exact commands and results. |
-| Monitor | Polls long-running tasks, summarizes terminal role states into coordinator review, and closes its automation lifecycle. |
+| One owner, one deliverable | Current task |
+| Bounded independent analysis returning here | Internal subagent |
+| Separate sidebar visibility or direct user follow-up | User-owned task |
+| Same completed history in a new task | Fork |
+| Isolated repository writes | Worktree task |
+| Move the same task between Local and Worktree | Handoff |
+| Recurring or delayed continuation | Native automation |
+| Explicit external-model second opinion | `agy-second-opinion` |
 
-## Repository Layout
-
-```text
-.
-├── skills/
-│   └── agent-orchestration/
-│       ├── SKILL.md
-│       ├── agents/
-│       │   └── openai.yaml
-│       ├── scripts/
-│       │   ├── automation_lease.py
-│       │   ├── heartbeat_lifecycle.py
-│       │   ├── orchestration_event.py
-│       │   └── route_orchestration.py
-│       └── references/
-│           ├── AGY_GEMINI_REVIEW.md
-│           ├── AGY_GEMINI_RESEARCH.md
-│           ├── COORDINATION_RUNBOOK.md
-│           ├── COORDINATION_RUNBOOK.zh-CN.md
-│           ├── PROJECT_AUTOPILOT.md
-│           ├── PROJECT_AUTOPILOT.zh-CN.md
-│           ├── PROJECT_CONTEXT.template.md
-│           ├── ROLE_REGISTRY.template.md
-│           ├── TASK_BOARD.template.md
-│           ├── examples/
-│           ├── roles/
-│           └── templates/
-├── docs/
-│   ├── installation.md
-│   ├── installation.zh-CN.md
-│   ├── quickstart.md
-│   ├── quickstart.zh-CN.md
-│   ├── tutorial.md
-│   ├── tutorial.zh-CN.md
-│   ├── examples.md
-│   ├── examples.zh-CN.md
-│   ├── forward-tests.md
-│   ├── images/
-│   ├── releases/
-│   ├── publishing.md
-│   └── publishing.zh-CN.md
-├── examples/
-├── scripts/
-│   ├── install.sh
-│   ├── install_skill.py
-│   ├── automation_test.py
-│   ├── protocol_test.py
-│   ├── routing_test.py
-│   ├── scale_test.py
-│   ├── smoke_test.py
-│   ├── forward_test.py
-│   └── validate.py
-└── .github/workflows/validate.yml
-```
+Before delegation, the coordinator states whether a sidebar task will appear, where the result returns, and who owns follow-up.
 
 ## Install
 
-Clone the repository and run the installer:
-
 ```bash
 git clone https://github.com/lixuvip/codex-agent-orchestration-skill.git
 cd codex-agent-orchestration-skill
 ./scripts/install.sh
 ```
 
-The installer copies `skills/agent-orchestration` into:
-
-```text
-${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}/agent-orchestration
-```
-
-The installer validates first, refuses a dirty source tree by default, stages replacement atomically, records source provenance, and retains the previous install for rollback. Use `./scripts/install.sh --dry-run` to preview, `--allow-dirty` only for an intentional local snapshot, and `./scripts/install.sh --restore` to restore the retained previous copy.
-
-Restart Codex if the skill does not appear immediately.
-
-Manual copying bypasses provenance and rollback. If you still need it:
+The default installer validates and installs only the lightweight orchestration skill:
 
 ```bash
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-cp -R skills/agent-orchestration "${CODEX_HOME:-$HOME/.codex}/skills/"
+./scripts/install.sh --allow-dirty
 ```
 
-Some Codex installations scan `$HOME/.agents/skills` for user-scoped skills. If that is your setup, install with:
+Install the independent AGY skill explicitly:
 
 ```bash
-CODEX_SKILLS_DIR="$HOME/.agents/skills" ./scripts/install.sh
+./scripts/install.sh --skill agy-second-opinion --allow-dirty
 ```
 
-## Usage
+Manual install can also copy either skill separately from `skills/`.
 
-Invoke it explicitly in Codex:
+## Examples
+
+Use the lightweight orchestration skill:
 
 ```text
-Use $agent-orchestration to split this task across engineering, QA, and code review threads. Create a 5-minute heartbeat monitor and summarize the final status when all roles finish.
+Use $agent-orchestration. Ask one internal subagent to inspect the authentication flow read-only, then return the evidence here.
 ```
 
-Or describe a matching task and let Codex select it implicitly:
+Request a visible Codex task:
 
 ```text
-Coordinate this release across three repositories. Have each project thread finish commits, document API contracts, and report verification results back to this coordinator thread.
+Use $agent-orchestration. Create a separate user-owned task for the release audit and tell me where follow-up should happen.
 ```
 
-## Minimal Workflow
+Explicitly request an external second opinion:
 
-1. The coordinator chooses the minimum safe Lite, Standard, or Durable route.
-2. Standard or Durable work creates scoped dispatch identities and selects isolated role threads/worktrees where needed.
-3. Each asynchronous role receives a versioned dispatch using `task_dispatch.template.md` and replies with `ORCHESTRATION_EVENT_V1`.
-4. The coordinator validates, deduplicates, and rejects stale callbacks before updating state.
-5. Long-running Standard work uses a leased heartbeat; Durable work uses a goal contract, memory, cron, and fencing.
-6. Terminal role status moves work to `IN_REVIEW`. The coordinator accepts delivery only after current artifact-pinned gates pass.
+```text
+Use $agy-second-opinion to run a bounded read-only agy review of this diff, then verify every accepted finding with Codex.
+```
 
-## Search Keywords
-
-Codex skill, Codex skills, Agent Skills, OpenAI Codex, AGENTS.md, AGENTS.override.md, AI agent orchestration, multi-agent workflow, project autopilot, Codex automations, cron automation, heartbeat automation, GitHub issue automation, PR automation, parallel agents, parallel coding, git worktrees, subagents, task orchestration, role-based agents, callback workflow, heartbeat monitoring, structured handoff, coding agent, QA workflow, code review automation, agy Gemini review, Antigravity review, external model review, release management, developer tools.
-
-## Documentation
-
-- Installation: [English](docs/installation.md) | [中文](docs/installation.zh-CN.md)
-- Quickstart: [English](docs/quickstart.md) | [中文](docs/quickstart.zh-CN.md)
-- Tutorial: [English](docs/tutorial.md) | [中文](docs/tutorial.zh-CN.md)
-- Usage examples: [English](docs/examples.md) | [中文](docs/examples.zh-CN.md)
-- Forward tests: [docs/forward-tests.md](docs/forward-tests.md)
-- Publishing guide: [English](docs/publishing.md) | [中文](docs/publishing.zh-CN.md)
-
-## Validate
-
-Run the repository validator:
+## Development checks
 
 ```bash
 python3 scripts/validate.py
@@ -367,28 +104,4 @@ python3 scripts/scale_test.py
 git diff --check
 ```
 
-If you also have Codex's built-in `skill-creator` validator available, run it against the skill folder:
-
-```bash
-python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agent-orchestration
-```
-
-## Requirements
-
-- Codex with skill support.
-- Optional: Codex thread tools for creating, reading, and messaging role conversations.
-- Optional: Codex automation tools for recurring heartbeat monitoring and workspace cron autopilot.
-- Recurring lease helpers require a local POSIX-style filesystem with advisory locks and atomic rename semantics.
-- Optional: local `agy` CLI with Gemini models for external read-only review or research passes.
-- Optional: Project `AGENTS.md` / `AGENTS.override.md` guidance for durable repository rules.
-
-## Related Codex Documentation
-
-- [Agent Skills](https://developers.openai.com/codex/skills)
-- [Custom instructions with AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
-- [Save workflows as skills](https://developers.openai.com/codex/use-cases/reusable-codex-skills)
-- [Codex automations](https://developers.openai.com/codex/app/automations)
-
-## License
-
-MIT License. See [LICENSE](LICENSE).
+See [Quickstart](docs/quickstart.md), [Examples](docs/examples.md), [Installation](docs/installation.md), [Forward tests](docs/forward-tests.md), and [v0.3.0 design provenance](docs/design-notes-v0.3.0.md).

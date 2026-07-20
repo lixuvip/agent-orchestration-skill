@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agy Second Opinion"
+  short_description: "Bounded read-only external review or research through agy"
+  default_prompt: "Use $agy-second-opinion only for an explicitly requested agy/Gemini external pass. Keep context bounded and read-only, then verify every accepted point with Codex evidence."

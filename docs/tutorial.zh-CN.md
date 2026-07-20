@@ -1,143 +1,29 @@
-# 教程：协调一次多项目发布
+# 教程
 
-这份教程模拟一个真实任务：一个协调者要求三个项目线程分别完成收尾工作，并把结果回报给协调者。
+## 1. 先看 owner
 
-## 场景
+单 owner 的交付留在当前任务。只有独立结果可以在不重叠写入的情况下推进时，委派才有价值。
 
-你有三个项目：
+## 2. 选择原生执行面
 
-- `Service API`：共享后端服务。
-- `Web Client`：使用共享服务的浏览器客户端。
-- `Mobile Client`：使用共享服务的移动客户端。
+结果应回到协调者时，用内部子 Agent；用户需要侧边栏可见或直接后续交流时，用用户自有任务。Fork 继承已完成历史，worktree 隔离写入，handoff 在 Local 和 Worktree 间移动同一个任务。
 
-你希望每个项目完成改动、创建提交、记录远程接口契约，并返回清晰的最终状态。
+## 3. 提前说明可见性
 
-## 第 1 步：从协调者提示开始
+委派前说明是否出现侧边栏任务、结果回到哪里、后续由谁负责。
 
-```text
-Use $agent-orchestration.
+## 4. 只按需加载细节
 
-Coordinate final delivery across Service API, Web Client, and Mobile Client.
+有边界的内部子 Agent 只需要 `SKILL.md`。多 owner、worktree、跨仓库或正式门禁只加载一个协调参考；周期工作只加载一个自动化参考。
 
-For each project:
-- inspect current git status;
-- ensure shared service API documentation is clear;
-- run relevant verification;
-- create focused commits if the work is ready;
-- return branch, commits, verification, and remaining risks.
+## 5. 在正确层级验证一次
 
-Create a 5-minute heartbeat monitor and close it when every project reaches a terminal status.
-```
+实现时跑定向检查，Review 和 QA 绑定到准确候选产物，再跑一次最终相关套件。只有变化使证据失效时才重跑。
 
-## 第 2 步：登记角色
+## 6. 闭环需求，而不只是测试
 
-协调者记录一张角色表：
+把每条原始请求、后续补充和修正映射到动作、当前证据，以及 `done`、`waived` 或 `blocked`。最终回复前盘点活跃工作。用户中途改变方向时，更新或中断受影响 owner，并把旧范围结果视为过期。
 
-| Role | Project | Thread ID | Scope |
-| --- | --- | --- | --- |
-| API Engineer | Service API | `<thread-id>` | backend service and docs |
-| Web Client Engineer | Web Client | `<thread-id>` | browser client and integration docs |
-| Mobile Client Engineer | Mobile Client | `<thread-id>` | mobile client, API bridge, and docs |
+## 7. AGY 完全独立
 
-如果这是一个会重复使用的协作设置，可以使用 `references/ROLE_REGISTRY.template.md`。
-
-## 第 3 步：分发任务
-
-每个角色都会收到基于 `references/templates/task_dispatch.template.md` 的提示。
-
-关键字段包括：
-
-- `Task ID`
-- `Coordinator thread ID`
-- `This role thread ID`
-- `Editable scope`
-- `Read-only scope`
-- `Verification`
-- `Callback`
-- `Stop and report if`
-
-## 第 4 步：创建心跳监控
-
-协调者使用 `references/templates/monitoring_heartbeat.template.md` 创建一个 recurring automation。
-
-建议间隔：
-
-```text
-Every 5 minutes
-```
-
-监控器读取每个被跟踪线程，并且只接受明确的终态：
-
-- `DONE`
-- `DONE_WITH_CONCERNS`
-- `BLOCKED`
-- `NEEDS_CONTEXT`
-
-## 第 5 步：汇总结果
-
-当所有角色完成后，协调者生成简洁的最终汇总：
-
-```text
-All three project threads reached terminal status.
-
-Service API:
-- Status: DONE_WITH_CONCERNS
-- Commits: ...
-- Verification: ...
-- Risk: untracked dist/ left untouched
-
-Web Client:
-- Status: DONE_WITH_CONCERNS
-- Commits: ...
-- Verification: ...
-- Risk: end-to-end browser tests were skipped because no test account was available
-
-Mobile Client:
-- Status: DONE
-- Commits: ...
-- Verification: ...
-- Risk: none reported
-```
-
-## 第 6 步：关闭循环
-
-协调者在发布 all-complete 汇总后，禁用或删除心跳监控。
-
-任务已经到达终态后，不要让过期的监控继续运行。
-
-## 第 7 步：转换成 Project Autopilot
-
-如果这次发布不是一次性交接，而是需要后续持续推进，不要让 heartbeat 永远运行，改用 Project Autopilot。
-
-Autopilot 先建立目标契约：
-
-```text
-Goal:
-Keep Service API, Web Client, and Mobile Client moving until the release-readiness checklist is complete.
-
-Done when:
-- every project reports terminal status;
-- release docs cover the shared API contract;
-- relevant verification commands pass or are explicitly reported as blocked;
-- unresolved risks have owner and next step.
-
-Allowed autonomously:
-- inspect git, issues, PRs, docs, and tests;
-- request status from role threads;
-- run non-destructive verification;
-- post idempotent status comments when the latest effective update changed.
-
-Requires confirmation:
-- merge, push, deploy, publish, destructive changes, public API contract changes, or scope expansion.
-```
-
-然后用这些资源创建自动化：
-
-- `references/PROJECT_AUTOPILOT.md`
-- `references/templates/project_goal_contract.template.md`
-- `references/templates/automation_plan.template.md`
-- `references/templates/automation_tick.template.md`
-- `references/templates/automation_memory.template.md`
-- `references/templates/escalation_report.template.md`
-
-稳定项目规则放在 `AGENTS.md` 和嵌套的 `AGENTS.override.md` 中。实时任务状态放在 automation memory 中，例如最新有效更新、已发评论、阻塞和下一步安全动作。
+外部第二意见属于另一个 skill。只有明确请求才触发 `$agy-second-opinion`；普通编排不会探测或调用它。

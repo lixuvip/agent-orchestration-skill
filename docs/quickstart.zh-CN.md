@@ -1,91 +1,60 @@
 # 快速开始
 
-这份快速开始展示一个最小但实用的编排循环。
+## 先选 skill
 
-## 1. 调用 Skill
+Codex 委派、任务可见性、worktree、门禁或周期继续，使用 `$agent-orchestration`。
 
-在 Codex 中输入：
+只有明确要求 `agy` / Gemini 外部第二意见时，才使用 `$agy-second-opinion`。
 
-```text
-Use $agent-orchestration to coordinate this bug fix with one engineering thread and one QA thread.
-
-Goal:
-Fix the failing timestamp export option in the report generation flow.
-
-Constraints:
-- Engineer may edit application and test code.
-- QA is read-only and must run the regression tests.
-- Both roles must report exact commands and results.
-```
-
-## 2. 协调者选择工作流
-
-协调者会读取：
-
-- Standard 工作读取 `references/COORDINATION_RUNBOOK.zh-CN.md`；
-- 只加载实际用到的派发、回调和 QA 模板，从 `task_dispatch.zh-CN.template.md` 开始。
-
-工程加异步 QA 通常使用 Standard。当前线程的一次性检查保持 Lite；需要周期性推进时使用 Durable。
-
-创建每个新的用户可见角色对话前，主协调者会单独选择最适合且工具支持的思考级别。预期质量、风险覆盖和验证可靠性优先；只有相邻级别同样适合时，才用延迟和成本选择较低级别。思考级别不能从 Lite/Standard/Durable 或角色名称直接推导；除非用户明确指定，否则协调者不传 model。
-
-## 3. 分发角色任务
-
-协调者会给每个角色发送范围明确的任务提示，其中包括：
-
-- 角色名称；
-- 仓库路径；
-- 可编辑范围和只读范围；
-- 停止条件；
-- 验证要求；
-- 回调要求；
-- 期望思考级别、实际思考级别和协调者的选择理由；
-- 异步交接所需的 goal/task ID、attempt、dispatch nonce、coordinator epoch 和预期产物 SHA。
-
-## 4. 跟踪完成状态
-
-对于一两个短任务角色线程，协调者可以手动读取角色回复。
-
-对于多个角色线程或长时间运行的任务，协调者应该使用：
-
-- `references/COORDINATION_RUNBOOK.zh-CN.md`
-- `references/templates/monitoring_heartbeat.template.md`
-
-心跳每 5 分钟检查角色、校验版本化回调，并通过 fenced lease 防止重叠 tick 同时执行。所有角色终态后按 `ACTIVE -> DRAINING -> CLOSED` 收尾，最终汇总只发一次并等待清理确认。
-
-## 5. 用 Project Autopilot 做周期性推进
-
-当任务需要跨多次自动化运行持续推进，而不只是监控角色完成状态时，使用 Project Autopilot。
+## 小型委派
 
 ```text
-Use $agent-orchestration to create a project autopilot loop.
-
-Goal:
-Keep this repository moving until the release-readiness checklist is complete.
-
-Use:
-- PROJECT_AUTOPILOT.zh-CN.md 提供统一的项目指令、automation、memory、lease、fencing 和 lifecycle 契约；
-- project_goal_contract.template.md for done criteria and permissions;
-- automation_tick.template.md for each recurring run;
-- automation_memory.template.md so repeated runs do not duplicate work.
-
-Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
+使用 $agent-orchestration。让一个内部子 Agent 只读检查解析器，把最可能的失败链路返回这里。
 ```
 
-当前线程回访和回调巡检用 heartbeat automation。需要独立推进 workspace 或 worktree 的长期任务，用 cron automation。
+预期行为：
 
-## 6. 可选的外部辅助审计
+- 不创建侧边栏新任务；
+- 不加载协调参考，不生成协议文件；
+- 一个有边界的 owner 返回一个结果；
+- 协调者验证证据后再接受结论。
 
-普通代码审计中，协调者可以先询问一次用户是否希望加入 `agy` 辅助 reviewer。未确认时继续 Codex-only，不探测工具。确认后，每个目标和主机只执行一次 `command -v agy`；不可用或不健康状态会缓存、只提示一次，并且在目标或环境变化、或用户要求重检前不再尝试。
+## 用户可见任务
 
-## 7. 协调者最终交付
+```text
+使用 $agent-orchestration。为发布清单创建一个独立任务，我要在那个任务里继续跟进。
+```
 
-最终回复应包含：
+预期行为：
 
-- 改了什么；
-- 哪些角色参与；
-- 精确的验证证据；
-- 未解决的风险；
-- 相关 commit 或分支名；
-- 哪些自动化已经暂停、删除或仍保持运行；
-- 最终验收的精确产物 SHA，以及 coordinator state 是否达到 `ACCEPTED`。
+- 协调者提前说明会出现侧边栏任务；
+- 用户自有任务负责直接后续交流；
+- 只有确实需要对应语义时才使用 worktree、fork 或 handoff。
+
+## 正式门禁
+
+```text
+使用 $agent-orchestration。协调实现和一次独立 Review，证据绑定到准确的候选 commit。
+```
+
+只加载一个语言版本的协调参考。实现阶段做定向检查，候选产物上只跑一次最终相关测试套件。
+
+派发前，预检 owner 需要的读取、写入、执行、网络、浏览器和 connector 能力。活跃工作期间，新用户消息分为替换、追加或状态；旧范围结果未经重验都属于过期结果。
+
+最终交付前，把每条请求和后续补充映射到当前证据，并盘点活跃 Agent、任务、后台命令、monitor 和 automation。
+
+## 周期继续
+
+```text
+使用 $agent-orchestration。每个工作日检查这次发布，发布完成后停止，没有变化时保持安静。
+```
+
+自动化参考会使用 Codex 原生 automation，明确停止条件和清理方式。
+
+## 外部第二意见
+
+```text
+使用 $agy-second-opinion，通过 agy 对这些文件做一次有边界的只读审查。
+```
+
+只加载审查参考，披露范围保持最小，采纳结论由 Codex 再验证。

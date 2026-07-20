@@ -1,9 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 - 2026-07-20
 
 - Renamed the public repository to `codex-agent-orchestration-skill` for clearer Codex-specific discovery while preserving the installed skill name `agent-orchestration` for compatibility.
-- Updated README branding, badges, clone commands, installation paths, and publishing examples to use the canonical repository URL.
+- Rebuilt `agent-orchestration` as a six-file native-first skill: one entrypoint, UI metadata, and concise bilingual coordination and automation references.
+- Removed the installed role catalog, task boards, callback envelopes, event protocol, heartbeat lifecycle, leases, deterministic router, filled examples, and repeatable prompt templates.
+- Made one-owner current-task work and one bounded internal subagent the default paths; detailed coordination now loads only for multiple owners, worktrees/cross-repo work, or formal gates.
+- Added a verification budget: targeted checks during implementation, one final relevant suite on the exact candidate artifact, and selective reruns only after invalidating changes.
+- Added capability preflight, flat delegation, mid-flight replace/add/status steering, stale-result rejection, typed evidence contracts, correction-versus-independent-review routing, bounded retries, recovery capsules, final active-work audits, and complete user-requirement closure checks.
+- Added an optional 2-3 candidate Best-of-N path for explicit or high-ambiguity work, with a fixed rubric, isolated writes, reject-all support, and a final suite only on the integrated winner.
+- Split all `agy` / Gemini review and research behavior into the independent `agy-second-opinion` skill. The orchestration runtime contains no AGY triggers, references, scripts, or fallback logic.
+- Updated the installer to install `agent-orchestration` by default and `agy-second-opinion` only through explicit `--skill`, with separate provenance and parity checks.
+- Replaced protocol-heavy tests and documentation with native routing, separation, size-budget, quiet automation, and forward-scenario coverage.
+- Documented the exact upstream inspiration and local adaptations in [the v0.3.0 design notes](docs/design-notes-v0.3.0.md), including Grok Build source paths pinned to commit `ba76b0a683fa52e4e60685017b85905451be17bc`. No upstream runtime code or prompt was copied into the installed orchestration skill.
 
 ## 0.2.1 - 2026-07-15
 

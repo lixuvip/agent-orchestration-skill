@@ -1,43 +1,37 @@
 ---
 name: agent-orchestration
-description: Coordinate Codex work across roles, threads, subagents, repositories, branches, worktrees, callbacks, QA/review/release gates, recurring automation, project autopilot, or multi-project handoffs; also use for agy/Gemini external review or research and external-task quality logs. Trigger for requests to delegate, inspect/message another Codex thread, verify a branch through QA/review, run delayed check-backs, or keep work moving until a goal is met. Chinese triggers include 外部模型审查/调研, Gemini/agy 审查或调研, 并行调研, 另一个对话/agent 接手, 分给 QA, 多分支/多仓库收口, 巡检/回调, 持续推进, 定时自动继续, 创建/读取/转交线程.
+description: Coordinate Codex work across the current task, internal subagents, user-owned tasks, worktrees, handoffs, formal review gates, or recurring automation. Use for delegation, parallel roles, another Codex task, cross-repo work, QA/review handoffs, scheduled follow-up, or task inspection and continuation. Chinese triggers include 子Agent/子进程/子对话, 另一个对话接手, 并行处理, 分给QA, 多仓库收口, 巡检, 持续推进, 定时自动继续, 创建/读取/转交任务.
 ---
 
 # Agent Orchestration
 
-Coordinate only when the task benefits from independent ownership, async recovery, formal gates, or recurrence. Keep simple work simple.
+Use the least coordination that can safely finish the task. Prefer Codex's native task, subagent, thread, worktree, wait, and automation state over custom protocol.
 
-## Route First
+## Default Route
 
-- `LITE`: one-shot current-context work without async callbacks or recurrence. LITE: load no core reference; do not create task boards, event envelopes, heartbeats, cron, or memory.
-- `STANDARD`: finite multi-role, async/user-visible thread, cross-repo, long-running, or formal gate work. STANDARD: load one language version of `COORDINATION_RUNBOOK.md` and only the templates used.
-- `DURABLE`: recurring work or recovery across ticks. DURABLE: load the same runbook plus one language version of `PROJECT_AUTOPILOT.md`.
-- Never load both language versions. For Chinese work use the `.zh-CN.md` pack; otherwise use English.
-- Use `scripts/route_orchestration.py` only when the route is not obvious. Never downgrade below its minimum safe mode.
-- External-model review/research is an independent modifier, not an automatic upgrade. Load only `AGY_GEMINI_REVIEW.md` or `AGY_GEMINI_RESEARCH.md` for the requested mode.
+- Keep one-owner work in the current task.
+- Use one internal subagent for a bounded independent result that returns to the coordinator. Do not create task boards, callback JSON, heartbeat, leases, or manual status files.
+- Create or continue a user-owned thread only when the user wants separate visibility or direct follow-up. Use fork only when completed history must carry over, a worktree for isolated writes, and handoff only to move the same task between Local and Worktree.
+- Before delegation, say whether a new sidebar task will appear, where the result returns, and who owns follow-up.
+- Choose the best-fit supported reasoning effort. Never set `model` unless the user requests it.
 
-## Core Contract
+## Load Only When Needed
 
-- Respect user/project scope and authority. Ask only when a missing choice materially changes execution, writes, visible threads, automation, merge, or push.
-- Give each delegated task one owner and explicit editable/read-only/out-of-scope boundaries. Isolate or serialize overlapping edits.
-- User-visible threads require explicit user intent. Use subagents only when the user explicitly asks for delegation/parallel agent work and ownership does not overlap.
-- Before creating a user-visible thread, choose the best-fit supported thinking effort independently from orchestration mode; prioritize expected quality and risk coverage, use lower latency/cost only as a tie-breaker, honor explicit user overrides, never set `model` unless requested, and record fallbacks per the coordination runbook.
-- Never infer completion from silence. Require actual verification and inspect role output before acceptance.
-- For Standard/Durable async work, use versioned callbacks, stale/duplicate rejection, exact artifact gates, and coordinator-owned acceptance from the selected coordination runbook.
-- Role `DONE` is ready for coordinator review, not delivery. Do not merge, push, deploy, publish, or claim readiness without current evidence and authority.
-- Use `PROJECT_CONTEXT.template.md` or `ROLE_REGISTRY.template.md` only when those facts are genuinely missing; do not preload them.
-- Select templates directly: dispatch/reply for roles, QA/review for gates, heartbeat for finite monitoring, and goal/plan/tick/memory/escalation for Durable work.
+- Read one language version of `references/COORDINATION.md` only for multiple owners, cross-repo/worktree coordination, or formal QA/review/release gates.
+- Read one language version of `references/AUTOMATION.md` only for recurring or delayed work that must survive the current turn.
+- Do not load these references for a single bounded subagent. Never load both language versions.
 
-## Agy / Gemini Boundary
+## Core Guardrails
 
-`Gemini` means Gemini through local `agy`, never the standalone `gemini` CLI. If the user did not request an external pass, ask once before probing or invoking `agy`; without confirmation, continue Codex-only. After opt-in, check `agy` once per goal and host, cache unavailable/unhealthy results, notify once, and do not retry until the goal or environment changes or the user explicitly requests a recheck. Use the selected AGY pack's sandboxed helpers and bounded context; target-repository guidance writes and project-local quality logs require separate authorization.
-
-## Capability Fallbacks
-
-- Prefer thread tools for user-visible role conversations and callbacks.
-- Use automation tools for actual heartbeat/cron creation and lifecycle changes.
-- If a required capability is absent, use manual task-board polling or keep coordination in the current conversation; state the limitation instead of pretending independent work is running.
+- Give every delegated task one owner and explicit editable/read-only/out-of-scope boundaries. Isolate or serialize overlapping writes.
+- Before dispatch, verify the owner has the required read, write, execute, network, browser, and connector capabilities. Keep high-ambiguity planning read-only in the current task; do not assume a child inherits the parent's restrictions.
+- Keep delegation flat by default. Use nested delegation only when the user or project explicitly needs it and ownership remains auditable.
+- Trust native agent/thread status for lifecycle; inspect the returned result and real evidence before acceptance. Silence is not completion.
+- Treat new user input as replace, add, or status. Update or interrupt affected owners, and mark late output from superseded scope as stale.
+- Avoid duplicate work: targeted checks during implementation, one final relevant suite on the candidate artifact, and rerun only affected checks after changes unless project rules require more.
+- Send progress updates only for meaningful state changes, blockers, decisions, or new evidence; do not narrate unchanged waiting.
+- Do not merge, push, deploy, publish, spend, expose secrets, or expand scope without user/project authority.
 
 ## Delivery
 
-Report work done, participants, real verification, changed files/branches/commits, automation cleanup, waivers, and remaining risk. Keep project-specific service/API contracts in the target repository rather than this generic skill.
+Before final, map every user request and follow-up to current evidence or an explicit status, then audit active agents, tasks, commands, monitors, and automations so no work is silently orphaned. Report the result, participants, real verification, changed files/branches/commits, remaining risk, and anything intentionally left active. Keep project-specific contracts in the target repository.

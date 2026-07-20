@@ -1,91 +1,60 @@
 # Quickstart
 
-This quickstart shows the smallest useful orchestration loop.
+## Choose the skill
 
-## 1. Invoke The Skill
+Use `$agent-orchestration` for Codex delegation, task visibility, worktrees, gates, or recurring continuation.
 
-In Codex, write:
+Use `$agy-second-opinion` only when an `agy`/Gemini external pass is explicitly requested.
 
-```text
-Use $agent-orchestration to coordinate this bug fix with one engineering thread and one QA thread.
-
-Goal:
-Fix the failing timestamp export option in the report generation flow.
-
-Constraints:
-- Engineer may edit application and test code.
-- QA is read-only and must run the regression tests.
-- Both roles must report exact commands and results.
-```
-
-## 2. Coordinator Chooses A Workflow
-
-The coordinator reads:
-
-- `references/COORDINATION_RUNBOOK.md` for Standard work;
-- only the specific dispatch/callback/QA templates used, starting with `task_dispatch.template.md`.
-
-With engineering plus asynchronous QA, this is normally Standard mode. A one-shot current-thread inspection would stay Lite; recurring progress would use Durable.
-
-Before creating each new user-visible role thread, the coordinator separately selects the best-fit supported thinking effort. Expected quality, risk coverage, and verification reliability come before efficiency; lower latency/cost is a tie-breaker only when adjacent levels are equally suitable. Thinking is not inferred from Lite/Standard/Durable or from the role name, and the coordinator does not set a model unless the user explicitly requested one.
-
-## 3. Dispatch Role Tasks
-
-The coordinator sends each role a scoped prompt with:
-
-- role name;
-- repository path;
-- editable and read-only scope;
-- stop conditions;
-- verification requirements;
-- callback requirements;
-- thinking requested, thinking applied, and the coordinator's selection rationale;
-- goal/task ID, attempt, dispatch nonce, coordinator epoch, and expected artifact SHA for asynchronous handoffs.
-
-## 4. Track Completion
-
-For one or two short-running role threads, the coordinator can manually read the role replies.
-
-For multiple or long-running role threads, the coordinator should use:
-
-- `references/COORDINATION_RUNBOOK.md`
-- `references/templates/monitoring_heartbeat.template.md`
-
-The heartbeat checks each role every 5 minutes, validates versioned callbacks, and uses a fenced lease so overlapping ticks cannot both act. After all roles reach terminal state it moves `ACTIVE -> DRAINING -> CLOSED`, posts one final summary, and waits for cleanup confirmation.
-
-## 5. Use Project Autopilot For Recurring Progress
-
-Use Project Autopilot when the task should continue across repeated automation runs, not just monitor role completion.
+## Small delegation
 
 ```text
-Use $agent-orchestration to create a project autopilot loop.
-
-Goal:
-Keep this repository moving until the release-readiness checklist is complete.
-
-Use:
-- PROJECT_AUTOPILOT.md for the unified instruction, automation, memory, lease, fencing, and lifecycle contract;
-- project_goal_contract.template.md for done criteria and permissions;
-- automation_tick.template.md for each recurring run;
-- automation_memory.template.md so repeated runs do not duplicate work.
-
-Escalate before merge, push, deploy, destructive changes, public API contract changes, or scope expansion.
+Use $agent-orchestration. Have one internal subagent inspect the parser read-only and return the likely failure path here.
 ```
 
-Use heartbeat automation for current-thread callback checks. Use cron automation for workspace or worktree progress that should run independently.
+Expected behavior:
 
-## 6. Add An Optional External Audit
+- no new sidebar task;
+- no coordination reference or protocol files;
+- one bounded owner and one returned result;
+- coordinator verifies the evidence before accepting it.
 
-For a normal code audit, the coordinator can ask once whether the user wants `agy` as an auxiliary reviewer. Without confirmation it continues Codex-only and does not probe the tool. After opt-in, it checks `command -v agy` once per goal and host; an unavailable or unhealthy result is cached, shown once, and not retried until the goal or environment changes or the user requests a recheck.
+## Visible task
 
-## 7. Final Coordinator Delivery
+```text
+Use $agent-orchestration. Create a separate task for the release checklist so I can follow up there.
+```
 
-The final response should include:
+Expected behavior:
 
-- what changed;
-- which roles participated;
-- exact verification evidence;
-- unresolved risks;
-- commits or branch names when relevant;
-- whether any automation was paused, deleted, or left active;
-- the exact accepted artifact SHA and whether coordinator state reached `ACCEPTED`.
+- the coordinator announces that a sidebar task will appear;
+- the user-owned task owns direct follow-up;
+- worktree, fork, or handoff is used only if its distinct semantics are needed.
+
+## Formal gate
+
+```text
+Use $agent-orchestration. Coordinate implementation and one independent review against the exact candidate commit.
+```
+
+The coordination reference is loaded in one language. Targeted checks run during implementation and one final relevant suite runs on the candidate artifact.
+
+Before dispatch, preflight the owner's required read, write, execute, network, browser, and connector capabilities. During active work, classify new user input as replace, add, or status; superseded output is stale until revalidated.
+
+Before final delivery, map every request and follow-up to current evidence and audit active agents, tasks, background commands, monitors, and automations.
+
+## Recurring continuation
+
+```text
+Use $agent-orchestration to check this release every weekday until it is published, staying quiet when nothing changes.
+```
+
+The automation reference routes this through native automation tools with a clear stop condition and cleanup.
+
+## External second opinion
+
+```text
+Use $agy-second-opinion for one bounded read-only agy review of these files.
+```
+
+Only the review reference is loaded. Context disclosure stays bounded, and Codex verifies accepted findings.

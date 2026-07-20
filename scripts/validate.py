@@ -4,815 +4,207 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
-from urllib.parse import unquote
-import xml.etree.ElementTree as ET
-
 
 ROOT = Path(__file__).resolve().parents[1]
-SKILL_DIR = ROOT / "skills" / "agent-orchestration"
-SKILL_MD = SKILL_DIR / "SKILL.md"
+ORCH = ROOT / "skills" / "agent-orchestration"
+AGY = ROOT / "skills" / "agy-second-opinion"
 
-
-REQUIRED_FILES = [
-    SKILL_MD,
-    SKILL_DIR / "agents" / "openai.yaml",
-    SKILL_DIR / "scripts" / "run_agy_print.py",
-    SKILL_DIR / "scripts" / "build_agy_context_bundle.py",
-    SKILL_DIR / "scripts" / "ensure_agy_review_agents_guidance.py",
-    SKILL_DIR / "scripts" / "append_agy_review_quality_log.py",
-    SKILL_DIR / "scripts" / "orchestration_event.py",
-    SKILL_DIR / "scripts" / "automation_lease.py",
-    SKILL_DIR / "scripts" / "heartbeat_lifecycle.py",
-    SKILL_DIR / "scripts" / "route_orchestration.py",
-    SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
-    SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
-    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
-    SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
-    SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
-    SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
-    SKILL_DIR / "references" / "README.md",
-    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md",
-    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality_log.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality_log.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_report.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_report.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_prompt.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_prompt.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality_log.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality_log.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_report.template.md",
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_report.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_memory.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_memory.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_plan.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_plan.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_tick.template.md",
-    SKILL_DIR / "references" / "templates" / "automation_tick.zh-CN.template.md",
-    SKILL_DIR / "references" / "examples" / "filled_task_dispatch.md",
-    SKILL_DIR / "references" / "examples" / "filled_role_reply.md",
-    SKILL_DIR / "references" / "examples" / "filled_project_goal_contract.md",
-    SKILL_DIR / "references" / "examples" / "filled_automation_memory.md",
-    SKILL_DIR / "references" / "examples" / "filled_noop_tick.md",
-    SKILL_DIR / "references" / "examples" / "filled_escalation_report.md",
-    SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md",
-    SKILL_DIR / "references" / "templates" / "coordinator_callback.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "escalation_report.template.md",
-    SKILL_DIR / "references" / "templates" / "escalation_report.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "merge_readiness.template.md",
-    SKILL_DIR / "references" / "templates" / "merge_readiness.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md",
-    SKILL_DIR / "references" / "templates" / "project_goal_contract.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "task_dispatch.template.md",
-    SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md",
-    SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "status_request.template.md",
-    SKILL_DIR / "references" / "templates" / "status_request.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md",
-    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "role_reply.template.md",
-    SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "qa_report.template.md",
-    SKILL_DIR / "references" / "templates" / "qa_report.zh-CN.template.md",
-    SKILL_DIR / "references" / "templates" / "review_findings.template.md",
-    SKILL_DIR / "references" / "templates" / "review_findings.zh-CN.template.md",
-    ROOT / "scripts" / "install_skill.py",
-    ROOT / "README.md",
-    ROOT / "README.zh-CN.md",
-    ROOT / "AGENTS.md",
-    ROOT / "CHANGELOG.md",
-    ROOT / "docs" / "installation.md",
-    ROOT / "docs" / "installation.zh-CN.md",
-    ROOT / "docs" / "quickstart.md",
-    ROOT / "docs" / "quickstart.zh-CN.md",
-    ROOT / "docs" / "tutorial.md",
-    ROOT / "docs" / "tutorial.zh-CN.md",
-    ROOT / "docs" / "examples.md",
-    ROOT / "docs" / "examples.zh-CN.md",
-    ROOT / "docs" / "forward-tests.md",
-    ROOT / "docs" / "publishing.md",
-    ROOT / "docs" / "publishing.zh-CN.md",
-    ROOT / "docs" / "images" / "logo.svg",
-    ROOT / "docs" / "images" / "workflow-overview.svg",
-    ROOT / "docs" / "images" / "workflow-overview.zh-CN.svg",
-    ROOT / "docs" / "images" / "project-autopilot-loop.svg",
-    ROOT / "docs" / "images" / "project-autopilot-loop.zh-CN.svg",
-    ROOT / "docs" / "releases" / "v0.1.4.md",
-    ROOT / "docs" / "releases" / "v0.2.0.md",
-    ROOT / "docs" / "releases" / "v0.2.1.md",
-    ROOT / "scripts" / "forward_test.py",
-    ROOT / "scripts" / "protocol_test.py",
-    ROOT / "scripts" / "automation_test.py",
-    ROOT / "scripts" / "routing_test.py",
-    ROOT / "scripts" / "scale_test.py",
-]
-
-
-TEXT_SUFFIXES = {".md", ".yaml", ".yml", ".sh", ".py", ".svg"}
-
-TEMPLATE_REQUIREMENTS = {
-    SKILL_DIR / "references" / "templates" / "task_dispatch.template.md": [
-        "Orchestration mode:",
-        "ORCHESTRATION_EVENT_V1",
-        "Dispatch nonce:",
-        "Coordinator epoch:",
-        "Expected head SHA:",
-        "Verification:",
-        "Callback:",
-        "Branch / worktree:",
-        "Merge policy:",
-        "Thinking requested:",
-        "Thinking applied:",
-        "Thinking rationale:",
-        "BEST_FIT_EFFORT_TIE_BREAKER_OR_FALLBACK",
-        "Model override:",
-    ],
-    SKILL_DIR / "references" / "templates" / "task_dispatch.zh-CN.template.md": [
-        "编排模式",
-        "ORCHESTRATION_EVENT_V1",
-        "Dispatch nonce:",
-        "Coordinator epoch:",
-        "Expected head SHA:",
-        "验证要求",
-        "回调",
-        "分支 / 工作区",
-        "合并策略",
-        "期望思考级别",
-        "实际思考级别",
-        "选择理由",
-        "最适合级别",
-        "模型覆盖",
-    ],
-    SKILL_DIR / "references" / "templates" / "orchestration_intake.template.md": [
-        "Minimum safe mode:",
-        "Selected mode:",
-        "Monitoring:",
-        "Execution surface:",
-        "Callback behavior:",
-        "Merge/push permission:",
-        "Thread thinking:",
-        "Thinking authority:",
-        "best-fit supported effort",
-        "Ask only if",
-    ],
-    SKILL_DIR / "references" / "templates" / "orchestration_intake.zh-CN.template.md": [
-        "最低安全模式",
-        "选用模式",
-        "巡检",
-        "执行位置",
-        "回调方式",
-        "合并/推送权限",
-        "子对话思考级别",
-        "思考级别权限",
-        "最适合且工具支持",
-        "仅在",
-    ],
-    SKILL_DIR / "references" / "templates" / "coordinator_callback.template.md": [
-        "ORCHESTRATION_EVENT_V1",
-        '"task_id"',
-        '"dispatch_nonce"',
-        '"expected_head_sha"',
-        '"observed_head_sha"',
-        '"execution_status"',
-        '"gate_verdict"',
-        "Verification:",
-        "Suggested coordinator action:",
-    ],
-    SKILL_DIR / "references" / "templates" / "coordinator_callback.zh-CN.template.md": [
-        "ORCHESTRATION_EVENT_V1",
-        '"task_id"',
-        '"dispatch_nonce"',
-        '"expected_head_sha"',
-        '"observed_head_sha"',
-        '"execution_status"',
-        '"gate_verdict"',
-        "验证：",
-        "建议协调者动作",
-    ],
-    SKILL_DIR / "references" / "templates" / "status_request.template.md": [
-        "Status request",
-        "Coordinator thread ID",
-        "Reply with one",
-    ],
-    SKILL_DIR / "references" / "templates" / "status_request.zh-CN.template.md": [
-        "状态请求",
-        "协调者线程 ID",
-        "请回复一个",
-    ],
-    SKILL_DIR / "references" / "templates" / "merge_readiness.template.md": [
-        "Merge readiness",
-        "Base branch:",
-        "Working tree:",
-        "Expected head SHA:",
-        "Gates pinned to observed head SHA:",
-        "Coordinator state:",
-        "Push permission:",
-    ],
-    SKILL_DIR / "references" / "templates" / "merge_readiness.zh-CN.template.md": [
-        "合并就绪",
-        "基准分支",
-        "工作区",
-        "Expected head SHA:",
-        "绑定到 observed head SHA 的门禁",
-        "Coordinator state:",
-        "推送权限",
-    ],
-    SKILL_DIR / "references" / "templates" / "role_reply.template.md": [
-        "Execution status:",
-        "Gate verdict:",
-        "Verification:",
-        "Artifact / branch / worktree:",
-        "Risks / concerns:",
-        "Callback:",
-        "Recommended next action:",
-    ],
-    SKILL_DIR / "references" / "templates" / "role_reply.zh-CN.template.md": [
-        "Execution status:",
-        "Gate verdict:",
-        "验证：",
-        "产物 / 分支 / 工作区：",
-        "风险 / 顾虑",
-        "回调：",
-        "建议下一步：",
-    ],
-    SKILL_DIR / "references" / "templates" / "qa_report.template.md": [
-        "Expected head SHA:",
-        "Observed head SHA:",
-        "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-    ],
-    SKILL_DIR / "references" / "templates" / "qa_report.zh-CN.template.md": [
-        "Expected head SHA:",
-        "Observed head SHA:",
-        "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-    ],
-    SKILL_DIR / "references" / "templates" / "review_findings.template.md": [
-        "Expected head SHA:",
-        "Observed head SHA:",
-        "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-    ],
-    SKILL_DIR / "references" / "templates" / "review_findings.zh-CN.template.md": [
-        "Expected head SHA:",
-        "Observed head SHA:",
-        "Gate verdict:",
-        "ORCHESTRATION_EVENT_V1",
-    ],
-    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.template.md": [
-        "Status",
-        "ORCHESTRATION_EVENT_V1",
-        "scripts/automation_lease.py",
-        "scripts/heartbeat_lifecycle.py",
-        "ACTIVE | DRAINING | CLOSED",
-        "Verification",
-        "Risks",
-        "All roles terminal",
-        "status request",
-    ],
-    SKILL_DIR / "references" / "templates" / "monitoring_heartbeat.zh-CN.template.md": [
-        "Status",
-        "ORCHESTRATION_EVENT_V1",
-        "scripts/automation_lease.py",
-        "scripts/heartbeat_lifecycle.py",
-        "ACTIVE | DRAINING | CLOSED",
-        "Verification",
-        "Risks",
-        "All roles terminal",
-        "状态请求",
-    ],
-    SKILL_DIR / "references" / "templates" / "project_goal_contract.template.md": [
-        "Orchestration mode: DURABLE",
-        "Done when:",
-        "Instruction sources:",
-        "Allowed autonomously:",
-        "Requires confirmation:",
-        "Verification commands:",
-        "Memory path:",
-        "Concurrency and lifecycle:",
-        "Lease state directory:",
-    ],
-    SKILL_DIR / "references" / "templates" / "project_goal_contract.zh-CN.template.md": [
-        "编排模式: DURABLE",
-        "完成条件",
-        "指令来源",
-        "可自动执行",
-        "必须确认",
-        "验证命令",
-        "记忆路径",
-        "并发与生命周期",
-        "租约状态目录",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_plan.template.md": [
-        "Orchestration mode: DURABLE",
-        "Automation kind:",
-        "Existing automation check:",
-        "Memory path:",
-        "Concurrency lease:",
-        "fencing token",
-        "Lifecycle:",
-        "Prompt responsibilities:",
-        "Requires user review before saving:",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_plan.zh-CN.template.md": [
-        "编排模式: DURABLE",
-        "自动化类型",
-        "已有自动化检查",
-        "记忆路径",
-        "并发租约",
-        "fencing token",
-        "生命周期",
-        "提示词职责",
-        "保存前需要用户确认",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_tick.template.md": [
-        "Latest effective update:",
-        "Action taken:",
-        "Verification:",
-        "Memory updated:",
-        "Next safe action:",
-        "Escalation needed:",
-        "scripts/automation_lease.py",
-        "LEASE_BUSY",
-        "Fencing token:",
-        "Cleanup confirmed:",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_tick.zh-CN.template.md": [
-        "Latest effective update:",
-        "Action taken:",
-        "Verification:",
-        "Memory updated:",
-        "Next safe action:",
-        "Escalation needed:",
-        "scripts/automation_lease.py",
-        "LEASE_BUSY",
-        "Fencing token:",
-        "Cleanup confirmed:",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_memory.template.md": [
-        "Latest Effective Update",
-        "Last Tick",
-        "Next Safe Action",
-        "Blocker History",
-        "Posted Messages",
-        "Concurrency Lease",
-        "Latest fencing token",
-        "Lifecycle",
-        "Processed Events And Actions",
-        "External Capability Cache",
-        "UNKNOWN | AVAILABLE | AGY_UNAVAILABLE | AGY_UNHEALTHY",
-        "User notified",
-    ],
-    SKILL_DIR / "references" / "templates" / "automation_memory.zh-CN.template.md": [
-        "最新有效更新",
-        "上一次 Tick",
-        "下一步安全动作",
-        "阻塞历史",
-        "已发送消息",
-        "并发租约",
-        "最新 fencing token",
-        "生命周期",
-        "已处理事件和动作",
-        "外部能力缓存",
-        "UNKNOWN | AVAILABLE | AGY_UNAVAILABLE | AGY_UNHEALTHY",
-        "已提示用户",
-    ],
-    SKILL_DIR / "references" / "templates" / "escalation_report.template.md": [
-        "Project autopilot escalation",
-        "Why I stopped:",
-        "Evidence:",
-        "Decision needed:",
-        "Recommended next action:",
-    ],
-    SKILL_DIR / "references" / "templates" / "escalation_report.zh-CN.template.md": [
-        "项目 Autopilot 升级",
-        "我为什么停止",
-        "证据",
-        "需要你决策",
-        "建议下一步",
-    ],
-    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.template.md": [
-        "Codex Project Autopilot",
-        "Required verification",
-        "Safe autonomous actions",
-        "Actions requiring confirmation",
-        "Idempotency rule",
-    ],
-    SKILL_DIR / "references" / "templates" / "agents_guidance_snippet.zh-CN.template.md": [
-        "Codex 项目 Autopilot",
-        "声明进展前必须验证",
-        "可自动执行的安全动作",
-        "必须确认的动作",
-        "幂等规则",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.template.md": [
-        "AGY_REVIEW_V2",
-        "Gemini via agy",
-        "run_agy_print.py",
-        "Negative guardrails:",
-        "standalone `gemini` CLI",
-        "--expect-first-line",
-        "build_agy_context_bundle.py",
-        "allowlisted bundle",
-        "--expect-substring",
-        "commands_run: NONE",
-        "verification_claims:",
-        "coordinator_check:",
-        "self_check:",
-        "no_cli_drift:",
-        "no_scope_inflation:",
-        "no_generic_padding:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_prompt.zh-CN.template.md": [
-        "AGY_REVIEW_V2",
-        "Gemini via agy",
-        "run_agy_print.py",
-        "Negative guardrails:",
-        "standalone `gemini` CLI",
-        "--expect-first-line",
-        "build_agy_context_bundle.py",
-        "allowlist bundle",
-        "--expect-substring",
-        "commands_run: NONE",
-        "verification_claims:",
-        "coordinator_check:",
-        "self_check:",
-        "no_cli_drift:",
-        "no_scope_inflation:",
-        "no_generic_padding:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality.template.md": [
-        "AGY_REVIEW_QUALITY_V1",
-        "unsupported_claims:",
-        "scope_drift:",
-        "coordinator_follow_up:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality.zh-CN.template.md": [
-        "AGY_REVIEW_QUALITY_V1",
-        "unsupported_claims:",
-        "scope_drift:",
-        "coordinator_follow_up:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality_log.template.md": [
-        "agy-review-quality.jsonl",
-        "append_agy_review_quality_log.py",
-        "run_agy_print.py",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "LOG_WRITTEN",
-        "LOG_ALREADY_PRESENT",
-        "external-review-ledger",
-        "Do not store secrets",
-        "quality_score",
-        "template_tuning_suggestions",
-        "unsupported_claims",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_quality_log.zh-CN.template.md": [
-        "agy-review-quality.jsonl",
-        "append_agy_review_quality_log.py",
-        "run_agy_print.py",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "LOG_WRITTEN",
-        "LOG_ALREADY_PRESENT",
-        "external-review-ledger",
-        "不要记录密钥",
-        "quality_score",
-        "template_tuning_suggestions",
-        "unsupported_claims",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_report.template.md": [
-        "Agy External Review Report",
-        "Preflight:",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "Quality log:",
-        "Consent:",
-        "Availability cache:",
-        "User notice:",
-        "Fallback:",
-        "Agy Findings",
-        "Dual Review Comparison",
-        "Gemini-only findings",
-        "Codex-only findings",
-        "Quality Evaluation",
-        "Codex Verification",
-        "Recommended Next Steps",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_review_report.zh-CN.template.md": [
-        "Agy 外部审查报告",
-        "前置检查",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "质量日志",
-        "使用授权",
-        "能力缓存",
-        "用户提示",
-        "降级路径",
-        "Agy Findings",
-        "双轨审查对比",
-        "Gemini-only",
-        "Codex-only",
-        "质量评估",
-        "Codex 复核结论",
-        "建议下一步",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_prompt.template.md": [
-        "AGY_RESEARCH_V1",
-        "Gemini via agy",
-        "run_agy_print.py",
-        "Negative guardrails:",
-        "standalone `gemini` CLI",
-        "--expect-first-line",
-        "build_agy_context_bundle.py",
-        "allowlisted bundle",
-        "--expect-substring",
-        "commands_run: NONE",
-        "external_fact_mode:",
-        "coordinator_check:",
-        "self_check:",
-        "no_cli_drift:",
-        "no_scope_inflation:",
-        "no_generic_padding:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_prompt.zh-CN.template.md": [
-        "AGY_RESEARCH_V1",
-        "Gemini via agy",
-        "run_agy_print.py",
-        "Negative guardrails:",
-        "standalone `gemini` CLI",
-        "--expect-first-line",
-        "build_agy_context_bundle.py",
-        "allowlist bundle",
-        "--expect-substring",
-        "commands_run: NONE",
-        "external_fact_mode:",
-        "coordinator_check:",
-        "self_check:",
-        "no_cli_drift:",
-        "no_scope_inflation:",
-        "no_generic_padding:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality.template.md": [
-        "AGY_RESEARCH_QUALITY_V1",
-        "unsupported_claims:",
-        "scope_drift:",
-        "missed_angles:",
-        "coordinator_follow_up:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality.zh-CN.template.md": [
-        "AGY_RESEARCH_QUALITY_V1",
-        "unsupported_claims:",
-        "scope_drift:",
-        "missed_angles:",
-        "coordinator_follow_up:",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality_log.template.md": [
-        "agy-review-quality.jsonl",
-        "append_agy_review_quality_log.py",
-        "run_agy_print.py",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "LOG_WRITTEN",
-        "LOG_ALREADY_PRESENT",
-        "external-review-ledger",
-        "Do not store secrets",
-        "\"task_type\": \"research\"",
-        "valuable_takeaways",
-        "follow_up_questions",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_quality_log.zh-CN.template.md": [
-        "agy-review-quality.jsonl",
-        "append_agy_review_quality_log.py",
-        "run_agy_print.py",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "LOG_WRITTEN",
-        "LOG_ALREADY_PRESENT",
-        "external-review-ledger",
-        "不要记录密钥",
-        "\"task_type\": \"research\"",
-        "valuable_takeaways",
-        "follow_up_questions",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_report.template.md": [
-        "Agy External Research Report",
-        "Preflight:",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "Quality log:",
-        "Consent:",
-        "Availability cache:",
-        "User notice:",
-        "Fallback:",
-        "Agy Research Points",
-        "Parallel Research Comparison",
-        "Gemini-only points",
-        "Codex-only points",
-        "Quality Evaluation",
-        "Codex Synthesis",
-        "Recommended Next Steps",
-    ],
-    SKILL_DIR / "references" / "templates" / "agy_gemini_research_report.zh-CN.template.md": [
-        "Agy 外部调研报告",
-        "前置检查",
-        "--add-dir <allowlisted_context>",
-        "--print <prompt> --sandbox",
-        "质量日志",
-        "使用授权",
-        "能力缓存",
-        "用户提示",
-        "降级路径",
-        "Agy Research Points",
-        "并行调研对比",
-        "Gemini-only",
-        "Codex-only",
-        "质量评估",
-        "Codex 综合判断",
-        "建议下一步",
-    ],
+ORCH_FILES = {
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/COORDINATION.md",
+    "references/COORDINATION.zh-CN.md",
+    "references/AUTOMATION.md",
+    "references/AUTOMATION.zh-CN.md",
 }
+AGY_FILES = {
+    "SKILL.md",
+    "agents/openai.yaml",
+    "references/REVIEW.md",
+    "references/RESEARCH.md",
+    "scripts/run_agy_print.py",
+    "scripts/build_agy_context_bundle.py",
+    "scripts/append_agy_review_quality_log.py",
+    "scripts/ensure_agy_review_agents_guidance.py",
+}
+for task in ("review", "research"):
+    for kind in ("prompt", "quality", "quality_log", "report"):
+        for suffix in (".template.md", ".zh-CN.template.md"):
+            AGY_FILES.add(f"references/templates/agy_gemini_{task}_{kind}{suffix}")
 
-DISCOVERABLE_REFERENCES = [
-    "COORDINATION_RUNBOOK.md",
-    "COORDINATION_RUNBOOK.zh-CN.md",
-    "AGY_GEMINI_REVIEW.md",
-    "AGY_GEMINI_RESEARCH.md",
-    "PROJECT_AUTOPILOT.md",
-    "PROJECT_AUTOPILOT.zh-CN.md",
-    "PROJECT_CONTEXT.template.md",
-    "ROLE_REGISTRY.template.md",
-    "TASK_BOARD.template.md",
-    "REQUIREMENT_WRITING_GUIDE.md",
-    "task_dispatch.zh-CN.template.md",
-    "orchestration_intake.zh-CN.template.md",
-    "coordinator_callback.zh-CN.template.md",
-    "status_request.zh-CN.template.md",
-    "merge_readiness.zh-CN.template.md",
-    "project_goal_contract.zh-CN.template.md",
-    "automation_plan.zh-CN.template.md",
-    "automation_tick.zh-CN.template.md",
-    "automation_memory.zh-CN.template.md",
-    "escalation_report.zh-CN.template.md",
-    "agents_guidance_snippet.zh-CN.template.md",
-    "agy_gemini_review_prompt.template.md",
-    "agy_gemini_review_prompt.zh-CN.template.md",
-    "agy_gemini_review_quality.template.md",
-    "agy_gemini_review_quality.zh-CN.template.md",
-    "agy_gemini_review_quality_log.template.md",
-    "agy_gemini_review_quality_log.zh-CN.template.md",
-    "agy_gemini_research_prompt.template.md",
-    "agy_gemini_research_prompt.zh-CN.template.md",
-    "agy_gemini_research_quality.template.md",
-    "agy_gemini_research_quality.zh-CN.template.md",
-    "agy_gemini_research_quality_log.template.md",
-    "agy_gemini_research_quality_log.zh-CN.template.md",
-    "agy_gemini_research_report.template.md",
-    "agy_gemini_research_report.zh-CN.template.md",
-    "run_agy_print.py",
-    "build_agy_context_bundle.py",
-    "ensure_agy_review_agents_guidance.py",
-    "append_agy_review_quality_log.py",
-    "orchestration_event.py",
-    "automation_lease.py",
-    "heartbeat_lifecycle.py",
-    "route_orchestration.py",
-    "agy_gemini_review_report.template.md",
-    "agy_gemini_review_report.zh-CN.template.md",
-    "role_reply.zh-CN.template.md",
-    "qa_report.zh-CN.template.md",
-    "review_findings.zh-CN.template.md",
-    "monitoring_heartbeat.zh-CN.template.md",
-]
+ROOT_FILES = {
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "docs/examples.md",
+    "docs/examples.zh-CN.md",
+    "docs/forward-tests.md",
+    "docs/quickstart.md",
+    "docs/quickstart.zh-CN.md",
+    "docs/design-notes-v0.3.0.md",
+    "docs/design-notes-v0.3.0.zh-CN.md",
+}
 
 
 def fail(message: str) -> None:
-    print(f"ERROR: {message}", file=sys.stderr)
+    print(f"VALIDATION_FAILED {message}", file=sys.stderr)
     raise SystemExit(1)
 
 
-def parse_frontmatter(text: str) -> dict[str, str]:
-    match = re.match(r"^---\n(?P<body>.*?)\n---\n", text, re.DOTALL)
+def tree_files(root: Path) -> set[str]:
+    return {
+        path.relative_to(root).as_posix()
+        for path in root.rglob("*")
+        if path.is_file() and "__pycache__" not in path.parts
+    }
+
+
+def read(path: Path) -> str:
+    if not path.is_file():
+        fail(f"missing {path.relative_to(ROOT)}")
+    return path.read_text(encoding="utf-8")
+
+
+def require(path: Path, *tokens: str) -> None:
+    text = read(path)
+    for token in tokens:
+        if token not in text:
+            fail(f"{path.relative_to(ROOT)} missing {token!r}")
+
+
+def validate_frontmatter(path: Path, name: str) -> None:
+    text = read(path)
+    match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
     if not match:
-        fail("SKILL.md must start with YAML frontmatter")
+        fail(f"{path.relative_to(ROOT)} has invalid frontmatter")
+    header = match.group(1)
+    if f"name: {name}" not in header or "description:" not in header:
+        fail(f"{path.relative_to(ROOT)} has incomplete frontmatter")
 
-    fields: dict[str, str] = {}
-    for line in match.group("body").splitlines():
-        if not line.strip():
+
+def validate_links(skill_dir: Path) -> None:
+    text = read(skill_dir / "SKILL.md")
+    for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", text):
+        if "://" in target or target.startswith("#"):
             continue
-        if ":" not in line:
-            fail(f"Invalid frontmatter line: {line}")
-        key, value = line.split(":", 1)
-        fields[key.strip()] = value.strip().strip('"').strip("'")
-    return fields
+        if not (skill_dir / target).is_file():
+            fail(f"{skill_dir.name}/SKILL.md links to missing {target}")
 
 
-def iter_text_files() -> list[Path]:
-    return [
-        path
-        for path in ROOT.rglob("*")
-        if path.is_file()
-        and ".git" not in path.parts
-        and path.suffix in TEXT_SUFFIXES
-    ]
+def main() -> None:
+    for relative in ROOT_FILES:
+        if not (ROOT / relative).is_file():
+            fail(f"missing {relative}")
 
+    actual_orch = tree_files(ORCH)
+    if actual_orch != ORCH_FILES:
+        fail(
+            "agent-orchestration runtime drift: "
+            f"missing={sorted(ORCH_FILES - actual_orch)} extra={sorted(actual_orch - ORCH_FILES)}"
+        )
+    actual_agy = tree_files(AGY)
+    if actual_agy != AGY_FILES:
+        fail(
+            "agy-second-opinion runtime drift: "
+            f"missing={sorted(AGY_FILES - actual_agy)} extra={sorted(actual_agy - AGY_FILES)}"
+        )
 
-def validate_markdown_links(path: Path, content: str) -> None:
-    if path.suffix != ".md":
-        return
+    validate_frontmatter(ORCH / "SKILL.md", "agent-orchestration")
+    validate_frontmatter(AGY / "SKILL.md", "agy-second-opinion")
+    validate_links(ORCH)
+    validate_links(AGY)
 
-    for match in re.finditer(r"!?\[[^\]]+\]\(([^)]+)\)", content):
-        target = match.group(1).strip()
-        if not target or "://" in target or target.startswith("#") or target.startswith("mailto:"):
-            continue
-
-        target = target.split("#", 1)[0].strip()
-        if not target:
-            continue
-
-        target = target.strip("<>")
-        target = unquote(target)
-        if not (path.parent / target).exists():
-            fail(f"Broken local markdown link in {path.relative_to(ROOT)}: {match.group(1)}")
-
-
-def validate_svg(path: Path) -> None:
-    if path.suffix != ".svg":
-        return
-    try:
-        ET.parse(path)
-    except ET.ParseError as exc:
-        fail(f"Invalid SVG XML in {path.relative_to(ROOT)}: {exc}")
-
-
-def validate_template_requirements() -> None:
-    for path, required_tokens in TEMPLATE_REQUIREMENTS.items():
-        content = path.read_text(encoding="utf-8")
-        for token in required_tokens:
-            if token not in content:
-                fail(f"Template {path.relative_to(ROOT)} is missing required token {token!r}")
-
-
-def validate_reference_discovery() -> None:
-    skill_text = SKILL_MD.read_text(encoding="utf-8")
-    reference_readme = (SKILL_DIR / "references" / "README.md").read_text(encoding="utf-8")
-    direct_packs = [
-        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.md",
-        SKILL_DIR / "references" / "COORDINATION_RUNBOOK.zh-CN.md",
-        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.md",
-        SKILL_DIR / "references" / "PROJECT_AUTOPILOT.zh-CN.md",
-        SKILL_DIR / "references" / "AGY_GEMINI_REVIEW.md",
-        SKILL_DIR / "references" / "AGY_GEMINI_RESEARCH.md",
-    ]
-    combined = "\n".join(
-        [skill_text, reference_readme]
-        + [path.read_text(encoding="utf-8") for path in direct_packs]
+    require(
+        ORCH / "SKILL.md",
+        "Use the least coordination",
+        "one internal subagent",
+        "user-owned thread",
+        "Do not create task boards",
+        "Trust native agent/thread status",
+        "one final relevant suite",
+        "required read, write, execute, network, browser, and connector capabilities",
+        "replace, add, or status",
+        "map every user request and follow-up",
+        "no work is silently orphaned",
     )
-    for token in DISCOVERABLE_REFERENCES:
-        if token not in combined:
-            fail(f"Reference resource {token!r} is not discoverable from SKILL.md or references/README.md")
+    require(
+        ORCH / "references" / "COORDINATION.md",
+        "Choose The Surface",
+        "Do not create callback envelopes",
+        "Verification Budget",
+        "Formal Gates",
+        "Dispatch And Evidence Contract",
+        "Steering And Stale Results",
+        "closure checklist",
+        "Retries are bounded",
+        "Optional Best Of N",
+        "recovery capsule",
+        "Before final delivery",
+    )
+    require(
+        ORCH / "references" / "AUTOMATION.md",
+        "product's automation tools",
+        "quiet no-op",
+        "stop conditions",
+    )
+    require(
+        ROOT / "docs" / "design-notes-v0.3.0.md",
+        "ba76b0a683fa52e4e60685017b85905451be17bc",
+        "Source-to-adaptation map",
+        "does not copy Grok Build runtime code",
+        "Explicit non-adoptions",
+    )
 
+    orch_text = "\n".join(read(ORCH / path) for path in sorted(ORCH_FILES))
+    for forbidden in (
+        "ORCHESTRATION_EVENT_V1",
+        "TASK_BOARD",
+        "automation_lease.py",
+        "heartbeat_lifecycle.py",
+        "route_orchestration.py",
+        "agy",
+        "Gemini",
+        "Antigravity",
+    ):
+        if forbidden in orch_text:
+            fail(f"agent-orchestration still contains {forbidden!r}")
 
-def main() -> int:
-    for path in REQUIRED_FILES:
-        if not path.exists():
-            fail(f"Required file is missing: {path.relative_to(ROOT)}")
+    require(
+        AGY / "SKILL.md",
+        "independent from agent orchestration",
+        "explicit request",
+        "Load exactly one reference",
+        "untrusted advice",
+        "continue Codex-only",
+    )
+    require(
+        AGY / "references" / "REVIEW.md",
+        "one read-only second opinion",
+        "exact review baseline",
+        "run_agy_print.py",
+        "build_agy_context_bundle.py",
+        "AGY_UNAVAILABLE",
+    )
+    require(
+        AGY / "references" / "RESEARCH.md",
+        "one independent idea stream",
+        "run_agy_print.py",
+        "Codex",
+    )
+    agy_text = "\n".join(read(AGY / path) for path in sorted(AGY_FILES))
+    for forbidden in ("$agent-orchestration", "skills/agent-orchestration", "TASK_BOARD.md", " for Lite", " for Standard", " for Durable"):
+        if forbidden in agy_text:
+            fail(f"agy-second-opinion still depends on orchestration: {forbidden!r}")
 
-    text = SKILL_MD.read_text(encoding="utf-8")
-    fields = parse_frontmatter(text)
+    for skill_dir in (ORCH, AGY):
+        for path in skill_dir.rglob("*"):
+            if path.is_symlink():
+                fail(f"symlink not allowed: {path.relative_to(ROOT)}")
+            if "__pycache__" in path.parts or path.suffix == ".pyc":
+                fail(f"generated cache in runtime: {path.relative_to(ROOT)}")
 
-    if fields.get("name") != "agent-orchestration":
-        fail("SKILL.md frontmatter name must be agent-orchestration")
-
-    description = fields.get("description", "")
-    if len(description) < 80:
-        fail("SKILL.md description is too short for reliable triggering")
-
-    forbidden = ["[TODO", "TODO:", "<your-org>"]
-    for path in iter_text_files():
-        content = path.read_text(encoding="utf-8")
-        for token in forbidden:
-            if token in content and path != Path(__file__).resolve():
-                fail(f"Placeholder token {token!r} found in {path.relative_to(ROOT)}")
-        for lineno, line in enumerate(content.splitlines(), start=1):
-            if line.rstrip() != line:
-                fail(f"Trailing whitespace in {path.relative_to(ROOT)}:{lineno}")
-        validate_markdown_links(path, content)
-        validate_svg(path)
-
-    validate_template_requirements()
-    validate_reference_discovery()
-
-    print("Repository validation passed.")
-    return 0
+    print(f"VALIDATION_OK agent_files={len(actual_orch)} agy_files={len(actual_agy)}")
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

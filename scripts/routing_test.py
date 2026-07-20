@@ -1,150 +1,55 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import json
-import subprocess
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
-ROUTER = ROOT / "skills" / "agent-orchestration" / "scripts" / "route_orchestration.py"
+ORCH_DIR = ROOT / "skills" / "agent-orchestration"
+AGY_DIR = ROOT / "skills" / "agy-second-opinion"
+ORCH = (ORCH_DIR / "SKILL.md").read_text(encoding="utf-8")
+AGY = (AGY_DIR / "SKILL.md").read_text(encoding="utf-8")
 
 
-def fail(message: str) -> None:
-    print(f"ERROR: {message}", file=sys.stderr)
+def route(*, owners: int = 1, bounded_subagent: bool = False, recurring: bool = False) -> str:
+    if recurring:
+        return "AUTOMATION"
+    if owners > 1:
+        return "COORDINATION"
+    if bounded_subagent:
+        return "CORE"
+    return "CURRENT_TASK"
+
+
+cases = [
+    ({"owners": 1}, "CURRENT_TASK"),
+    ({"bounded_subagent": True}, "CORE"),
+    ({"owners": 2}, "COORDINATION"),
+    ({"recurring": True}, "AUTOMATION"),
+]
+for kwargs, expected in cases:
+    actual = route(**kwargs)
+    if actual != expected:
+        print(f"ROUTING_TEST_FAILED {kwargs}: {actual} != {expected}", file=sys.stderr)
+        raise SystemExit(1)
+
+for token in (
+    "Keep one-owner work in the current task",
+    "one internal subagent",
+    "COORDINATION.md",
+    "AUTOMATION.md",
+    "required read, write, execute, network, browser, and connector capabilities",
+    "Keep delegation flat by default",
+    "replace, add, or status",
+):
+    if token not in ORCH:
+        print(f"ROUTING_TEST_FAILED main skill missing {token}", file=sys.stderr)
+        raise SystemExit(1)
+if "agy" in ORCH.lower() or "Gemini" in ORCH or "agent-orchestration" in AGY:
+    print("ROUTING_TEST_FAILED external second opinion is not isolated", file=sys.stderr)
+    raise SystemExit(1)
+if (ORCH_DIR / "scripts" / "route_orchestration.py").exists():
+    print("ROUTING_TEST_FAILED deterministic router still installed", file=sys.stderr)
     raise SystemExit(1)
 
-
-def route(**overrides: object) -> dict[str, object]:
-    request: dict[str, object] = {
-        "role_count": 1,
-        "asynchronous": False,
-        "recurring": False,
-        "cross_repository": False,
-        "merge_or_release_gate": False,
-        "long_running": False,
-        "user_visible_threads": False,
-        "requires_durable_memory": False,
-        "external_model": False,
-        "parallel_shared_edit_scope": False,
-        "requested_mode": "AUTO",
-    }
-    request.update(overrides)
-    completed = subprocess.run(
-        [sys.executable, str(ROUTER)],
-        input=json.dumps(request),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if completed.returncode != 0:
-        fail(f"router rejected valid request: {completed.stderr}")
-    if not completed.stdout.startswith("ORCHESTRATION_ROUTE "):
-        fail(f"router returned unexpected output: {completed.stdout!r}")
-    return json.loads(completed.stdout.split(" ", 1)[1])
-
-
-def require(value: bool, message: str) -> None:
-    if not value:
-        fail(message)
-
-
-def main() -> int:
-    if not ROUTER.exists():
-        fail(f"Missing orchestration router: {ROUTER.relative_to(ROOT)}")
-
-    lite = route()
-    require(lite["selected_mode"] == "LITE", "one-shot current-thread task was not LITE")
-    require(lite["monitoring"] == "NONE", "LITE task created monitoring")
-    require(not lite["requires_task_board"], "LITE task required a task board")
-    require(not lite["requires_lease"], "LITE task required a concurrency lease")
-    require(lite["load_references"] == [], "LITE task loaded core reference files")
-    require(not lite["requires_thread_thinking_selection"], "current-thread LITE selected child thinking")
-
-    standard = route(role_count=2, asynchronous=True, user_visible_threads=True)
-    require(standard["selected_mode"] == "STANDARD", "two async roles were not STANDARD")
-    require(standard["monitoring"] == "HEARTBEAT", "async STANDARD did not choose heartbeat")
-    require(standard["requires_event_protocol"], "async STANDARD omitted event protocol")
-    require(standard["requires_task_board"], "STANDARD omitted task board")
-    require(standard["requires_lease"], "recurring STANDARD heartbeat omitted fenced lease")
-    require(
-        standard["requires_thread_thinking_selection"],
-        "user-visible threads did not require coordinator thinking selection",
-    )
-    require(
-        standard["thread_thinking_policy"] == "COORDINATOR_SELECT_BEST_FIT_IF_SUPPORTED",
-        "user-visible thread thinking policy is missing or unexpected",
-    )
-    require(
-        standard["load_references"] == ["COORDINATION_RUNBOOK.md"],
-        "STANDARD did not load exactly one coordination pack",
-    )
-    require(
-        standard["load_templates"]
-        == [
-            "task_dispatch.template.md",
-            "role_reply.template.md",
-            "coordinator_callback.template.md",
-            "status_request.template.md",
-            "TASK_BOARD.template.md",
-            "monitoring_heartbeat.template.md",
-        ],
-        "async STANDARD did not select only its required templates",
-    )
-
-    durable = route(
-        role_count=2,
-        recurring=True,
-        asynchronous=True,
-        requires_durable_memory=True,
-    )
-    require(durable["selected_mode"] == "DURABLE", "recurring workspace task was not DURABLE")
-    require(durable["monitoring"] == "CRON", "DURABLE task did not choose cron")
-    require(durable["requires_goal_contract"], "DURABLE omitted goal contract")
-    require(durable["requires_durable_memory"], "DURABLE omitted automation memory")
-    require(durable["requires_lease"], "DURABLE omitted fenced lease")
-    require(
-        durable["load_references"] == ["COORDINATION_RUNBOOK.md", "PROJECT_AUTOPILOT.md"],
-        "DURABLE did not load exactly two canonical packs",
-    )
-    require("project_goal_contract.template.md" in durable["load_templates"], "DURABLE omitted goal template")
-    require("automation_memory.template.md" in durable["load_templates"], "DURABLE omitted memory template")
-
-    external = route(external_model=True)
-    require(external["selected_mode"] == "LITE", "one-shot external review was over-orchestrated")
-    require("EXTERNAL_MODEL_SECOND_OPINION" in external["modifiers"], "external review modifier missing")
-    require(external["monitoring"] == "NONE", "one-shot external review created recurring monitoring")
-
-    shared_scope = route(role_count=3, asynchronous=True, parallel_shared_edit_scope=True)
-    require(shared_scope["selected_mode"] == "STANDARD", "parallel shared edit task routing changed")
-    require(
-        "ISOLATE_OR_SERIALIZE_SHARED_EDITS" in shared_scope["warnings"],
-        "shared edit scope lacked isolation warning",
-    )
-
-    internal_roles = route(role_count=2, asynchronous=True, user_visible_threads=False)
-    require(
-        not internal_roles["requires_thread_thinking_selection"],
-        "internal roles claimed a thread thinking override without a supported creation surface",
-    )
-
-    refused_downgrade = route(recurring=True, requested_mode="LITE")
-    require(refused_downgrade["selected_mode"] == "DURABLE", "requested LITE downgraded recurring safety")
-    require(not refused_downgrade["requested_mode_honored"], "unsafe requested downgrade was marked honored")
-
-    explicit_upgrade = route(requested_mode="DURABLE")
-    require(explicit_upgrade["selected_mode"] == "DURABLE", "explicit DURABLE upgrade was ignored")
-    require(explicit_upgrade["requested_mode_honored"], "explicit safe upgrade was not honored")
-    require(not explicit_upgrade["requires_task_board"], "single-role DURABLE required a task board")
-    require(
-        "task_dispatch.template.md" not in explicit_upgrade["load_templates"],
-        "single-role DURABLE loaded role-dispatch templates",
-    )
-
-    print("Orchestration routing behavior test passed.")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+print(f"ROUTING_TEST_OK cases={len(cases)} separate_agy=true")

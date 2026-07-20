@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Orchestration"
-  short_description: "Coordinate threads, thinking levels, gates, and automations"
-  default_prompt: "Use $agent-orchestration to coordinate role threads, select the best-fit supported thinking effort for each new thread, enforce QA/review gates and callbacks, or, with one-time user opt-in, run agy/Gemini external review or research after a once-per-goal availability check and fall back to Codex-only without repeated retries."
+  short_description: "Lightweight native coordination for Codex agents and tasks"
+  default_prompt: "Use $agent-orchestration with the least coordination needed: preflight owner capabilities, prefer native subagent/task/worktree status, disclose task visibility, reject stale scope, close every user requirement with current evidence, audit active work before final, and load automation guidance only for recurring work."

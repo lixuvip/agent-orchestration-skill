@@ -13,6 +13,7 @@ python3 scripts/automation_test.py
 python3 scripts/routing_test.py
 python3 scripts/scale_test.py
 python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agent-orchestration
+python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/agy-second-opinion
 git diff --check
 git status --short
 ```
@@ -29,8 +30,11 @@ git status --short
 - `docs/tutorial.zh-CN.md`
 - `docs/examples.md`
 - `docs/examples.zh-CN.md`
+- `docs/design-notes-v0.3.0.zh-CN.md`
 - `skills/agent-orchestration/SKILL.md`
 - `skills/agent-orchestration/references/`
+- `skills/agy-second-opinion/SKILL.md`
+- `skills/agy-second-opinion/references/`
 
 ## 创建 GitHub 仓库
 
@@ -50,13 +54,13 @@ git push -u origin main
 Description:
 
 ```text
-Progressive Codex orchestration with adaptive per-thread thinking, callbacks, QA/review gates, fenced automations, project autopilot, and optional agy/Gemini review.
+Lightweight native-first Codex orchestration plus an independent opt-in agy/Gemini second-opinion skill.
 ```
 
 Topics:
 
 ```text
-agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automations, codex-skill, codex-skills, code-review, git-worktrees, multi-agent, multi-agent-orchestration, project-autopilot, orchestrator, parallel-agents, parallel-coding, qa-workflow, release-management, subagents, task-orchestration
+agent-orchestration, agent-skills, ai-agents, codex, codex-automations, codex-skill, codex-skills, code-review, gemini, git-worktrees, multi-agent, orchestrator, parallel-agents, qa-workflow, subagents, task-orchestration
 ```
 
 ## 发布清单
@@ -70,11 +74,12 @@ agent-orchestration, agent-skills, agents-md, ai-agents, codex, codex-automation
 - [ ] `python3 scripts/scale_test.py` 通过。
 - [ ] 内置 skill 校验通过。
 - [ ] `git diff --check` 通过。
-- [ ] `./scripts/install.sh` 能从干净发布 commit 运行，并报告 `source_dirty=false`。
-- [ ] 已验证本机安装副本与仓库一致。
+- [ ] `./scripts/install.sh` 和 `./scripts/install.sh --skill agy-second-opinion` 都能从干净发布 commit 运行，并报告 `source_dirty=false`。
+- [ ] 已验证两个独立 skill 的本机安装副本都与仓库一致。
 - [ ] README 安装命令指向真实 GitHub URL。
 - [ ] 没有私有仓库路径、token、客户数据或组织专属凭据。
 - [ ] 中英文文档都能正常链接。
+- [ ] 每项外部启发都记录准确来源/commit、本地改造方式，以及明确没有复制或采用的内容。
 - [ ] License 已包含。
 - [ ] 发布分支和 `main` 指向预期发布 commit。
 - [ ] 分支与 `main` 的 CI 在打 tag 前均通过。
